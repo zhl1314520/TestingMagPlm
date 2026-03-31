@@ -1,0 +1,94 @@
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+from core.db import get_db
+from core.security import get_current_user
+from schemas.user import UserCreate, UserLogin, LoginResponse, UserResponse, UserPageResponse, UserUpdate
+from services.user import login_user, create_user, get_user_list, delete_user, update_user, get_user_by_id
+from DAO.user import get_user_by_id
+
+router = APIRouter(
+    prefix="/auth",
+    tags=["用户认证"])
+
+"""
+GET：获取资源。相当于"给我看看这个用户的信息"。
+POST：创建新资源。相当于"帮我创建一个新用户"。
+PUT / PATCH：更新资源。相当于"修改一下这个用户的电话号码"。
+DELETE：删除资源。相当于"把这个用户删掉"。
+
+    登录：
+        服务器上创建了一个新的"会话"（Session）或"令牌"（Token）资源。故使用 post 
+"""
+@router.post("/login", response_model=LoginResponse)
+async def login(
+    login_data: UserLogin,
+    db: AsyncSession = Depends(get_db)
+):
+    return await login_user(login_data.email, login_data.password, db)
+
+
+# 获取当前用户信息
+@router.get("/me", response_model=UserResponse)
+async def get_current_user_info(
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    get_user = await get_user_by_id(current_user["user_id"], db)
+    return get_user
+
+
+user_router = APIRouter(
+    prefix="/users",
+    tags=["用户管理"]
+)
+
+
+@user_router.post("", response_model=UserResponse)
+async def create_user(
+    user_info: UserCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    return await create_user(user_info, db)
+
+
+@user_router.get("", response_model=UserPageResponse)
+async def get_user_list(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=100),
+    db: AsyncSession = Depends(get_db)
+):
+    return await get_user_list(page, page_size, db)
+
+
+@user_router.delete("/{id}")
+async def delete_user(
+    id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    return await delete_user(id, db)
+
+
+# 更新用户信息（只允许更新 email 和 role）
+@user_router.put("/{id}", response_model=UserResponse)
+async def update_user_info(
+    id: int,
+    user_data: UserUpdate,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    # 验证是否是用户本人操作
+    if current_user["user_id"] != id:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="FORBIDDEN")
+    
+    return await update_user(id, user_data, db)
+
+
+# 获取用户详细信息
+@user_router.get("/{id}", response_model=UserResponse)
+async def get_user_detail(
+    id: int,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    return await get_user_by_id(id, db)
