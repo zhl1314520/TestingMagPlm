@@ -28,13 +28,18 @@ async def login(
 
 
 # 获取当前用户信息
+"""
+显示组件：
+- 用户头像和用户名
+- 下拉菜单用户信息
+"""
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    get_user = await get_user_by_id(current_user["user_id"], db)
-    return get_user
+    user = await get_user_by_id(current_user["user_id"], db)
+    return user
 
 
 user_router = APIRouter(

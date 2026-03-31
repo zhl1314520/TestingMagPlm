@@ -6,7 +6,7 @@ class UserResponse(BaseModel):
     id: int
     username: str
     role: str
-    email: str | None
+    email: str
 
     class Config:
         from_attributes = True
@@ -15,8 +15,8 @@ class UserResponse(BaseModel):
 class UserCreate(BaseModel):
     username: str = Field(..., max_length=50)
     password: str = Field(..., min_length=6)
-    role: str = Field("tester", max_length=20)
-    email: str | None = None
+    role: str = Field(..., max_length=20)
+    email: str
 
 
 class UserLogin(BaseModel):
@@ -35,5 +35,5 @@ class UserPageResponse(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    email: str | None = None
-    role: str | None = None
+    email: str
+    role: str
