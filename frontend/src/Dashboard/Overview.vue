@@ -274,56 +274,60 @@ const heroHighlights = computed(() => [
   }
 ])
 
-const insightCards = computed(() => [
-  {
-    key: 'projects',
-    theme: 'theme-violet',
-    icon: '📁',
-    kicker: 'Project Scope',
-    label: '项目总数',
-    value: metrics.value.total_projects,
-    trend: '12% 增长',
-    trendClass: 'positive',
-    trendIcon: '↑',
-    progress: 74
-  },
-  {
-    key: 'testcases',
-    theme: 'theme-rose',
-    icon: '📝',
-    kicker: 'Coverage Base',
-    label: '测试用例',
-    value: metrics.value.total_testcases,
-    trend: '8% 增长',
-    trendClass: 'positive',
-    trendIcon: '↑',
-    progress: 82
-  },
-  {
-    key: 'bugs',
-    theme: 'theme-cyan',
-    icon: '🐛',
-    kicker: 'Risk Signals',
-    label: '缺陷数量',
-    value: metrics.value.total_bugs,
-    trend: '5% 减少',
-    trendClass: 'negative',
-    trendIcon: '↓',
-    progress: 44
-  },
-  {
-    key: 'executions',
-    theme: 'theme-green',
-    icon: '▶️',
-    kicker: 'Automation Pace',
-    label: '执行次数',
-    value: metrics.value.total_executions,
-    trend: '15% 增长',
-    trendClass: 'positive',
-    trendIcon: '↑',
-    progress: 91
-  }
-])
+const insightCards = computed(() => {
+  // 计算每个指标的百分比（基于总数）
+  const total = totalAssets.value || 1
+  return [
+    {
+      key: 'projects',
+      theme: 'theme-violet',
+      icon: '📁',
+      kicker: 'Project Scope',
+      label: '项目总数',
+      value: metrics.value.total_projects,
+      trend: '12% 增长',
+      trendClass: 'positive',
+      trendIcon: '↑',
+      progress: Math.round((metrics.value.total_projects / total) * 100) || 0
+    },
+    {
+      key: 'testcases',
+      theme: 'theme-rose',
+      icon: '📝',
+      kicker: 'Coverage Base',
+      label: '测试用例',
+      value: metrics.value.total_testcases,
+      trend: '8% 增长',
+      trendClass: 'positive',
+      trendIcon: '↑',
+      progress: Math.round((metrics.value.total_testcases / total) * 100) || 0
+    },
+    {
+      key: 'bugs',
+      theme: 'theme-cyan',
+      icon: '🐛',
+      kicker: 'Risk Signals',
+      label: '缺陷数量',
+      value: metrics.value.total_bugs,
+      trend: '5% 减少',
+      trendClass: 'negative',
+      trendIcon: '↓',
+      progress: Math.round((metrics.value.total_bugs / total) * 100) || 0
+    },
+    {
+      key: 'executions',
+      theme: 'theme-green',
+      icon: '▶️',
+      kicker: 'Automation Pace',
+      label: '执行次数',
+      value: metrics.value.total_executions,
+      trend: '15% 增长',
+      trendClass: 'positive',
+      trendIcon: '↑',
+      progress: Math.round((metrics.value.total_executions / total) * 100) || 0
+    }
+  ]
+})
 
 const quickActions = [
   {
