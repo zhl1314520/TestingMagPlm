@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
-from routers import system
 from routers.user import router, user_router
 from routers import project, testcase, execution, bug, report
 
@@ -25,7 +24,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(system.router)
 app.include_router(router)
 app.include_router(user_router)
 app.include_router(project.router)

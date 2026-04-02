@@ -6,7 +6,7 @@ from models.user import User
 async def get_user_by_email(email: str, db: AsyncSession):
     stmt = select(User).where(User.email == email)
     result = await db.execute(stmt)
-    return result.scalar_one_or_none()
+    return result.scalar_one_or_none()  # 如果找到用户返回 User 对象，否则返回 None
 
 
 async def get_user_by_id(user_id: int, db: AsyncSession):

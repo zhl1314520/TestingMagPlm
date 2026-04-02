@@ -39,6 +39,7 @@ async def create_user(user_data: UserCreate, db: AsyncSession):
 async def login_user(email: str, password: str, db: AsyncSession):
     logger.info("用户登录请求: email=%s", email)
 
+    # 存在 user == User 对象，不存在 user == None
     user = await crud.get_user_by_email(email, db)
     if not user:
         logger.warning("用户不存在: email=%s", email)

@@ -1,7 +1,8 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8000'
+const API_BASE_URL = 'http://localhost:8000'  // 后端 API 运行端口
 
+// axios：用来发送 HTTP 请求（get, post, delete, put...）,和服务器数据交互.自动解析 JSON
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -9,21 +10,38 @@ const api = axios.create({
   }
 })
 
-api.interceptors.request.use(
+// Axios 请求拦截器配置，实现了一个全局的自动登录态注入功能
+api.interceptors.request.use(   // 发送请求之前执行这个函数
+  // 下面函数是 function(config) { ... } 的缩写
+  
+  // config：函数参数，包含url(请求地址)，method（请求方法），headers（请求头）, data(发送的数据)
   (config) => {
+
+    // 获取 token，从localStorage（浏览器本地存储） 或者 sessionStorage（会话存储）中获取token
     const token = localStorage.getItem('token') || sessionStorage.getItem('token')
+
+    // 把token注入 Authorization 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    
+    // 放行请求，相当于告诉 Axios："好了，我改完了，你可以带着这个新的配置继续发送请求了。"
     return config
   },
+
+  // 参数2：错误回调函数
   (error) => {
     return Promise.reject(error)
   }
 )
 
+// Axios 响应拦截器，统一处理后端返回的响应和错误
 api.interceptors.response.use(
+
+  // 参数1：成功回调函数，接受后端 response 
   (response) => response,
+
+  // 
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
