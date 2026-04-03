@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
-from routers.user import router, user_router
+from routers.user import router, user_router, password_reset_router
 from routers import project, testcase, execution, bug, report
 
 app = FastAPI()
@@ -26,6 +26,7 @@ app.add_middleware(
 
 app.include_router(router)
 app.include_router(user_router)
+app.include_router(password_reset_router)
 app.include_router(project.router)
 app.include_router(testcase.router)
 app.include_router(execution.router)

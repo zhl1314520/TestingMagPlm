@@ -4,6 +4,7 @@ from core.db import get_db
 from core.security import get_current_user
 from schemas.user import UserCreate, UserLogin, LoginResponse, UserResponse, UserPageResponse, UserUpdate
 from services.user import login_user, create_user, get_user_list, delete_user, update_user, get_user_by_id
+from services.password_reset import send_reset_code, verify_reset_code, reset_password
 from DAO.user import get_user_by_id
 
 router = APIRouter(
@@ -97,3 +98,45 @@ async def get_user_detail(
     db: AsyncSession = Depends(get_db)
 ):
     return await get_user_by_id(id, db)
+
+
+# 密码重置相关路由
+password_reset_router = APIRouter(
+    prefix="/password-reset",
+    tags=["密码重置"]
+)
+
+
+@password_reset_router.post("/send-code")
+async def send_code(
+    email: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    发送密码重置验证码
+    """
+    return await send_reset_code(email, db)
+
+
+@password_reset_router.post("/verify-code")
+async def verify_code(
+    email: str,
+    code: str
+):
+    """
+    验证密码重置验证码
+    """
+    return await verify_reset_code(email, code)
+
+
+@password_reset_router.post("/reset-password")
+async def reset_password_endpoint(
+    email: str,
+    code: str,
+    new_password: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    重置密码
+    """
+    return await reset_password(email, code, new_password, db)

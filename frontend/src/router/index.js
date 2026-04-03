@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from '../Login/LoginPage.vue'
+import ForgotPassword from '../Login/ForgotPassword.vue'
+import ResetPassword from '../Login/ResetPassword.vue'
+import ResetPasswordSuccess from '../Login/ResetPasswordSuccess.vue'
 import DashboardLayout from '../Dashboard/DashboardLayout.vue'
 import Overview from '../Dashboard/Overview.vue'
 import Projects from '../Dashboard/Projects.vue'
@@ -17,6 +20,21 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: LoginPage
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword
+  },
+  {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: ResetPassword
+  },
+  {
+    path: '/reset-password-success',
+    name: 'ResetPasswordSuccess',
+    component: ResetPasswordSuccess
   },
   {
     path: '/dashboard',
@@ -64,12 +82,24 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token') || sessionStorage.getItem('token')
   
-  if (to.path !== '/login' && !token) {
-    next('/login')
-  } else if (to.path === '/login' && token) {
-    next('/dashboard')
+  // 公开访问的页面（不需要登录）
+  const publicPages = ['/login', '/forgot-password', '/reset-password', '/reset-password-success']
+  
+  // 如果访问的是公开页面，直接放行
+  if (publicPages.includes(to.path)) {
+    // 如果已登录且访问登录页，跳转到 dashboard
+    if (to.path === '/login' && token) {
+      next('/dashboard')
+    } else {
+      next()
+    }
   } else {
-    next()
+    // 访问需要登录的页面
+    if (!token) {
+      next('/login')
+    } else {
+      next()
+    }
   }
 })
 

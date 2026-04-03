@@ -40,3 +40,23 @@ async def get_user_list(page: int, page_size: int, db: AsyncSession):
 async def delete_user(user_id: int, db: AsyncSession):
     stmt = delete(User).where(User.id == user_id)
     await db.execute(stmt)
+
+
+async def update_user_password(user_id: int, hashed_password: str, db: AsyncSession):
+    """
+    更新用户密码
+    
+    Args:
+        user_id: 用户 ID
+        hashed_password: 加密后的密码
+        db: 数据库会话
+    
+    Returns:
+        User: 更新后的用户对象
+    """
+    user = await get_user_by_id(user_id, db)
+    if user:
+        user.password = hashed_password
+        await db.commit()
+        await db.refresh(user)
+    return user

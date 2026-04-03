@@ -1,25 +1,26 @@
 <template>
-  <div class="login-page">
-    <!-- Left Content Section with Animated Characters -->
+  <div class="forgot-password-page">
+    <!-- 左侧装饰区域 -->
     <div class="left-section">
       <div class="logo-section">
-        <a href="/" class="logo-link">
+        <div class="logo-link" @click="animationKey++">
           <img
             src="https://i.postimg.cc/nLrDYrHW/icon.png"
             alt="REFRESH logo"
             class="logo-image"
           />
           <span>REFRESH</span>
-        </a>
+        </div>
       </div>
 
       <div class="characters-section">
         <AnimatedCharacters
+          :key="animationKey"
           :isTyping="isTyping"
-          :showPassword="showPassword"
-          :passwordLength="password.length"
-          :loginFailed="loginFailed"
-          :loginSuccess="loginSuccess"
+          :showPassword="false"
+          :passwordLength="0"
+          :loginFailed="false"
+          :loginSuccess="success"
         />
       </div>
 
@@ -28,17 +29,16 @@
         <a href="/terms" class="footer-link">Terms of Service</a>
       </div>
 
-      <!-- Decorative elements -->
       <div class="grid-overlay"></div>
       <div class="blur-circle blur-circle-1"></div>
       <div class="blur-circle blur-circle-2"></div>
     </div>
 
-    <!-- Right Login Section -->
+    <!-- 右侧表单区域 -->
     <div class="right-section">
       <div class="form-wrapper">
-        <!-- Mobile Logo -->
-        <div class="mobile-logo">
+        <!-- 移动端 Logo -->
+        <div class="mobile-logo" @click="animationKey++">
           <img
             src="https://i.postimg.cc/nLrDYrHW/icon.png"
             alt="REFRESH logo"
@@ -47,15 +47,15 @@
           <span>REFRESH</span>
         </div>
 
-        <!-- Header -->
+        <!-- 表单头部 -->
         <div class="form-header">
-          <h1 class="form-title">Welcome back!</h1>
-          <p class="form-subtitle">Please enter your details</p>
+          <h1 class="form-title">Forgot Password?</h1>
+          <p class="form-subtitle">Enter your email to reset your password</p>
         </div>
 
-        <!-- Login Form -->
-        <form @submit.prevent="handleSubmit" class="login-form">
-          <!-- Email Field -->
+        <!-- 重置密码表单 -->
+        <form @submit.prevent="handleSubmit" class="reset-form">
+          <!-- 邮箱字段 -->
           <div class="form-group">
             <label for="email" class="form-label">Email</label>
             <input
@@ -72,59 +72,48 @@
             <p v-if="errors.email" class="error-message">{{ errors.email }}</p>
           </div>
 
-          <!-- Password Field -->
+          <!-- 验证码字段 -->
           <div class="form-group">
-            <label for="password" class="form-label">Password</label>
-            <div class="password-wrapper">
+            <label for="code" class="form-label">Verification Code</label>
+            <div class="code-wrapper">
               <input
-                id="password"
-                v-model="password"
-                :type="showPassword ? 'text' : 'password'"
-                placeholder="••••••••"
-                class="form-input"
+                id="code"
+                v-model="code"
+                type="text"
+                placeholder="Enter verification code"
+                class="form-input code-input"
+                autocomplete="off"
                 required
               />
               <button
                 type="button"
-                @click="showPassword = !showPassword"
-                class="password-toggle"
+                @click="handleSendCode"
+                class="send-code-btn"
+                :disabled="isSending || countdown > 0"
               >
-                <svg v-if="showPassword" class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-                <svg v-else class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-                  <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-                  <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
-                  <line x1="2" x2="22" y1="2" y2="22"/>
-                </svg>
+                {{ countdown > 0 ? `${countdown}s` : 'Get Code' }}
               </button>
             </div>
-            <p v-if="errors.password" class="error-message">{{ errors.password }}</p>
+            <p v-if="errors.code" class="error-message">{{ errors.code }}</p>
           </div>
 
-          <!-- Remember & Forgot -->
-          <div class="form-options">
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="rememberMe" class="checkbox" />
-              <span>Remember for 30 days</span>
-            </label>
-            <router-link to="/forgot-password" class="forgot-link">Forgot password?</router-link>
-          </div>
-
-          <!-- Error Alert -->
+          <!-- 错误提示 -->
           <div v-if="errorMessage" class="error-alert">
             {{ errorMessage }}
           </div>
 
-          <!-- Submit Button -->
+          <!-- 成功提示 -->
+          <div v-if="successMessage" class="success-alert">
+            {{ successMessage }}
+          </div>
+
+          <!-- 提交按钮 -->
           <button
             type="submit"
             class="submit-button"
             :disabled="isLoading"
           >
-            <span class="button-text">{{ isLoading ? 'Signing in...' : 'Log in' }}</span>
+            <span class="button-text">{{ isLoading ? 'Verifying...' : 'Verify & Continue' }}</span>
             <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14"/>
               <path d="m12 5 7 7-7 7"/>
@@ -132,20 +121,15 @@
           </button>
         </form>
 
-        <!-- Social Login -->
-        <div class="social-login">
-          <button
-            type="button"
-            @click="handleGitHubSignIn"
-            class="github-button"
-          >
-            <span class="button-text">Log in with GitHub</span>
-            <svg class="github-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        <!-- 返回登录 -->
+        <div class="back-to-login">
+          <router-link to="/login" class="back-link">
+            <svg class="back-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6"/>
             </svg>
-          </button>
+            Back to Login
+          </router-link>
         </div>
-
       </div>
     </div>
   </div>
@@ -158,24 +142,31 @@ import AnimatedCharacters from './AnimatedCharacters.vue'
 import { authAPI } from '../api/index.js'
 
 const router = useRouter()
+
+// 表单数据
 const email = ref('')
-const password = ref('')
-const rememberMe = ref(false)
-const showPassword = ref(false)
+const code = ref('')
 const isTyping = ref(false)
 const isLoading = ref(false)
-const loginFailed = ref(false)
-const loginSuccess = ref(false)
+const isSending = ref(false)
+const countdown = ref(0)
+const success = ref(false)
+const animationKey = ref(0)
+
+// 错误和成功消息
 const errorMessage = ref('')
+const successMessage = ref('')
 const errors = ref({
   email: '',
-  password: ''
+  code: ''
 })
 
+// 验证表单
 const validateForm = () => {
-  errors.value = { email: '', password: '' }
+  errors.value = { email: '', code: '' }
   let isValid = true
 
+  // 验证邮箱
   if (!email.value) {
     errors.value.email = 'Email is required'
     isValid = false
@@ -184,65 +175,90 @@ const validateForm = () => {
     isValid = false
   }
 
-  if (!password.value) {
-    errors.value.password = 'Password is required'
+  // 验证验证码
+  if (!code.value) {
+    errors.value.code = 'Verification code is required'
     isValid = false
-  } else if (password.value.length < 6) {
-    errors.value.password = 'Password must be at least 6 characters'
+  } else if (code.value.length < 4) {
+    errors.value.code = 'Verification code must be at least 4 characters'
     isValid = false
   }
 
   return isValid
 }
 
+// 发送验证码
+const handleSendCode = async () => {
+  // 验证邮箱
+  if (!email.value) {
+    errors.value.email = 'Email is required'
+    return
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    errors.value.email = 'Please enter a valid email address'
+    return
+  }
+
+  errors.value.email = ''
+  isSending.value = true
+  errorMessage.value = ''
+
+  try {
+    // 调用发送验证码 API
+    await authAPI.sendResetCode(email.value)
+    
+    successMessage.value = 'Verification code sent to your email!'
+    
+    // 开始倒计时
+    countdown.value = 60
+    const timer = setInterval(() => {
+      countdown.value--
+      if (countdown.value <= 0) {
+        clearInterval(timer)
+      }
+    }, 1000)
+  } catch (error) {
+    errorMessage.value = error.response?.data?.detail || 'Failed to send verification code. Please try again.'
+  } finally {
+    isSending.value = false
+  }
+}
+
+// 提交表单
 const handleSubmit = async () => {
   if (!validateForm()) return
 
   isLoading.value = true
   errorMessage.value = ''
-  loginFailed.value = false
-  loginSuccess.value = false
+  successMessage.value = ''
 
   try {
-    const response = await authAPI.login(email.value, password.value)
+    // 调用验证验证码 API
+    await authAPI.verifyResetCode(email.value, code.value)
     
-    if (rememberMe.value) {
-      localStorage.setItem('token', response.data.token)
-    } else {
-      sessionStorage.setItem('token', response.data.token)
-    }
+    success.value = true
+    successMessage.value = 'Verification successful! Redirecting...'
     
-    localStorage.setItem('user_info', JSON.stringify(response.data.user_info))
+    // 保存邮箱和验证码到 localStorage，供重置密码页面使用
+    localStorage.setItem('reset_email', email.value)
+    localStorage.setItem('reset_code', code.value)
     
-    loginSuccess.value = true
-    
+    // 延迟跳转到重置密码页面
     setTimeout(() => {
-      router.push('/dashboard')
-    }, 500)
-    
+      router.push({
+        path: '/reset-password',
+        query: { email: email.value, code: code.value }
+      })
+    }, 1000)
   } catch (error) {
-    errorMessage.value = error.response?.data?.detail || 'Invalid email or password. Please try again.'
-    loginFailed.value = true
-    setTimeout(() => {
-      loginFailed.value = false
-    }, 3000)
+    errorMessage.value = error.response?.data?.detail || 'Invalid verification code. Please try again.'
   } finally {
     isLoading.value = false
-  }
-}
-
-const handleGitHubSignIn = async () => {
-  try {
-    console.log('GitHub Sign In')
-    alert('GitHub 登录功能待实现')
-  } catch (error) {
-    errorMessage.value = 'GitHub sign in failed. Please try again.'
   }
 }
 </script>
 
 <style scoped>
-.login-page {
+.forgot-password-page {
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 100vh;
@@ -279,6 +295,7 @@ const handleGitHubSignIn = async () => {
   margin: -0.5rem;
   border-radius: 0.5rem;
   transition: background-color 0.2s;
+  cursor: pointer;
 }
 
 .logo-link:hover {
@@ -375,6 +392,7 @@ const handleGitHubSignIn = async () => {
   font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 3rem;
+  cursor: pointer;
 }
 
 .form-header {
@@ -395,7 +413,7 @@ const handleGitHubSignIn = async () => {
   color: #6b7280;
 }
 
-.login-form {
+.reset-form {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -429,72 +447,43 @@ const handleGitHubSignIn = async () => {
   border-color: #6366f1;
 }
 
-.password-wrapper {
-  position: relative;
-}
-
-.password-wrapper .form-input {
-  padding-right: 2.5rem;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 0;
+.code-wrapper {
   display: flex;
-  align-items: center;
-  transition: color 0.2s;
+  gap: 0.5rem;
 }
 
-.password-toggle:hover {
-  color: #111827;
+.code-input {
+  flex: 1;
 }
 
-.icon {
-  width: 20px;
-  height: 20px;
+.send-code-btn {
+  height: 3rem;
+  padding: 0 1rem;
+  background: white;
+  border: 1.5px solid rgba(229, 231, 235, 0.6);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.send-code-btn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
+.send-code-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .error-message {
   font-size: 0.875rem;
   color: #dc2626;
-}
-
-.form-options {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-}
-
-.checkbox {
-  width: 1rem;
-  height: 1rem;
-  cursor: pointer;
-}
-
-.forgot-link {
-  font-size: 0.875rem;
-  color: #6366f1;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.forgot-link:hover {
-  text-decoration: underline;
 }
 
 .error-alert {
@@ -506,8 +495,16 @@ const handleGitHubSignIn = async () => {
   border-radius: 0.5rem;
 }
 
-.submit-button,
-.github-button {
+.success-alert {
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+  border: 1px solid rgba(22, 163, 74, 0.3);
+  border-radius: 0.5rem;
+}
+
+.submit-button {
   position: relative;
   width: 100%;
   height: 3rem;
@@ -521,9 +518,6 @@ const handleGitHubSignIn = async () => {
   cursor: pointer;
   overflow: hidden;
   transition: all 0.3s;
-}
-
-.submit-button {
   background: #111827;
   color: white;
   border: none;
@@ -557,28 +551,32 @@ const handleGitHubSignIn = async () => {
   transform: translateX(8px);
 }
 
-.social-login {
+.back-to-login {
   margin-top: 1.5rem;
+  text-align: center;
 }
 
-.github-button {
-  background: white;
-  color: #374151;
-  border: 1.5px solid rgba(229, 231, 235, 0.6);
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.2s;
 }
 
-.github-button:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+.back-link:hover {
+  color: #111827;
 }
 
-.github-icon {
-  width: 20px;
-  height: 20px;
+.back-icon {
+  width: 16px;
+  height: 16px;
 }
 
 @media (max-width: 1024px) {
-  .login-page {
+  .forgot-password-page {
     grid-template-columns: 1fr;
   }
 
