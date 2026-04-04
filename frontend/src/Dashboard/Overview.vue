@@ -145,33 +145,91 @@
       <div class="quick-actions-section">
         <div class="section-header">
           <div class="header-title">
-            <span class="title-badge">Action Deck</span>
-            <h2>快捷入口</h2>
-            <p>把最常用的动作收进同一块面板，进入概览页就能马上开始工作。</p>
+            <span class="title-badge">Project Progress</span>
+            <h2>项目进展</h2>
+            <p>实时追踪你参与的项目进度，掌握测试用例完成情况。</p>
           </div>
         </div>
 
-        <div class="actions-grid">
-          <router-link
-            v-for="action in quickActions"
-            :key="action.to"
-            :to="action.to"
-            class="action-card"
+        <div class="project-progress-list" v-if="projectProgress.length > 0">
+          <div
+            v-for="(project, index) in projectProgress"
+            :key="project.project_id"
+            class="project-progress-item"
           >
-            <div class="action-glow"></div>
-            <div class="action-content">
-              <div class="action-icon-shell">
-                <span class="action-icon">{{ action.icon }}</span>
+            <div class="project-header" @click="toggleProject(project.project_id)">
+              <div class="project-info">
+                <div class="project-name">
+                  <span class="expand-icon" :class="{ expanded: expandedProjects.includes(project.project_id) }">▶</span>
+                  {{ project.project_name }}
+                </div>
+                <div class="project-stats">
+                  <span class="stat-item">
+                    <span class="stat-label">总用例</span>
+                    <span class="stat-value">{{ project.total_testcases }}</span>
+                  </span>
+                  <span class="stat-divider">|</span>
+                  <span class="stat-item">
+                    <span class="stat-label">已完成</span>
+                    <span class="stat-value">{{ project.completed_testcases }}</span>
+                  </span>
+                </div>
               </div>
-
-              <div class="action-text">
-                <div class="action-title">{{ action.title }}</div>
-                <div class="action-desc">{{ action.description }}</div>
+              <div class="progress-container">
+                <div class="progress-bar">
+                  <div 
+                    class="progress-fill" 
+                    :style="{ 
+                      width: project.progress_percentage + '%',
+                      background: `linear-gradient(90deg, ${getProjectColor(project.project_id, index).start}, ${getProjectColor(project.project_id, index).end})`
+                    }"
+                  ></div>
+                </div>
+                <div class="progress-percentage">{{ project.progress_percentage }}%</div>
               </div>
-
-              <div class="action-arrow">→</div>
             </div>
-          </router-link>
+            
+            <div class="modules-list" v-if="expandedProjects.includes(project.project_id) && project.modules.length > 0">
+              <div
+                v-for="module in project.modules"
+                :key="module.module_name"
+                class="module-item"
+              >
+                <div class="module-info">
+                  <div class="module-name">{{ module.module_name }}</div>
+                  <div class="module-stats">
+                    <span class="stat-item">
+                      <span class="stat-label">总用例</span>
+                      <span class="stat-value">{{ module.total_testcases }}</span>
+                    </span>
+                    <span class="stat-divider">|</span>
+                    <span class="stat-item">
+                      <span class="stat-label">已完成</span>
+                      <span class="stat-value">{{ module.completed_testcases }}</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="progress-container">
+                  <div class="progress-bar module-bar">
+                    <div 
+                      class="progress-fill" 
+                      :style="{ 
+                        width: module.progress_percentage + '%',
+                        background: `linear-gradient(90deg, ${getProjectColor(project.project_id, index).start}, ${getProjectColor(project.project_id, index).end})`
+                      }"
+                    ></div>
+                  </div>
+                  <div class="progress-percentage">{{ module.progress_percentage }}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" v-else>
+          <div class="empty-icon">📊</div>
+          <div class="empty-text">暂无项目数据</div>
+          <div class="empty-hint">你还没有参与任何项目，请联系管理员添加</div>
         </div>
       </div>
 
@@ -227,6 +285,31 @@ const metrics = ref({
 
 const userInfo = ref(null)
 const loading = ref(false)
+const projectProgress = ref([])
+const expandedProjects = ref([])
+
+const projectColors = [
+  { start: '#667eea', end: '#764ba2' },
+  { start: '#f093fb', end: '#f5576c' },
+  { start: '#4facfe', end: '#00f2fe' },
+  { start: '#43e97b', end: '#38f9d7' },
+  { start: '#fa709a', end: '#fee140' },
+  { start: '#a18cd1', end: '#fbc2eb' },
+  { start: '#ff9a9e', end: '#fecfef' },
+  { start: '#ffecd2', end: '#fcb69f' },
+  { start: '#a1c4fd', end: '#c2e9fb' },
+  { start: '#d299c2', end: '#fef9d7' },
+  { start: '#89f7fe', end: '#66a6ff' },
+  { start: '#cd9cf2', end: '#f6f3ff' },
+  { start: '#fddb92', end: '#d1fdff' },
+  { start: '#9890e3', end: '#b1f4cf' },
+  { start: '#ebc0fd', end: '#d9ded8' }
+]
+
+const getProjectColor = (projectId, index) => {
+  const colorIndex = (projectId + index) % projectColors.length
+  return projectColors[colorIndex]
+}
 
 const todayLabel = computed(() => {
   return new Intl.DateTimeFormat('zh-CN', {
@@ -329,32 +412,14 @@ const insightCards = computed(() => {
   ]
 })
 
-const quickActions = [
-  {
-    to: '/dashboard/projects',
-    icon: '🚀',
-    title: '创建新项目',
-    description: '拉起新的测试空间，建立项目视图与协作入口。'
-  },
-  {
-    to: '/dashboard/testcases',
-    icon: '🧪',
-    title: '编写测试用例',
-    description: '补齐测试覆盖面，让需求和验证动作形成闭环。'
-  },
-  {
-    to: '/dashboard/executions',
-    icon: '⚙️',
-    title: '运行测试',
-    description: '快速发起执行，观察自动化与回归的节奏变化。'
-  },
-  {
-    to: '/dashboard/bugs',
-    icon: '🛟',
-    title: '报告缺陷',
-    description: '记录问题、追踪修复，让风险状态保持透明。'
+const toggleProject = (projectId) => {
+  const index = expandedProjects.value.indexOf(projectId)
+  if (index > -1) {
+    expandedProjects.value.splice(index, 1)
+  } else {
+    expandedProjects.value.push(projectId)
   }
-]
+}
 
 const recentActivities = [
   {
@@ -394,6 +459,7 @@ onMounted(async () => {
   }
 
   await loadMetrics()
+  await loadProjectProgress()
 })
 
 const loadMetrics = async () => {
@@ -405,6 +471,15 @@ const loadMetrics = async () => {
     console.error('获取概览数据失败:', error)
   } finally {
     loading.value = false
+  }
+}
+
+const loadProjectProgress = async () => {
+  try {
+    const response = await metricsAPI.getProjectProgress()
+    projectProgress.value = response.data.projects || []
+  } catch (error) {
+    console.error('获取项目进展失败:', error)
   }
 }
 </script>
@@ -1077,91 +1152,207 @@ const loadMetrics = async () => {
   box-shadow: var(--shadow-soft);
 }
 
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.project-progress-list {
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   margin-top: 1.4rem;
 }
 
-.action-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 1.4rem;
-  text-decoration: none;
-  background:
-    radial-gradient(circle at 18% 18%, rgba(132, 118, 255, 0.16), transparent 36%),
-    linear-gradient(180deg, #f8faff, #eef3ff);
+.project-progress-item {
+  padding: 1.25rem;
+  border-radius: 1.2rem;
+  background: linear-gradient(180deg, #fbfcff, #f3f7ff);
   border: 1px solid rgba(96, 108, 232, 0.08);
-  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.action-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(96, 108, 232, 0.18);
-  box-shadow: 0 18px 34px rgba(96, 108, 232, 0.12);
+.project-progress-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 14px 28px rgba(16, 32, 58, 0.08);
 }
 
-.action-glow {
-  position: absolute;
-  inset: auto -10% -45% 35%;
-  height: 120px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(137, 115, 255, 0.18), transparent 68%);
+.project-header {
+  cursor: pointer;
+  user-select: none;
 }
 
-.action-content {
-  position: relative;
-  z-index: 1;
+.project-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.project-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--page-ink);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.expand-icon {
+  font-size: 0.75rem;
+  color: #6175ec;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.project-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.stat-label {
+  color: var(--page-muted);
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--page-ink);
+}
+
+.stat-divider {
+  color: rgba(96, 108, 232, 0.2);
+}
+
+.progress-container {
   display: flex;
   align-items: center;
   gap: 1rem;
-  min-height: 156px;
-  padding: 1.25rem;
 }
 
-.action-icon-shell {
-  width: 56px;
-  height: 56px;
+.progress-bar {
+  flex: 1;
+  height: 0.75rem;
+  background: rgba(96, 108, 232, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.6s ease;
+}
+
+.progress-percentage {
+  min-width: 50px;
+  text-align: right;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--page-ink);
+}
+
+.modules-list {
+  margin-top: 1rem;
+  margin-left: 1.5rem;
+  padding-left: 1rem;
+  border-left: 3px solid rgba(96, 108, 232, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.module-item {
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(96, 108, 232, 0.04);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.module-item::before {
+  content: '';
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  width: 0.5rem;
+  height: 1px;
+  background: rgba(96, 108, 232, 0.15);
+}
+
+.module-item:hover {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(96, 108, 232, 0.08);
+  transform: translateX(2px);
+}
+
+.module-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.module-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(16, 32, 58, 0.85);
+}
+
+.module-stats {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.module-stats .stat-label {
+  color: rgba(98, 113, 141, 0.8);
+}
+
+.module-stats .stat-value {
+  color: rgba(16, 32, 58, 0.75);
+  font-weight: 600;
+}
+
+.module-bar {
+  height: 0.5rem;
+  background: rgba(96, 108, 232, 0.06);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  border-radius: 1.1rem;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  box-shadow: 0 12px 22px rgba(102, 126, 234, 0.22);
+  padding: 3rem 1rem;
+  margin-top: 1.4rem;
+  text-align: center;
 }
 
-.action-icon {
-  font-size: 1.5rem;
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
 }
 
-.action-text {
-  flex: 1;
-}
-
-.action-title {
+.empty-text {
+  font-size: 1.1rem;
+  font-weight: 700;
   color: var(--page-ink);
-  font-size: 1.05rem;
-  font-weight: 800;
+  margin-bottom: 0.5rem;
 }
 
-.action-desc {
-  margin-top: 0.45rem;
+.empty-hint {
+  font-size: 0.9rem;
   color: var(--page-muted);
-  font-size: 0.88rem;
-  line-height: 1.65;
-}
-
-.action-arrow {
-  color: #6175ec;
-  font-size: 1.18rem;
-  font-weight: 800;
-  transition: transform 0.25s ease;
-}
-
-.action-card:hover .action-arrow {
-  transform: translateX(4px);
 }
 
 .view-all-link {

@@ -111,7 +111,8 @@ export const reportAPI = {
 
 export const metricsAPI = {
   getOverview: () => api.get('/metrics/overview'),
-  getTrend: () => api.get('/metrics/trend')
+  getTrend: () => api.get('/metrics/trend'),
+  getProjectProgress: () => api.get('/metrics/project-progress')
 }
 
 export default api

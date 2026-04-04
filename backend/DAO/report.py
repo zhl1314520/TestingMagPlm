@@ -1,10 +1,11 @@
-from sqlalchemy import select, func, delete
+from sqlalchemy import select, func, delete, case
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.report import Report
 from models.project import Project
 from models.testcase import TestCase
 from models.bug import Bug
 from models.execution import Execution
+from models.project_member import ProjectMember
 
 
 async def get_report_by_id(report_id: int, db: AsyncSession):
@@ -75,3 +76,68 @@ async def get_metrics_trend(db: AsyncSession):
         })
     
     return trend
+
+
+async def get_user_project_progress(user_id: int, db: AsyncSession):
+    project_stmt = (
+        select(Project.id, Project.name)
+        .join(ProjectMember, ProjectMember.project_id == Project.id)
+        .where(ProjectMember.user_id == user_id)
+        .where(Project.deleted_at.is_(None))
+    )
+    project_result = await db.execute(project_stmt)
+    projects = project_result.all()
+    
+    progress_list = []
+    for project_id, project_name in projects:
+        total_stmt = select(func.count()).select_from(TestCase).where(TestCase.project_id == project_id)
+        total_testcases = (await db.execute(total_stmt)).scalar() or 0
+        
+        completed_stmt = (
+            select(func.count())
+            .select_from(TestCase)
+            .where(TestCase.project_id == project_id)
+            .where(TestCase.status != 'new')
+        )
+        completed_testcases = (await db.execute(completed_stmt)).scalar() or 0
+        
+        progress_percentage = (completed_testcases / total_testcases * 100) if total_testcases > 0 else 0
+        
+        module_stmt = (
+            select(TestCase.module, func.count().label('total'))
+            .where(TestCase.project_id == project_id)
+            .group_by(TestCase.module)
+        )
+        module_result = await db.execute(module_stmt)
+        modules_data = module_result.all()
+        
+        modules = []
+        for module_name, module_total in modules_data:
+            module_completed_stmt = (
+                select(func.count())
+                .select_from(TestCase)
+                .where(TestCase.project_id == project_id)
+                .where(TestCase.module == module_name)
+                .where(TestCase.status != 'new')
+            )
+            module_completed = (await db.execute(module_completed_stmt)).scalar() or 0
+            
+            module_progress = (module_completed / module_total * 100) if module_total > 0 else 0
+            
+            modules.append({
+                "module_name": module_name,
+                "total_testcases": module_total,
+                "completed_testcases": module_completed,
+                "progress_percentage": round(module_progress, 1)
+            })
+        
+        progress_list.append({
+            "project_id": project_id,
+            "project_name": project_name,
+            "total_testcases": total_testcases,
+            "completed_testcases": completed_testcases,
+            "progress_percentage": round(progress_percentage, 1),
+            "modules": modules
+        })
+    
+    return progress_list

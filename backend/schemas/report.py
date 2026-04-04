@@ -29,3 +29,23 @@ class MetricsTrend(BaseModel):
     date: str
     pass_rate: float
     fail_rate: float
+
+
+class ModuleProgress(BaseModel):
+    module_name: str
+    total_testcases: int
+    completed_testcases: int
+    progress_percentage: float
+
+
+class ProjectProgress(BaseModel):
+    project_id: int
+    project_name: str
+    total_testcases: int
+    completed_testcases: int
+    progress_percentage: float
+    modules: List[ModuleProgress] = []
+
+
+class ProjectProgressList(BaseModel):
+    projects: List[ProjectProgress]

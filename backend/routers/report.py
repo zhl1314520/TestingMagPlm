@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.db import get_db
-from schemas.report import ReportResponse, ReportPageResponse, MetricsOverview, MetricsTrend
+from core.security import get_current_user
+from schemas.report import ReportResponse, ReportPageResponse, MetricsOverview, MetricsTrend, ProjectProgressList
 from services import report as service
 
 router = APIRouter(
@@ -38,3 +39,11 @@ async def get_metrics_trend(
     db: AsyncSession = Depends(get_db)
 ):
     return await service.get_metrics_trend(db)
+
+
+@metrics_router.get("/project-progress", response_model=ProjectProgressList)
+async def get_project_progress(
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    return await service.get_user_project_progress(current_user["user_id"], db)
