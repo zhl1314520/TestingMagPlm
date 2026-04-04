@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.db import get_db
+from core.security import get_current_user
 from schemas.testcase import TestCaseCreate, TestCaseUpdate, TestCaseResponse, TestCasePageResponse
 from services import testcase as service
 
@@ -13,9 +14,10 @@ router = APIRouter(
 @router.post("", response_model=TestCaseResponse)
 async def create_testcase(
     testcase_info: TestCaseCreate,
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    return await service.create_testcase(testcase_info, db)
+    return await service.create_testcase(testcase_info, current_user["user_id"], db)
 
 
 @router.get("", response_model=TestCasePageResponse)

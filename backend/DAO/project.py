@@ -1,4 +1,4 @@
-from sqlalchemy import select, func, delete
+from sqlalchemy import select, func, delete, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.project import Project
 from models.project_member import ProjectMember
@@ -28,6 +28,43 @@ async def get_project_list(page: int, page_size: int, db: AsyncSession):
 
     stmt = (
         select(Project)
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .order_by(Project.id.desc())
+    )
+    result = await db.execute(stmt)
+    items = result.scalars().all()
+
+    return total, items
+
+
+async def get_project_list_by_user(page: int, page_size: int, user_id: int, db: AsyncSession):
+    member_subquery = (
+        select(ProjectMember.project_id)
+        .where(ProjectMember.user_id == user_id)
+        .distinct()
+    )
+    
+    count_stmt = (
+        select(func.count())
+        .select_from(Project)
+        .where(
+            or_(
+                Project.owner_id == user_id,
+                Project.id.in_(member_subquery)
+            )
+        )
+    )
+    total = (await db.execute(count_stmt)).scalar()
+
+    stmt = (
+        select(Project)
+        .where(
+            or_(
+                Project.owner_id == user_id,
+                Project.id.in_(member_subquery)
+            )
+        )
         .offset((page - 1) * page_size)
         .limit(page_size)
         .order_by(Project.id.desc())

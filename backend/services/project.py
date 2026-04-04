@@ -9,8 +9,8 @@ from DAO import project as crud
 logger = logging.getLogger(__name__)
 
 
-async def create_project(project_data: ProjectCreate, db: AsyncSession):
-    logger.info("创建项目请求: name=%s", project_data.name)
+async def create_project(project_data: ProjectCreate, db: AsyncSession, user_id: int):
+    logger.info("创建项目请求: name=%s, owner_id=%s", project_data.name, user_id)
 
     existing = await crud.get_project_by_name(project_data.name, db)
     if existing:
@@ -23,10 +23,19 @@ async def create_project(project_data: ProjectCreate, db: AsyncSession):
     new_project = Project(
         name=project_data.name,
         description=project_data.description,
-        owner_id=project_data.owner_id
+        owner_id=user_id
     )
 
     await crud.create_project(new_project, db)
+    await db.flush()
+
+    new_member = ProjectMember(
+        project_id=new_project.id,
+        user_id=user_id,
+        role="PM"
+    )
+    db.add(new_member)
+
     await db.commit()
     await db.refresh(new_project)
 
@@ -34,8 +43,8 @@ async def create_project(project_data: ProjectCreate, db: AsyncSession):
     return new_project
 
 
-async def get_project_list(page: int, page_size: int, db: AsyncSession):
-    total, items = await crud.get_project_list(page, page_size, db)
+async def get_project_list(page: int, page_size: int, user_id: int, db: AsyncSession):
+    total, items = await crud.get_project_list_by_user(page, page_size, user_id, db)
     return ProjectPageResponse(
         total=total,
         items=items

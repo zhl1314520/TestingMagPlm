@@ -8,24 +8,30 @@ from DAO import testcase as crud
 logger = logging.getLogger(__name__)
 
 
-async def create_testcase(testcase_data: TestCaseCreate, db: AsyncSession):
-    logger.info("创建测试用例: title=%s", testcase_data.title)
+async def create_testcase(testcase_data: TestCaseCreate, user_id: int, db: AsyncSession):
+    logger.info("创建测试用例: data=%s, user_id=%s", testcase_data.model_dump(), user_id)
 
-    new_testcase = TestCase(
-        project_id=testcase_data.project_id,
-        module=testcase_data.module,
-        title=testcase_data.title,
-        steps=testcase_data.steps,
-        expected=testcase_data.expected,
-        status=testcase_data.status
-    )
+    try:
+        new_testcase = TestCase(
+            project_id=testcase_data.project_id,
+            module=testcase_data.module,
+            title=testcase_data.title,
+            steps=testcase_data.steps,
+            expected=testcase_data.expected,
+            status=testcase_data.status,
+            created_by=user_id
+        )
 
-    await crud.create_testcase(new_testcase, db)
-    await db.commit()
-    await db.refresh(new_testcase)
+        await crud.create_testcase(new_testcase, db)
+        await db.commit()
+        await db.refresh(new_testcase)
 
-    logger.info("测试用例创建成功: id=%s", new_testcase.id)
-    return new_testcase
+        logger.info("测试用例创建成功: id=%s", new_testcase.id)
+        return new_testcase
+    except Exception as e:
+        await db.rollback()
+        logger.error("创建测试用例失败: %s", str(e))
+        raise HTTPException(status_code=400, detail=f"创建测试用例失败: {str(e)}")
 
 
 async def get_testcase_list(page: int, page_size: int, project_id: int = None, module: str = None, status: str = None, db: AsyncSession = None):

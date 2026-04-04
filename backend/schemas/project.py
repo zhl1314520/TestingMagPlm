@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 
@@ -7,7 +8,7 @@ class ProjectResponse(BaseModel):
     name: str
     description: str | None
     owner_id: int
-    created_at: str
+    created_at: datetime
 
     class Config:
         from_attributes = True
@@ -16,7 +17,6 @@ class ProjectResponse(BaseModel):
 class ProjectCreate(BaseModel):
     name: str = Field(..., max_length=100)
     description: str | None = None
-    owner_id: int
 
 
 class ProjectUpdate(BaseModel):

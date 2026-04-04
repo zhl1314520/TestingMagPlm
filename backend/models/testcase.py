@@ -1,6 +1,14 @@
-from sqlalchemy import String, DateTime, func, Integer, Text
+from sqlalchemy import String, DateTime, func, Integer, Text, Enum
 from sqlalchemy.orm import Mapped, mapped_column
 from models.base import Base
+import enum
+
+
+class TestCaseStatus(enum.Enum):
+    DRAFT = "草稿"
+    VALID = "有效"
+    DEPRECATED = "已弃用"
+    BLOCKED = "阻塞"
 
 
 class TestCase(Base):
@@ -12,5 +20,6 @@ class TestCase(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     steps: Mapped[str] = mapped_column(Text, nullable=False)
     expected: Mapped[str] = mapped_column(Text, nullable=False)
-    status: Mapped[str] = mapped_column(String(20), nullable=False, default="new")
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="有效")
+    created_by: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())

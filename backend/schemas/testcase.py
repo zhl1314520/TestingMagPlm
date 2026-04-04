@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 
@@ -10,7 +11,8 @@ class TestCaseResponse(BaseModel):
     steps: str
     expected: str
     status: str
-    created_at: str
+    created_by: int | None = None
+    created_at: datetime
 
     class Config:
         from_attributes = True
@@ -22,7 +24,7 @@ class TestCaseCreate(BaseModel):
     title: str = Field(..., max_length=255)
     steps: str
     expected: str
-    status: str = Field("new", max_length=20)
+    status: str = Field("有效", max_length=20)
 
 
 class TestCaseUpdate(BaseModel):
