@@ -13,5 +13,6 @@ class Bug(Base):
     description: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="new")
     priority: Mapped[str] = mapped_column(String(20), nullable=False, default="medium")
+    reporter_id: Mapped[int] = mapped_column(Integer, nullable=False)
     assignee_id: Mapped[int] = mapped_column(Integer, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())

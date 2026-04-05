@@ -80,6 +80,17 @@ async def delete_project(project_id: int, db: AsyncSession):
     await db.execute(stmt)
 
 
+async def update_project(project_id: int, update_data: dict, db: AsyncSession):
+    project = await get_project_by_id(project_id, db)
+    if not project:
+        return None
+    for key, value in update_data.items():
+        if value is not None:
+            setattr(project, key, value)
+    await db.flush()
+    return project
+
+
 async def create_project_member(member: ProjectMember, db: AsyncSession):
     db.add(member)
     await db.flush()

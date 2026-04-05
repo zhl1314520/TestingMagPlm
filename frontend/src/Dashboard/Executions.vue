@@ -63,18 +63,13 @@
         </div>
 
         <div class="card-body">
-          <h3 class="execution-title">执行 #{{ execution.id }}</h3>
+          <h3 class="execution-title">{{ execution.name }}</h3>
           
           <div class="execution-meta">
             <div class="meta-item">
               <span class="meta-icon">🏷️</span>
               <span class="meta-label">类型</span>
-              <span class="meta-value type-badge">{{ execution.type === 'auto' ? '自动执行' : '手动执行' }}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-icon">🖥️</span>
-              <span class="meta-label">环境</span>
-              <span class="meta-value">{{ execution.env }}</span>
+              <span class="meta-value type-badge">{{ execution.type }}</span>
             </div>
           </div>
 
@@ -94,12 +89,16 @@
 
         <div class="card-footer">
           <button 
-            v-if="execution.status === 'pending'" 
+            v-if="execution.status === '等待中'" 
             @click="runExecution(execution.id)" 
             class="btn-run"
           >
             <span class="run-icon">▶️</span>
             运行
+          </button>
+          <button @click="editExecution(execution)" class="btn-view">
+            <span class="view-icon">✏️</span>
+            修改
           </button>
           <button @click="deleteExecution(execution.id)" class="btn-delete">
             <span class="delete-icon">🗑</span>
@@ -136,39 +135,41 @@
 
             <div class="form-group">
               <label class="form-label">
+                <span class="label-icon">📝</span>
+                执行名称
+              </label>
+              <input 
+                v-model="executionForm.name" 
+                type="text" 
+                required 
+                placeholder="输入执行名称"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
                 <span class="label-icon">⚙️</span>
                 执行类型
               </label>
               <div class="type-selector">
                 <button
                   type="button"
-                  @click="executionForm.type = 'manual'"
-                  :class="['type-option', { active: executionForm.type === 'manual' }]"
+                  @click="executionForm.type = '手动执行'"
+                  :class="['type-option', { active: executionForm.type === '手动执行' }]"
                 >
                   <span class="type-icon">👤</span>
                   <span class="type-label">手动执行</span>
                 </button>
                 <button
                   type="button"
-                  @click="executionForm.type = 'auto'"
-                  :class="['type-option', { active: executionForm.type === 'auto' }]"
+                  @click="executionForm.type = '自动化执行'"
+                  :class="['type-option', { active: executionForm.type === '自动化执行' }]"
                 >
                   <span class="type-icon">🤖</span>
                   <span class="type-label">自动执行</span>
                 </button>
               </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">
-                <span class="label-icon">🖥️</span>
-                测试环境
-              </label>
-              <select v-model="executionForm.env" required class="form-select">
-                <option value="test">测试环境</option>
-                <option value="staging">预发布环境</option>
-                <option value="production">生产环境</option>
-              </select>
             </div>
           </form>
 
@@ -177,6 +178,69 @@
             <button @click="createExecution" class="btn-submit">
               <span class="btn-spinner" v-if="loading"></span>
               <span v-else>创建执行</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="modal">
+      <div v-if="showEditModal" class="modal-overlay" @click="showEditModal = false">
+        <div class="modal-container" @click.stop>
+          <div class="modal-header">
+            <div class="modal-title">
+              <span class="modal-icon">✏️</span>
+              <h2>修改测试执行</h2>
+            </div>
+            <button @click="showEditModal = false" class="btn-close">×</button>
+          </div>
+          
+          <form @submit.prevent="updateExecution" class="modal-body">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-icon">📝</span>
+                执行名称
+              </label>
+              <input 
+                v-model="editForm.name" 
+                type="text" 
+                required 
+                placeholder="输入执行名称"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-icon">⚙️</span>
+                执行类型
+              </label>
+              <div class="type-selector">
+                <button
+                  type="button"
+                  @click="editForm.type = '手动执行'"
+                  :class="['type-option', { active: editForm.type === '手动执行' }]"
+                >
+                  <span class="type-icon">👤</span>
+                  <span class="type-label">手动执行</span>
+                </button>
+                <button
+                  type="button"
+                  @click="editForm.type = '自动化执行'"
+                  :class="['type-option', { active: editForm.type === '自动化执行' }]"
+                >
+                  <span class="type-icon">🤖</span>
+                  <span class="type-label">自动执行</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="modal-footer">
+            <button @click="showEditModal = false" class="btn-cancel">取消</button>
+            <button @click="updateExecution" class="btn-submit">
+              <span class="btn-spinner" v-if="loading"></span>
+              <span v-else>保存修改</span>
             </button>
           </div>
         </div>
@@ -193,7 +257,9 @@ import { executionAPI, projectAPI } from '../api/index.js'
 const executions = ref([])
 const projects = ref([])
 const showCreateModal = ref(false)
+const showEditModal = ref(false)
 const loading = ref(false)
+const selectedExecution = ref(null)
 
 const filters = ref({
   project_id: ''
@@ -201,15 +267,28 @@ const filters = ref({
 
 const executionForm = ref({
   project_id: '',
-  type: 'manual',
-  env: 'test'
+  name: '',
+  type: '手动执行'
+})
+
+const editForm = ref({
+  id: null,
+  name: '',
+  type: ''
 })
 
 const statusMap = {
-  pending: { text: '待执行', color: '#f59e0b' },
-  running: { text: '执行中', color: '#3b82f6' },
-  completed: { text: '已完成', color: '#10b981' },
-  failed: { text: '失败', color: '#ef4444' }
+  '等待中': { text: '等待中', color: '#f59e0b' },
+  '执行中': { text: '执行中', color: '#3b82f6' },
+  '已完成': { text: '已完成', color: '#10b981' },
+  '失败': { text: '失败', color: '#ef4444' },
+  '已取消': { text: '已取消', color: '#9ca3af' }
+}
+
+const envMap = {
+  test: '测试环境',
+  staging: '预发布环境',
+  production: '生产环境'
 }
 
 onMounted(async () => {
@@ -240,11 +319,16 @@ const loadExecutions = async () => {
 }
 
 const createExecution = async () => {
+  if (!executionForm.value.name.trim()) {
+    alert('请输入执行名称')
+    return
+  }
+  
   loading.value = true
   try {
     await executionAPI.create(executionForm.value)
     showCreateModal.value = false
-    executionForm.value = { project_id: '', type: 'manual', env: 'test' }
+    executionForm.value = { project_id: '', name: '', type: '手动执行' }
     await loadExecutions()
   } catch (error) {
     console.error('创建执行失败:', error)
@@ -296,6 +380,49 @@ const formatResult = (result) => {
 
 const getStatusText = (status) => {
   return statusMap[status]?.text || status
+}
+
+const getStatusClass = (status) => {
+  const classMap = {
+    '等待中': 'pending',
+    '执行中': 'running',
+    '已完成': 'completed',
+    '失败': 'failed',
+    '已取消': 'cancelled'
+  }
+  return classMap[status] || status
+}
+
+const editExecution = (execution) => {
+  selectedExecution.value = execution
+  editForm.value = {
+    id: execution.id,
+    name: execution.name,
+    type: execution.type
+  }
+  showEditModal.value = true
+}
+
+const updateExecution = async () => {
+  if (!editForm.value.name.trim()) {
+    alert('请输入执行名称')
+    return
+  }
+  
+  loading.value = true
+  try {
+    await executionAPI.update(editForm.value.id, {
+      name: editForm.value.name,
+      type: editForm.value.type
+    })
+    showEditModal.value = false
+    await loadExecutions()
+  } catch (error) {
+    console.error('修改执行失败:', error)
+    alert('修改执行失败')
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -708,6 +835,7 @@ const getStatusText = (status) => {
 }
 
 .btn-run,
+.btn-view,
 .btn-delete {
   flex: 1;
   padding: 10px 16px;
@@ -732,6 +860,21 @@ const getStatusText = (status) => {
 .btn-run:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-view {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.btn-view:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.view-icon {
+  font-size: 1rem;
 }
 
 .run-icon {
@@ -895,6 +1038,8 @@ const getStatusText = (status) => {
   font-size: 1.1rem;
 }
 
+.form-input,
+.form-textarea,
 .form-select {
   width: 100%;
   padding: 12px 16px;
@@ -906,6 +1051,8 @@ const getStatusText = (status) => {
   background: white;
 }
 
+.form-input:focus,
+.form-textarea:focus,
 .form-select:focus {
   outline: none;
   border-color: #667eea;
@@ -1048,6 +1195,234 @@ const getStatusText = (status) => {
 
   .type-selector {
     grid-template-columns: 1fr;
+  }
+}
+
+.detail-modal {
+  max-width: 600px;
+}
+
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.running {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.result-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.result-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+}
+
+.result-icon {
+  font-size: 1.2rem;
+}
+
+.result-stats {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.result-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card.passed {
+  border-color: #10b981;
+  background: #d1fae5;
+}
+
+.stat-card.failed {
+  border-color: #ef4444;
+  background: #fee2e2;
+}
+
+.stat-card.skipped {
+  border-color: #f59e0b;
+  background: #fef3c7;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.stat-card.passed .stat-number {
+  color: #065f46;
+}
+
+.stat-card.failed .stat-number {
+  color: #991b1b;
+}
+
+.stat-card.skipped .stat-number {
+  color: #92400e;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.pass-rate-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pass-rate-label {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.pass-rate-bar {
+  flex: 1;
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.pass-rate-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.pass-rate-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #10b981;
+  min-width: 50px;
+  text-align: right;
+}
+
+.no-result {
+  text-align: center;
+  padding: 40px 20px;
+  color: #9ca3af;
+}
+
+.no-result-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.no-result p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .detail-row {
+    grid-template-columns: 1fr;
+  }
+
+  .result-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pass-rate-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pass-rate-label {
+    text-align: center;
+  }
+
+  .pass-rate-text {
+    text-align: center;
   }
 }
 </style>

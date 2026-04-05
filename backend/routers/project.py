@@ -40,6 +40,15 @@ async def delete_project(
     return await service.delete_project(id, db)
 
 
+@router.put("/{id}", response_model=ProjectResponse)
+async def update_project(
+    id: int,
+    project_info: ProjectUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    return await service.update_project(id, project_info, db)
+
+
 @router.post("/{id}/members", response_model=ProjectMemberResponse)
 async def add_project_member(
     id: int,

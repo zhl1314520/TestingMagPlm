@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.db import get_db
-from schemas.execution import ExecutionCreate, ExecutionResponse, ExecutionPageResponse
+from schemas.execution import ExecutionCreate, ExecutionUpdate, ExecutionResponse, ExecutionPageResponse
 from services import execution as service
 
 router = APIRouter(
@@ -26,6 +26,23 @@ async def get_execution_list(
     db: AsyncSession = Depends(get_db)
 ):
     return await service.get_execution_list(page, page_size, project_id, db)
+
+
+@router.get("/{id}", response_model=ExecutionResponse)
+async def get_execution_detail(
+    id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    return await service.get_execution_detail(id, db)
+
+
+@router.put("/{id}", response_model=ExecutionResponse)
+async def update_execution(
+    id: int,
+    execution_info: ExecutionUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    return await service.update_execution(id, execution_info, db)
 
 
 @router.post("/{id}/run", response_model=ExecutionResponse)

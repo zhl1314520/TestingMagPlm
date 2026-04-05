@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.db import get_db
+from core.security import get_current_user
 from schemas.bug import BugCreate, BugUpdate, BugResponse, BugPageResponse
 from services import bug as service
 
@@ -13,9 +14,10 @@ router = APIRouter(
 @router.post("", response_model=BugResponse)
 async def create_bug(
     bug_info: BugCreate,
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    return await service.create_bug(bug_info, db)
+    return await service.create_bug(bug_info, current_user["user_id"], db)
 
 
 @router.get("", response_model=BugPageResponse)
@@ -25,14 +27,18 @@ async def get_bug_list(
     project_id: int = Query(None),
     status: str = Query(None),
     priority: str = Query(None),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    return await service.get_bug_list(page, page_size, project_id, status, priority, db)
+    return await service.get_bug_list_by_user(
+        page, page_size, current_user["user_id"], project_id, status, priority, db
+    )
 
 
 @router.get("/{id}", response_model=BugResponse)
 async def get_bug(
     id: int,
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     from DAO import bug as crud
@@ -47,6 +53,7 @@ async def get_bug(
 async def update_bug(
     id: int,
     bug_info: BugUpdate,
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     return await service.update_bug(id, bug_info, db)
@@ -56,6 +63,7 @@ async def update_bug(
 async def update_bug_status(
     id: int,
     status: str,
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     return await service.update_bug_status(id, status, db)
@@ -64,6 +72,7 @@ async def update_bug_status(
 @router.delete("/{id}")
 async def delete_bug(
     id: int,
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     return await service.delete_bug(id, db)

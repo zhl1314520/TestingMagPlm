@@ -60,6 +60,35 @@ async def delete_project(project_id: int, db: AsyncSession):
     }
 
 
+async def update_project(project_id: int, update_data: ProjectUpdate, db: AsyncSession):
+    logger.info("更新项目请求: project_id=%s", project_id)
+
+    project = await crud.get_project_by_id(project_id, db)
+    if not project:
+        logger.warning("项目不存在: project_id=%s", project_id)
+        raise HTTPException(
+            status_code=404,
+            detail="PROJECT_NOT_FOUND"
+        )
+
+    if update_data.name:
+        existing = await crud.get_project_by_name(update_data.name, db)
+        if existing and existing.id != project_id:
+            logger.warning("项目名称已存在: name=%s", update_data.name)
+            raise HTTPException(
+                status_code=400,
+                detail="PROJECT_NAME_ALREADY_EXISTS"
+            )
+
+    update_dict = update_data.model_dump(exclude_unset=True)
+    updated_project = await crud.update_project(project_id, update_dict, db)
+    await db.commit()
+    await db.refresh(updated_project)
+
+    logger.info("项目更新成功: id=%s", updated_project.id)
+    return updated_project
+
+
 async def add_project_member(member_data: ProjectMemberCreate, db: AsyncSession):
     logger.info("添加项目成员: project_id=%s, user_id=%s", member_data.project_id, member_data.user_id)
 

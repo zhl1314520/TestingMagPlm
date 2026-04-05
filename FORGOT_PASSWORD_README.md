@@ -130,14 +130,7 @@ export const authAPI = {
 
 ## 测试方法
 
-### 方法 1: 使用测试脚本
-
-```bash
-cd backend
-python test_password_reset.py
-```
-
-### 方法 2: 手动测试
+### 手动测试
 
 1. 启动后端服务：
    ```bash

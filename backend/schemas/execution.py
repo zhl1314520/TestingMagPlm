@@ -1,14 +1,22 @@
 from typing import List
 from pydantic import BaseModel, Field
+from datetime import datetime
 
 
 class ExecutionResponse(BaseModel):
     id: int
     project_id: int
+    name: str
     type: str
     status: str
-    result: str | None
-    created_at: str
+    result: str
+    total_cases: int | None
+    passed_cases: int | None
+    failed_cases: int | None
+    pass_rate: float | None
+    executed_by: int | None
+    created_at: datetime
+    updated_at: datetime | None
 
     class Config:
         from_attributes = True
@@ -16,8 +24,13 @@ class ExecutionResponse(BaseModel):
 
 class ExecutionCreate(BaseModel):
     project_id: int
-    type: str = Field(..., max_length=20)
-    env: str = Field(..., max_length=50)
+    name: str = Field(..., max_length=200)
+    type: str = Field(default="手动执行", max_length=20)
+
+
+class ExecutionUpdate(BaseModel):
+    name: str | None = Field(None, max_length=200)
+    type: str | None = Field(None, max_length=20)
 
 
 class ExecutionPageResponse(BaseModel):

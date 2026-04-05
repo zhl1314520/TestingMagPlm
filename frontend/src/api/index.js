@@ -71,6 +71,7 @@ export const userAPI = {
 export const projectAPI = {
   getList: (page = 1, pageSize = 10) => api.get('/projects', { params: { page, page_size: pageSize } }),
   create: (data) => api.post('/projects', data),
+  update: (id, data) => api.put(`/projects/${id}`, data),
   delete: (id) => api.delete(`/projects/${id}`),
   addMember: (id, data) => api.post(`/projects/${id}/members`, data),
   getMembers: (id) => api.get(`/projects/${id}/members`),
@@ -89,7 +90,9 @@ export const testcaseAPI = {
 export const executionAPI = {
   getList: (page = 1, pageSize = 10, projectId = null) => 
     api.get('/executions', { params: { page, page_size: pageSize, project_id: projectId } }),
+  get: (id) => api.get(`/executions/${id}`),
   create: (data) => api.post('/executions', data),
+  update: (id, data) => api.put(`/executions/${id}`, data),
   run: (id) => api.post(`/executions/${id}/run`),
   delete: (id) => api.delete(`/executions/${id}`)
 }

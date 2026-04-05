@@ -50,6 +50,9 @@
 
         <div class="card-footer">
           <div class="action-buttons" @click.stop>
+            <button @click="openEditModal(project)" class="btn-edit" title="修改">
+              <span>✏️</span>
+            </button>
             <button @click="deleteProject(project.id)" class="btn-delete" title="删除">
               <span>🗑</span>
             </button>
@@ -110,6 +113,58 @@
       </div>
     </Transition>
 
+    <Transition name="modal">
+      <div v-if="showEditModal" class="modal-overlay" @click="showEditModal = false">
+        <div class="modal-container" @click.stop>
+          <div class="modal-header">
+            <div class="modal-title">
+              <span class="modal-icon">✏️</span>
+              <h2>修改项目</h2>
+            </div>
+            <button @click="showEditModal = false" class="btn-close">×</button>
+          </div>
+          
+          <form @submit.prevent="updateProject" class="modal-body">
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-icon">📝</span>
+                项目名称
+              </label>
+              <input 
+                v-model="editProject.name" 
+                type="text" 
+                required 
+                placeholder="输入项目名称"
+                class="form-input"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-icon">📄</span>
+                项目描述
+              </label>
+              <textarea 
+                v-model="editProject.description" 
+                rows="4" 
+                required
+                placeholder="描述项目目标和范围"
+                class="form-textarea"
+              ></textarea>
+            </div>
+          </form>
+
+          <div class="modal-footer">
+            <button @click="showEditModal = false" class="btn-cancel">取消</button>
+            <button @click="updateProject" class="btn-submit">
+              <span class="btn-spinner" v-if="loading"></span>
+              <span v-else>保存修改</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <Transition name="toast">
       <div v-if="toast.show" class="toast-overlay" @click="hideToast">
         <div class="toast-container" @click.stop>
@@ -154,8 +209,14 @@ import { projectAPI } from '../api/index.js'
 
 const projects = ref([])
 const showCreateModal = ref(false)
+const showEditModal = ref(false)
 const loading = ref(false)
 const newProject = ref({
+  name: '',
+  description: ''
+})
+const editProject = ref({
+  id: null,
   name: '',
   description: ''
 })
@@ -245,6 +306,39 @@ const deleteProject = async (id) => {
       showToast('error', '错误', '删除项目失败')
     }
   })
+}
+
+const openEditModal = (project) => {
+  editProject.value = {
+    id: project.id,
+    name: project.name,
+    description: project.description || ''
+  }
+  showEditModal.value = true
+}
+
+const updateProject = async () => {
+  if (!editProject.value.name.trim()) return
+  if (!editProject.value.description || !editProject.value.description.trim()) {
+    showToast('warning', '提示', '项目描述为必填项！')
+    return
+  }
+  
+  loading.value = true
+  try {
+    await projectAPI.update(editProject.value.id, {
+      name: editProject.value.name,
+      description: editProject.value.description
+    })
+    showEditModal.value = false
+    await loadProjects()
+    showToast('success', '成功', '修改成功！')
+  } catch (error) {
+    console.error('修改项目失败:', error)
+    showToast('error', '错误', '修改项目失败')
+  } finally {
+    loading.value = false
+  }
 }
 
 const formatDate = (dateString) => {
@@ -526,6 +620,7 @@ const formatDate = (dateString) => {
   justify-content: flex-end;
 }
 
+.btn-edit,
 .btn-delete {
   width: 36px;
   height: 36px;
@@ -537,6 +632,17 @@ const formatDate = (dateString) => {
   justify-content: center;
   font-size: 1.1rem;
   transition: all 0.3s;
+}
+
+.btn-edit {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.btn-edit:hover {
+  background: #4338ca;
+  color: white;
+  transform: scale(1.1);
 }
 
 .btn-delete {

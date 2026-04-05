@@ -223,6 +223,41 @@
         </div>
       </div>
     </Transition>
+
+    <Transition name="toast">
+      <div v-if="toast.show" class="toast-overlay" @click="hideToast">
+        <div class="toast-container" @click.stop>
+          <div class="toast-icon" :class="toast.type">
+            <span v-if="toast.type === 'success'">✓</span>
+            <span v-else-if="toast.type === 'error'">✕</span>
+            <span v-else>!</span>
+          </div>
+          <div class="toast-content">
+            <h3 class="toast-title">{{ toast.title }}</h3>
+            <p class="toast-message">{{ toast.message }}</p>
+          </div>
+          <button @click="hideToast" class="toast-close">×</button>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="confirm">
+      <div v-if="confirmDialog.show" class="confirm-overlay" @click="cancelConfirm">
+        <div class="confirm-container" @click.stop>
+          <div class="confirm-icon">
+            <span>⚠️</span>
+          </div>
+          <div class="confirm-content">
+            <h3 class="confirm-title">确认删除</h3>
+            <p class="confirm-message">{{ confirmDialog.message }}</p>
+          </div>
+          <div class="confirm-actions">
+            <button @click="cancelConfirm" class="confirm-btn cancel">取消</button>
+            <button @click="confirmAction" class="confirm-btn delete">删除</button>
+          </div>
+        </div>
+      </div>
+    </Transition>
     </div>
   </div>
 </template>
@@ -250,6 +285,19 @@ const bugForm = ref({
   status: 'new',
   priority: 'medium',
   assignee_id: null
+})
+
+const toast = ref({
+  show: false,
+  type: 'success',
+  title: '',
+  message: ''
+})
+
+const confirmDialog = ref({
+  show: false,
+  message: '',
+  onConfirm: null
 })
 
 const priorityOptions = [
@@ -303,19 +351,70 @@ const loadBugs = async () => {
   }
 }
 
+const showToast = (type, title, message) => {
+  toast.value = { show: true, type, title, message }
+  setTimeout(() => {
+    hideToast()
+  }, 3000)
+}
+
+const hideToast = () => {
+  toast.value.show = false
+}
+
+const showConfirm = (message, onConfirm) => {
+  confirmDialog.value = { show: true, message, onConfirm }
+}
+
+const cancelConfirm = () => {
+  confirmDialog.value.show = false
+}
+
+const confirmAction = () => {
+  if (confirmDialog.value.onConfirm) {
+    confirmDialog.value.onConfirm()
+  }
+  confirmDialog.value.show = false
+}
+
+const validateForm = () => {
+  if (!bugForm.value.project_id) {
+    showToast('warning', '提示', '请选择所属项目！')
+    return false
+  }
+  if (!bugForm.value.title || !bugForm.value.title.trim()) {
+    showToast('warning', '提示', '缺陷标题为必填项！')
+    return false
+  }
+  if (!bugForm.value.description || !bugForm.value.description.trim()) {
+    showToast('warning', '提示', '详细描述为必填项！')
+    return false
+  }
+  return true
+}
+
 const saveBug = async () => {
+  if (!validateForm()) return
+  
   loading.value = true
   try {
+    const dataToSend = {
+      ...bugForm.value,
+      project_id: parseInt(bugForm.value.project_id)
+    }
     if (editingBug.value) {
-      await bugAPI.update(editingBug.value.id, bugForm.value)
+      await bugAPI.update(editingBug.value.id, dataToSend)
+      showToast('success', '成功', '缺陷修改成功！')
     } else {
-      await bugAPI.create(bugForm.value)
+      await bugAPI.create(dataToSend)
+      showToast('success', '成功', '缺陷创建成功！')
     }
     closeModal()
     await loadBugs()
   } catch (error) {
     console.error('保存缺陷失败:', error)
-    alert('保存缺陷失败')
+    const errorMsg = error.response?.data?.detail || '保存缺陷失败'
+    showToast('error', '错误', errorMsg)
   } finally {
     loading.value = false
   }
@@ -328,15 +427,16 @@ const editBug = (bug) => {
 }
 
 const deleteBug = async (id) => {
-  if (!confirm('确定要删除这个缺陷吗？')) return
-
-  try {
-    await bugAPI.delete(id)
-    await loadBugs()
-  } catch (error) {
-    console.error('删除缺陷失败:', error)
-    alert('删除缺陷失败')
-  }
+  showConfirm('确定要删除这个缺陷吗？此操作不可恢复。', async () => {
+    try {
+      await bugAPI.delete(id)
+      await loadBugs()
+      showToast('success', '成功', '删除成功！')
+    } catch (error) {
+      console.error('删除缺陷失败:', error)
+      showToast('error', '错误', '删除缺陷失败')
+    }
+  })
 }
 
 const closeModal = () => {
@@ -1133,5 +1233,232 @@ const getPriorityText = (priority) => {
   .priority-option {
     min-width: 60px;
   }
+}
+
+.toast-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.toast-container {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 32px;
+  min-width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  animation: toastBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes toastBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.toast-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+}
+
+.toast-icon.success {
+  background: #10b981;
+}
+
+.toast-icon.error {
+  background: #ef4444;
+}
+
+.toast-icon.warning {
+  background: #f59e0b;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.toast-message {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.toast-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.toast-enter-active {
+  animation: fadeIn 0.3s ease;
+}
+
+.toast-leave-active {
+  animation: fadeOut 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.confirm-container {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px;
+  min-width: 360px;
+  max-width: 90vw;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: confirmBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  text-align: center;
+}
+
+@keyframes confirmBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.confirm-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  background: #fef3c7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.confirm-title {
+  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.confirm-message {
+  margin: 0 0 24px 0;
+  font-size: 0.9375rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.confirm-btn {
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.confirm-btn.cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.confirm-btn.cancel:hover {
+  background: #e5e7eb;
+}
+
+.confirm-btn.delete {
+  background: #ef4444;
+  color: white;
+}
+
+.confirm-btn.delete:hover {
+  background: #dc2626;
+}
+
+.confirm-enter-active {
+  animation: fadeIn 0.3s ease;
+}
+
+.confirm-leave-active {
+  animation: fadeOut 0.2s ease;
 }
 </style>

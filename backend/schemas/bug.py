@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 
@@ -10,8 +11,9 @@ class BugResponse(BaseModel):
     description: str
     status: str
     priority: str
+    reporter_id: int
     assignee_id: int | None
-    created_at: str
+    created_at: datetime
 
     class Config:
         from_attributes = True
