@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.db import get_db
 from core.security import get_current_user
-from schemas.user import UserCreate, UserLogin, LoginResponse, UserResponse, UserPageResponse, UserUpdate
-from services.user import login_user, create_user, get_user_list, delete_user, update_user, get_user_by_id
+from schemas.user import UserCreate, UserLogin, LoginResponse, UserResponse, UserPageResponse, UserUpdate, ChangePassword
+from services import user as user_service
 from services.password_reset import send_reset_code, verify_reset_code, reset_password
-from DAO.user import get_user_by_id
+from DAO import user as user_dao
 
 router = APIRouter(
     prefix="/auth",
@@ -25,7 +25,7 @@ async def login(
     login_data: UserLogin,
     db: AsyncSession = Depends(get_db)
 ):
-    return await login_user(login_data.email, login_data.password, db)
+    return await user_service.login_user(login_data.email, login_data.password, db)
 
 
 # 获取当前用户信息
@@ -39,7 +39,7 @@ async def get_current_user_info(
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    user = await get_user_by_id(current_user["user_id"], db)
+    user = await user_dao.get_user_by_id(current_user["user_id"], db)
     return user
 
 
@@ -50,28 +50,28 @@ user_router = APIRouter(
 
 
 @user_router.post("", response_model=UserResponse)
-async def create_user(
+async def create_user_endpoint(
     user_info: UserCreate,
     db: AsyncSession = Depends(get_db)
 ):
-    return await create_user(user_info, db)
+    return await user_service.create_user(user_info, db)
 
 
 @user_router.get("", response_model=UserPageResponse)
-async def get_user_list(
+async def get_user_list_endpoint(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
     db: AsyncSession = Depends(get_db)
 ):
-    return await get_user_list(page, page_size, db)
+    return await user_service.get_user_list(page, page_size, db)
 
 
 @user_router.delete("/{id}")
-async def delete_user(
+async def delete_user_endpoint(
     id: int,
     db: AsyncSession = Depends(get_db)
 ):
-    return await delete_user(id, db)
+    return await user_service.delete_user(id, db)
 
 
 # 更新用户信息（只允许更新 email 和 role）
@@ -87,7 +87,22 @@ async def update_user_info(
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="FORBIDDEN")
     
-    return await update_user(id, user_data, db)
+    return await user_service.update_user(id, user_data, db)
+
+
+# 修改密码
+@user_router.put("/{id}/password")
+async def change_user_password(
+    id: int,
+    password_data: ChangePassword,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if current_user["user_id"] != id:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="FORBIDDEN")
+    
+    return await user_service.change_password(id, password_data.old_password, password_data.new_password, db)
 
 
 # 获取用户详细信息
@@ -97,7 +112,7 @@ async def get_user_detail(
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    return await get_user_by_id(id, db)
+    return await user_service.get_user_by_id(id, db)
 
 
 # 密码重置相关路由

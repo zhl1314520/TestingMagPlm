@@ -148,11 +148,16 @@
           <h2>报告列表</h2>
         </div>
         <div class="section-count">
-          共 {{ reports.length }} 份报告
+          共 {{ pagination.total }} 份报告
         </div>
       </div>
 
-      <div v-if="reports.length === 0" class="empty-reports">
+      <div v-if="loading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>加载中...</p>
+      </div>
+
+      <div v-else-if="reports.length === 0" class="empty-reports">
         <div class="empty-icon">📄</div>
         <h3>暂无报告</h3>
         <p>测试执行后将自动生成报告</p>
@@ -163,17 +168,28 @@
           <div class="report-header">
             <div class="report-title">
               <span class="report-icon">📊</span>
-              <h3>测试报告 #{{ report.id }}</h3>
+              <h3>{{ report.title }}</h3>
             </div>
             <div class="report-date">{{ formatDate(report.created_at) }}</div>
+          </div>
+
+          <div class="report-meta">
+            <div class="meta-item">
+              <span class="meta-icon">📁</span>
+              <span>项目ID: {{ report.project_id }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">📝</span>
+              <span>总用例: {{ report.total_cases }}</span>
+            </div>
           </div>
 
           <div class="report-stats">
             <div class="stat-item pass">
               <div class="stat-icon">✅</div>
               <div class="stat-content">
-                <div class="stat-value">{{ (report.pass_rate * 100).toFixed(1) }}%</div>
-                <div class="stat-label">通过率</div>
+                <div class="stat-value">{{ report.passed_cases }}</div>
+                <div class="stat-label">通过 ({{ (report.pass_rate * 100).toFixed(1) }}%)</div>
               </div>
               <div class="stat-bar">
                 <div class="stat-progress" :style="{ width: report.pass_rate * 100 + '%' }"></div>
@@ -183,8 +199,8 @@
             <div class="stat-item fail">
               <div class="stat-icon">❌</div>
               <div class="stat-content">
-                <div class="stat-value">{{ (report.fail_rate * 100).toFixed(1) }}%</div>
-                <div class="stat-label">失败率</div>
+                <div class="stat-value">{{ report.failed_cases }}</div>
+                <div class="stat-label">失败 ({{ (report.fail_rate * 100).toFixed(1) }}%)</div>
               </div>
               <div class="stat-bar">
                 <div class="stat-progress" :style="{ width: report.fail_rate * 100 + '%' }"></div>
@@ -193,13 +209,31 @@
           </div>
         </div>
       </div>
+
+      <div v-if="reports.length > 0" class="pagination">
+        <button 
+          class="btn-page" 
+          :disabled="pagination.page === 1" 
+          @click="changePage(pagination.page - 1)"
+        >
+          上一页
+        </button>
+        <span class="page-info">第 {{ pagination.page }} / {{ totalPages }} 页</span>
+        <button 
+          class="btn-page" 
+          :disabled="pagination.page >= totalPages" 
+          @click="changePage(pagination.page + 1)"
+        >
+          下一页
+        </button>
+      </div>
     </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { reportAPI, metricsAPI } from '../api/index.js'
 
 const loading = ref(false)
@@ -210,21 +244,21 @@ const metrics = ref({
   total_executions: 0
 })
 
-const trendData = ref([
-  { date: '周一', pass_rate: 0.85, fail_rate: 0.15 },
-  { date: '周二', pass_rate: 0.88, fail_rate: 0.12 },
-  { date: '周三', pass_rate: 0.82, fail_rate: 0.18 },
-  { date: '周四', pass_rate: 0.90, fail_rate: 0.10 },
-  { date: '周五', pass_rate: 0.87, fail_rate: 0.13 },
-  { date: '周六', pass_rate: 0.92, fail_rate: 0.08 },
-  { date: '周日', pass_rate: 0.89, fail_rate: 0.11 }
-])
+const trendData = ref([])
 
 const reports = ref([])
+const pagination = ref({
+  page: 1,
+  pageSize: 10,
+  total: 0
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(pagination.value.total / pagination.value.pageSize) || 1
+})
 
 onMounted(async () => {
-  await loadMetrics()
-  await loadReports()
+  await Promise.all([loadMetrics(), loadTrendData(), loadReports()])
 })
 
 const loadMetrics = async () => {
@@ -236,23 +270,43 @@ const loadMetrics = async () => {
   }
 }
 
-const loadReports = async () => {
+const loadTrendData = async () => {
   try {
-    const response = await reportAPI.getList()
+    const response = await metricsAPI.getTrend()
+    trendData.value = response.data
+  } catch (error) {
+    console.error('获取趋势数据失败:', error)
+  }
+}
+
+const loadReports = async () => {
+  loading.value = true
+  try {
+    const response = await reportAPI.getList(pagination.value.page, pagination.value.pageSize)
     reports.value = response.data.items
+    pagination.value.total = response.data.total
   } catch (error) {
     console.error('加载报告列表失败:', error)
+  } finally {
+    loading.value = false
   }
+}
+
+const changePage = (page) => {
+  pagination.value.page = page
+  loadReports()
 }
 
 const refreshData = async () => {
   loading.value = true
-  await Promise.all([loadMetrics(), loadReports()])
+  await Promise.all([loadMetrics(), loadTrendData(), loadReports()])
   loading.value = false
 }
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleString('zh-CN', {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleString('zh-CN', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -783,6 +837,84 @@ const formatDate = (dateString) => {
 .empty-reports p {
   margin: 0;
   color: #9ca3af;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.report-meta {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.meta-icon {
+  font-size: 1rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-page {
+  padding: 10px 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-page:hover:not(:disabled) {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.btn-page:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {

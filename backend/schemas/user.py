@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 from pydantic import BaseModel, Field
 
@@ -7,6 +8,7 @@ class UserResponse(BaseModel):
     username: str
     role: str
     email: str
+    created_at: datetime
 
     class Config:
         from_attributes = True
@@ -37,3 +39,8 @@ class UserPageResponse(BaseModel):
 class UserUpdate(BaseModel):
     email: str
     role: str
+
+
+class ChangePassword(BaseModel):
+    old_password: str
+    new_password: str = Field(..., min_length=6)

@@ -1,5 +1,6 @@
-from sqlalchemy import select, func, delete, case
+from sqlalchemy import select, func, delete, case, and_
 from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime, timedelta
 from models.report import Report
 from models.project import Project
 from models.testcase import TestCase
@@ -44,17 +45,107 @@ async def get_report_list(page: int, page_size: int, project_id: int = None, db:
     return total, items
 
 
+async def get_user_report_list(user_id: int, page: int, page_size: int, project_id: int = None, db: AsyncSession = None):
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"get_user_report_list called with user_id={user_id}")
+    
+    count_stmt = select(func.count()).select_from(Report).where(Report.created_by == user_id)
+    
+    if project_id:
+        count_stmt = count_stmt.where(Report.project_id == project_id)
+    
+    total = (await db.execute(count_stmt)).scalar()
+    logger.info(f"Total reports for user_id={user_id}: {total}")
+
+    stmt = (
+        select(Report)
+        .where(Report.created_by == user_id)
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .order_by(Report.id.desc())
+    )
+    
+    if project_id:
+        stmt = stmt.where(Report.project_id == project_id)
+    
+    result = await db.execute(stmt)
+    items = result.scalars().all()
+    logger.info(f"Reports returned: {[r.id for r in items]}")
+
+    return total, items
+
+
 async def get_metrics_overview(db: AsyncSession):
-    total_projects = (await db.execute(select(func.count()).select_from(Project))).scalar()
-    total_testcases = (await db.execute(select(func.count()).select_from(TestCase))).scalar()
-    total_bugs = (await db.execute(select(func.count()).select_from(Bug))).scalar()
-    total_executions = (await db.execute(select(func.count()).select_from(Execution))).scalar()
+    now = datetime.now()
+    one_week_ago = now - timedelta(days=7)
+    two_weeks_ago = now - timedelta(days=14)
+    
+    total_projects = (await db.execute(select(func.count()).select_from(Project))).scalar() or 0
+    total_testcases = (await db.execute(select(func.count()).select_from(TestCase))).scalar() or 0
+    total_bugs = (await db.execute(select(func.count()).select_from(Bug))).scalar() or 0
+    total_executions = (await db.execute(select(func.count()).select_from(Execution))).scalar() or 0
+    
+    this_week_projects = (await db.execute(
+        select(func.count()).select_from(Project).where(Project.created_at >= one_week_ago)
+    )).scalar() or 0
+    this_week_testcases = (await db.execute(
+        select(func.count()).select_from(TestCase).where(TestCase.created_at >= one_week_ago)
+    )).scalar() or 0
+    this_week_bugs = (await db.execute(
+        select(func.count()).select_from(Bug).where(Bug.created_at >= one_week_ago)
+    )).scalar() or 0
+    this_week_executions = (await db.execute(
+        select(func.count()).select_from(Execution).where(Execution.created_at >= one_week_ago)
+    )).scalar() or 0
+    
+    last_week_projects = (await db.execute(
+        select(func.count()).select_from(Project).where(
+            and_(Project.created_at >= two_weeks_ago, Project.created_at < one_week_ago)
+        )
+    )).scalar() or 0
+    last_week_testcases = (await db.execute(
+        select(func.count()).select_from(TestCase).where(
+            and_(TestCase.created_at >= two_weeks_ago, TestCase.created_at < one_week_ago)
+        )
+    )).scalar() or 0
+    last_week_bugs = (await db.execute(
+        select(func.count()).select_from(Bug).where(
+            and_(Bug.created_at >= two_weeks_ago, Bug.created_at < one_week_ago)
+        )
+    )).scalar() or 0
+    last_week_executions = (await db.execute(
+        select(func.count()).select_from(Execution).where(
+            and_(Execution.created_at >= two_weeks_ago, Execution.created_at < one_week_ago)
+        )
+    )).scalar() or 0
+    
+    def calc_growth(current: int, previous: int) -> dict:
+        if previous == 0:
+            if current > 0:
+                return {"value": 100, "is_positive": True}
+            return {"value": 0, "is_positive": True}
+        growth = round((current - previous) / previous * 100)
+        return {"value": abs(growth), "is_positive": growth >= 0}
+    
+    projects_growth = calc_growth(this_week_projects, last_week_projects)
+    testcases_growth = calc_growth(this_week_testcases, last_week_testcases)
+    bugs_growth = calc_growth(this_week_bugs, last_week_bugs)
+    executions_growth = calc_growth(this_week_executions, last_week_executions)
     
     return {
-        "total_projects": total_projects or 0,
-        "total_testcases": total_testcases or 0,
-        "total_bugs": total_bugs or 0,
-        "total_executions": total_executions or 0
+        "total_projects": total_projects,
+        "total_testcases": total_testcases,
+        "total_bugs": total_bugs,
+        "total_executions": total_executions,
+        "projects_growth": projects_growth["value"],
+        "projects_growth_positive": projects_growth["is_positive"],
+        "testcases_growth": testcases_growth["value"],
+        "testcases_growth_positive": testcases_growth["is_positive"],
+        "bugs_growth": bugs_growth["value"],
+        "bugs_growth_positive": bugs_growth["is_positive"],
+        "executions_growth": executions_growth["value"],
+        "executions_growth_positive": executions_growth["is_positive"]
     }
 
 

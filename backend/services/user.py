@@ -120,3 +120,28 @@ async def get_user_by_id(user_id: int, db: AsyncSession):
         )
     
     return user
+
+
+async def change_password(user_id: int, old_password: str, new_password: str, db: AsyncSession):
+    logger.info("修改密码请求：user_id=%s", user_id)
+    
+    user = await crud.get_user_by_id(user_id, db)
+    if not user:
+        logger.warning("用户不存在：user_id=%s", user_id)
+        raise HTTPException(
+            status_code=404,
+            detail="USER_NOT_FOUND"
+        )
+    
+    if not verify_password(old_password, user.password):
+        logger.warning("原密码错误：user_id=%s", user_id)
+        raise HTTPException(
+            status_code=400,
+            detail="OLD_PASSWORD_INCORRECT"
+        )
+    
+    user.password = get_password_hash(new_password)
+    await db.commit()
+    
+    logger.info("密码修改成功：user_id=%s", user_id)
+    return {"code": 200, "message": "密码修改成功"}

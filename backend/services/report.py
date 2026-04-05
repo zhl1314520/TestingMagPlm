@@ -16,6 +16,14 @@ async def get_report_list(page: int, page_size: int, project_id: int = None, db:
     )
 
 
+async def get_user_report_list(user_id: int, page: int, page_size: int, project_id: int = None, db: AsyncSession = None):
+    total, items = await crud.get_user_report_list(user_id, page, page_size, project_id, db)
+    return ReportPageResponse(
+        total=total,
+        items=items
+    )
+
+
 async def get_metrics_overview(db: AsyncSession):
     metrics = await crud.get_metrics_overview(db)
     return MetricsOverview(**metrics)

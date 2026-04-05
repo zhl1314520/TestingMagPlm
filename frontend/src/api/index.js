@@ -65,7 +65,8 @@ export const userAPI = {
   create: (data) => api.post('/users', data),
   delete: (id) => api.delete(`/users/${id}`),
   getDetail: (id) => api.get(`/users/${id}`),
-  update: (id, data) => api.put(`/users/${id}`, data)
+  update: (id, data) => api.put(`/users/${id}`, data),
+  changePassword: (id, data) => api.put(`/users/${id}/password`, data)
 }
 
 export const projectAPI = {

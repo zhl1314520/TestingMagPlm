@@ -52,24 +52,9 @@
             </div>
             
             <div class="dropdown-section">
-              <div class="dropdown-section-title">账户</div>
               <div class="dropdown-item" @click.stop="openProfileModal">
                 <span class="dropdown-icon">👤</span>
                 <span>个人资料</span>
-                <span class="dropdown-arrow">›</span>
-              </div>
-              <div class="dropdown-item" @click.stop>
-                <span class="dropdown-icon">⚙️</span>
-                <span>设置</span>
-                <span class="dropdown-arrow">›</span>
-              </div>
-            </div>
-            
-            <div class="dropdown-section">
-              <div class="dropdown-section-title">支持</div>
-              <div class="dropdown-item" @click.stop>
-                <span class="dropdown-icon">❓</span>
-                <span>帮助</span>
                 <span class="dropdown-arrow">›</span>
               </div>
             </div>
@@ -148,6 +133,13 @@
                 />
               </div>
               
+              <div class="form-group">
+                <button @click="openPasswordModal" class="btn-change-password">
+                  <span class="btn-icon">🔑</span>
+                  修改密码
+                </button>
+              </div>
+              
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">
@@ -200,6 +192,170 @@
         </div>
       </div>
     </Transition>
+    
+    <!-- 修改密码模态框 -->
+    <Transition name="modal">
+      <div v-if="showPasswordModal" class="modal-overlay" @click="showPasswordModal = false">
+        <div class="modal-container" @click.stop>
+          <div class="modal-header">
+            <div class="modal-title">
+              <span class="modal-icon">🔑</span>
+              <h2>修改密码</h2>
+            </div>
+            <button @click="showPasswordModal = false" class="btn-close">×</button>
+          </div>
+          
+          <div class="modal-body">
+            <div class="profile-section">
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">📧</span>
+                  当前邮箱
+                </label>
+                <input 
+                  v-model="passwordForm.email" 
+                  type="text" 
+                  disabled 
+                  class="form-input disabled"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">🔒</span>
+                  加密后的原密码
+                </label>
+                <input 
+                  v-model="profileForm.password" 
+                  type="password" 
+                  disabled 
+                  class="form-input disabled"
+                  placeholder="••••••••"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">🔐</span>
+                  请输入原密码
+                </label>
+                <div class="password-wrapper">
+                  <input 
+                    v-model="passwordForm.oldPassword" 
+                    :type="showOldPassword ? 'text' : 'password'" 
+                    class="form-input"
+                    placeholder="请输入原密码"
+                  />
+                  <button
+                    type="button"
+                    @click="showOldPassword = !showOldPassword"
+                    class="password-toggle"
+                  >
+                    <svg v-if="showOldPassword" class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg v-else class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                      <line x1="2" x2="22" y1="2" y2="22"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">🔑</span>
+                  请输入新密码
+                </label>
+                <div class="password-wrapper">
+                  <input 
+                    v-model="passwordForm.newPassword" 
+                    :type="showNewPassword ? 'text' : 'password'" 
+                    class="form-input"
+                    placeholder="请输入新密码"
+                  />
+                  <button
+                    type="button"
+                    @click="showNewPassword = !showNewPassword"
+                    class="password-toggle"
+                  >
+                    <svg v-if="showNewPassword" class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg v-else class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                      <line x1="2" x2="22" y1="2" y2="22"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">🔐</span>
+                  请确认密码
+                </label>
+                <div class="password-wrapper">
+                  <input 
+                    v-model="passwordForm.confirmPassword" 
+                    :type="showConfirmPassword ? 'text' : 'password'" 
+                    class="form-input"
+                    placeholder="请确认密码"
+                  />
+                  <button
+                    type="button"
+                    @click="showConfirmPassword = !showConfirmPassword"
+                    class="password-toggle"
+                  >
+                    <svg v-if="showConfirmPassword" class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg v-else class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                      <line x1="2" x2="22" y1="2" y2="22"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button @click="showPasswordModal = false" class="btn-cancel">取消</button>
+            <button @click="changePassword" class="btn-submit">
+              <span class="btn-spinner" v-if="passwordLoading"></span>
+              <span v-else>确认修改</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+    
+    <Transition name="toast">
+      <div v-if="toast.show" class="toast-overlay" @click="hideToast">
+        <div class="toast-container" @click.stop>
+          <div class="toast-icon" :class="toast.type">
+            <span v-if="toast.type === 'success'">✓</span>
+            <span v-else-if="toast.type === 'error'">✕</span>
+            <span v-else>!</span>
+          </div>
+          <div class="toast-content">
+            <h3 class="toast-title">{{ toast.title }}</h3>
+            <p class="toast-message">{{ toast.message }}</p>
+          </div>
+          <button @click="hideToast" class="toast-close">×</button>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -213,7 +369,9 @@ const route = useRoute()
 const userInfo = ref(null)
 const showUserMenu = ref(false)
 const showProfileModal = ref(false)
+const showPasswordModal = ref(false)
 const loading = ref(false)
+const passwordLoading = ref(false)
 
 const profileForm = ref({
   id: '',
@@ -223,6 +381,35 @@ const profileForm = ref({
   email: '',
   created_at: ''
 })
+
+const passwordForm = ref({
+  email: '',
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+const showOldPassword = ref(false)
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
+
+const toast = ref({
+  show: false,
+  type: 'success',
+  title: '',
+  message: ''
+})
+
+const showToast = (type, title, message) => {
+  toast.value = { show: true, type, title, message }
+  setTimeout(() => {
+    hideToast()
+  }, 3000)
+}
+
+const hideToast = () => {
+  toast.value.show = false
+}
 
 const isActive = (path) => {
   if (path === '/dashboard') {
@@ -275,7 +462,6 @@ const saveProfile = async () => {
       role: profileForm.value.role
     })
     
-    // 更新本地存储的用户信息
     const updatedUserInfo = {
       ...userInfo.value,
       email: profileForm.value.email,
@@ -285,10 +471,10 @@ const saveProfile = async () => {
     userInfo.value = updatedUserInfo
     
     showProfileModal.value = false
-    alert('个人资料更新成功')
+    showToast('success', '成功', '个人资料更新成功')
   } catch (error) {
     console.error('更新个人资料失败:', error)
-    alert('更新失败：' + (error.response?.data?.detail || '未知错误'))
+    showToast('error', '错误', '更新失败：' + (error.response?.data?.detail || '未知错误'))
   }
 }
 
@@ -302,11 +488,62 @@ const handleOutsideClick = (event) => {
   const userMenuContainer = document.querySelector('.user-menu-container')
   const modalOverlay = document.querySelector('.modal-overlay')
   
-  // 如果模态框打开，不关闭菜单
-  if (showProfileModal.value) return
+  if (showProfileModal.value || showPasswordModal.value) return
   
   if (userMenuContainer && !userMenuContainer.contains(event.target)) {
     showUserMenu.value = false
+  }
+}
+
+const openPasswordModal = () => {
+  passwordForm.value = {
+    email: profileForm.value.email,
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+  showOldPassword.value = false
+  showNewPassword.value = false
+  showConfirmPassword.value = false
+  showPasswordModal.value = true
+}
+
+const changePassword = async () => {
+  if (!passwordForm.value.oldPassword) {
+    showToast('warning', '提示', '请输入原密码')
+    return
+  }
+  if (!passwordForm.value.newPassword) {
+    showToast('warning', '提示', '请输入新密码')
+    return
+  }
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    showToast('warning', '提示', '两次输入的密码不一致')
+    return
+  }
+  if (passwordForm.value.newPassword.length < 6) {
+    showToast('warning', '提示', '新密码长度不能少于6位')
+    return
+  }
+  
+  passwordLoading.value = true
+  try {
+    await userAPI.changePassword(userInfo.value.id, {
+      old_password: passwordForm.value.oldPassword,
+      new_password: passwordForm.value.newPassword
+    })
+    showToast('success', '成功', '密码修改成功')
+    showPasswordModal.value = false
+  } catch (error) {
+    console.error('修改密码失败:', error)
+    const detail = error.response?.data?.detail
+    if (detail === 'OLD_PASSWORD_INCORRECT') {
+      showToast('error', '错误', '原密码错误')
+    } else {
+      showToast('error', '错误', '修改失败：' + (detail || '未知错误'))
+    }
+  } finally {
+    passwordLoading.value = false
   }
 }
 
@@ -887,6 +1124,66 @@ const logout = () => {
   cursor: not-allowed;
 }
 
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper .form-input {
+  padding-right: 45px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.password-toggle:hover {
+  color: #374151;
+}
+
+.password-toggle .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-change-password {
+  width: 100%;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 2px solid #667eea;
+  background: white;
+  color: #667eea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-change-password:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
 .modal-footer {
   padding: 24px;
   border-top: 1px solid #e5e7eb;
@@ -1002,5 +1299,120 @@ const logout = () => {
   .main-content {
     padding: 1rem 0;
   }
+}
+
+.toast-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.toast-container {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 32px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 400px;
+  animation: toastIn 0.3s ease;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.toast-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.toast-icon.success {
+  background: #10b981;
+}
+
+.toast-icon.error {
+  background: #ef4444;
+}
+
+.toast-icon.warning {
+  background: #f59e0b;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.toast-message {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.toast-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.toast-enter-active {
+  animation: fadeIn 0.3s ease;
+}
+
+.toast-leave-active {
+  animation: fadeOut 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 </style>

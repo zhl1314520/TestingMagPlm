@@ -55,7 +55,7 @@
               <span class="signal-label">当前平台沉淀的质量资产</span>
 
               <div class="signal-track">
-                <span class="signal-track-fill"></span>
+                <span class="signal-track-fill" :style="{ width: assetProgress + '%' }"></span>
               </div>
 
               <div class="signal-tags">
@@ -280,7 +280,15 @@ const metrics = ref({
   total_projects: 0,
   total_testcases: 0,
   total_bugs: 0,
-  total_executions: 0
+  total_executions: 0,
+  projects_growth: 0,
+  projects_growth_positive: true,
+  testcases_growth: 0,
+  testcases_growth_positive: true,
+  bugs_growth: 0,
+  bugs_growth_positive: true,
+  executions_growth: 0,
+  executions_growth_positive: true
 })
 
 const userInfo = ref(null)
@@ -342,6 +350,11 @@ const totalAssets = computed(() => {
   )
 })
 
+const assetProgress = computed(() => {
+  const progress = (totalAssets.value / 100) * 100
+  return Math.min(progress, 100)
+})
+
 const heroHighlights = computed(() => [
   {
     label: '项目轨道',
@@ -358,8 +371,15 @@ const heroHighlights = computed(() => [
 ])
 
 const insightCards = computed(() => {
-  // 计算每个指标的百分比（基于总数）
-  const total = totalAssets.value || 1
+  const formatTrend = (growth, isPositive) => {
+    const value = growth ?? 0
+    const label = isPositive ? '增长' : '减少'
+    return `${label} ${value}%`
+  }
+  
+  const getGrowth = (key) => metrics.value[`${key}_growth`] ?? 0
+  const isGrowthPositive = (key) => metrics.value[`${key}_growth_positive`] ?? true
+  
   return [
     {
       key: 'projects',
@@ -368,10 +388,10 @@ const insightCards = computed(() => {
       kicker: 'Project Scope',
       label: '项目总数',
       value: metrics.value.total_projects,
-      trend: '12% 增长',
-      trendClass: 'positive',
-      trendIcon: '↑',
-      progress: Math.round((metrics.value.total_projects / total) * 100) || 0
+      trend: formatTrend(getGrowth('projects'), isGrowthPositive('projects')),
+      trendClass: isGrowthPositive('projects') ? 'positive' : 'negative',
+      trendIcon: isGrowthPositive('projects') ? '↑' : '↓',
+      progress: Math.min(metrics.value.total_projects, 100)
     },
     {
       key: 'testcases',
@@ -380,10 +400,10 @@ const insightCards = computed(() => {
       kicker: 'Coverage Base',
       label: '测试用例',
       value: metrics.value.total_testcases,
-      trend: '8% 增长',
-      trendClass: 'positive',
-      trendIcon: '↑',
-      progress: Math.round((metrics.value.total_testcases / total) * 100) || 0
+      trend: formatTrend(getGrowth('testcases'), isGrowthPositive('testcases')),
+      trendClass: isGrowthPositive('testcases') ? 'positive' : 'negative',
+      trendIcon: isGrowthPositive('testcases') ? '↑' : '↓',
+      progress: Math.min(metrics.value.total_testcases, 100)
     },
     {
       key: 'bugs',
@@ -392,10 +412,10 @@ const insightCards = computed(() => {
       kicker: 'Risk Signals',
       label: '缺陷数量',
       value: metrics.value.total_bugs,
-      trend: '5% 减少',
-      trendClass: 'negative',
-      trendIcon: '↓',
-      progress: Math.round((metrics.value.total_bugs / total) * 100) || 0
+      trend: formatTrend(getGrowth('bugs'), !isGrowthPositive('bugs')),
+      trendClass: isGrowthPositive('bugs') ? 'negative' : 'positive',
+      trendIcon: isGrowthPositive('bugs') ? '↑' : '↓',
+      progress: Math.min(metrics.value.total_bugs, 100)
     },
     {
       key: 'executions',
@@ -404,10 +424,10 @@ const insightCards = computed(() => {
       kicker: 'Automation Pace',
       label: '执行次数',
       value: metrics.value.total_executions,
-      trend: '15% 增长',
-      trendClass: 'positive',
-      trendIcon: '↑',
-      progress: Math.round((metrics.value.total_executions / total) * 100) || 0
+      trend: formatTrend(getGrowth('executions'), isGrowthPositive('executions')),
+      trendClass: isGrowthPositive('executions') ? 'positive' : 'negative',
+      trendIcon: isGrowthPositive('executions') ? '↑' : '↓',
+      progress: Math.min(metrics.value.total_executions, 100)
     }
   ]
 })
@@ -869,10 +889,10 @@ const loadProjectProgress = async () => {
 
 .signal-track-fill {
   display: block;
-  width: 72%;
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #ffffff, #ffd1db);
+  transition: width 0.6s ease;
 }
 
 .signal-tags {

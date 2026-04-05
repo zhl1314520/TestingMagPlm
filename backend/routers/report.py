@@ -16,9 +16,10 @@ async def get_report_list(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
     project_id: int = Query(None),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    return await service.get_report_list(page, page_size, project_id, db)
+    return await service.get_user_report_list(current_user["user_id"], page, page_size, project_id, db)
 
 
 metrics_router = APIRouter(
