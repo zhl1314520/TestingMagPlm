@@ -1,4 +1,4 @@
-from sqlalchemy import select, func, delete, case, and_
+from sqlalchemy import select, func, delete, case, and_, desc, union_all, literal_column, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
 from models.report import Report
@@ -232,3 +232,162 @@ async def get_user_project_progress(user_id: int, db: AsyncSession):
         })
     
     return progress_list
+
+
+async def get_recent_activities(user_id: int, db: AsyncSession, limit: int = 10):
+    now = datetime.now()
+    
+    project_stmt = (
+        select(Project.id)
+        .join(ProjectMember, ProjectMember.project_id == Project.id)
+        .where(ProjectMember.user_id == user_id)
+        .where(Project.deleted_at.is_(None))
+    )
+    project_result = await db.execute(project_stmt)
+    user_project_ids = [row[0] for row in project_result.all()]
+    
+    if not user_project_ids:
+        return []
+    
+    activities = []
+    
+    execution_stmt = (
+        select(
+            Execution.id,
+            Execution.name,
+            Execution.status,
+            Execution.pass_rate,
+            Execution.created_at,
+            literal_column("'execution'").label('activity_type')
+        )
+        .where(Execution.project_id.in_(user_project_ids))
+        .order_by(desc(Execution.updated_at))
+        .limit(limit)
+    )
+    execution_result = await db.execute(execution_stmt)
+    for row in execution_result.all():
+        time_diff = now - row.created_at
+        time_str = _format_time_diff(time_diff)
+        pass_rate = float(row.pass_rate) if row.pass_rate else 0
+        status_map = {"已完成": "完成", "进行中": "进行中", "待执行": "待执行"}
+        badge_text = status_map.get(row.status, row.status)
+        activities.append({
+            "type": "success" if row.status == "已完成" else "info",
+            "badge": badge_text,
+            "time": time_str,
+            "title": f"测试执行: {row.name}",
+            "description": f"状态: {row.status}，通过率 {pass_rate:.1f}%。",
+            "sort_time": row.created_at
+        })
+    
+    bug_stmt = (
+        select(
+            Bug.id,
+            Bug.title,
+            Bug.priority,
+            Bug.status,
+            Bug.created_at,
+            literal_column("'bug'").label('activity_type')
+        )
+        .where(Bug.project_id.in_(user_project_ids))
+        .order_by(desc(Bug.created_at))
+        .limit(limit)
+    )
+    bug_result = await db.execute(bug_stmt)
+    for row in bug_result.all():
+        time_diff = now - row.created_at
+        time_str = _format_time_diff(time_diff)
+        priority_map = {"high": "高", "medium": "中", "low": "低"}
+        priority_text = priority_map.get(row.priority, row.priority)
+        activities.append({
+            "type": "warning",
+            "badge": "新增",
+            "time": time_str,
+            "title": f"发现新缺陷: {row.title}",
+            "description": f"优先级: {priority_text}，状态: {row.status}。",
+            "sort_time": row.created_at
+        })
+    
+    project_create_stmt = (
+        select(
+            Project.id,
+            Project.name,
+            Project.created_at,
+            literal_column("'project'").label('activity_type')
+        )
+        .where(Project.id.in_(user_project_ids))
+        .where(Project.deleted_at.is_(None))
+        .order_by(desc(Project.created_at))
+        .limit(limit)
+    )
+    project_result = await db.execute(project_create_stmt)
+    for row in project_result.all():
+        time_diff = now - row.created_at
+        time_str = _format_time_diff(time_diff)
+        activities.append({
+            "type": "info",
+            "badge": "创建",
+            "time": time_str,
+            "title": f"项目创建: {row.name}",
+            "description": "新项目已建立，团队开始补充基础测试用例。",
+            "sort_time": row.created_at
+        })
+    
+    testcase_stmt = (
+        select(
+            TestCase.id,
+            TestCase.title,
+            TestCase.module,
+            TestCase.status,
+            TestCase.created_at,
+            literal_column("'testcase'").label('activity_type')
+        )
+        .where(TestCase.project_id.in_(user_project_ids))
+        .order_by(desc(TestCase.created_at))
+        .limit(limit)
+    )
+    testcase_result = await db.execute(testcase_stmt)
+    for row in testcase_result.all():
+        time_diff = now - row.created_at
+        time_str = _format_time_diff(time_diff)
+        activities.append({
+            "type": "success",
+            "badge": "更新",
+            "time": time_str,
+            "title": f"测试用例更新: {row.title}",
+            "description": f"模块: {row.module}，状态: {row.status}。",
+            "sort_time": row.created_at
+        })
+    
+    activities.sort(key=lambda x: x["sort_time"], reverse=True)
+    
+    result = []
+    for activity in activities[:limit]:
+        result.append({
+            "type": activity["type"],
+            "badge": activity["badge"],
+            "time": activity["time"],
+            "title": activity["title"],
+            "description": activity["description"]
+        })
+    
+    return result
+
+
+def _format_time_diff(time_diff: timedelta) -> str:
+    total_seconds = int(time_diff.total_seconds())
+    
+    if total_seconds < 60:
+        return "刚刚"
+    elif total_seconds < 3600:
+        minutes = total_seconds // 60
+        return f"{minutes} 分钟前"
+    elif total_seconds < 86400:
+        hours = total_seconds // 3600
+        return f"{hours} 小时前"
+    elif total_seconds < 604800:
+        days = total_seconds // 86400
+        return f"{days} 天前"
+    else:
+        weeks = total_seconds // 604800
+        return f"{weeks} 周前"

@@ -27,7 +27,7 @@ reset_codes: Dict[str, dict] = {}
 
 # 验证码配置
 CODE_LENGTH = 6  # 验证码长度
-CODE_EXPIRE_MINUTES = 10  # 验证码有效期（分钟）
+CODE_EXPIRE_MINUTES = 1  # 验证码有效期（分钟）
 MAX_SEND_ATTEMPTS = 3  # 最大发送次数
 
 

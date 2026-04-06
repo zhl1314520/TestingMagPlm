@@ -118,10 +118,10 @@ async def get_user_detail(
 # 密码重置相关路由
 password_reset_router = APIRouter(
     prefix="/password-reset",
-    tags=["密码重置"]
+    tags=["忘记密码"]
 )
 
-
+# 发送验证码
 @password_reset_router.post("/send-code")
 async def send_code(
     email: str,

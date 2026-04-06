@@ -55,6 +55,7 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (email, password) => api.post('/auth/login', { email, password }),
   getCurrentUser: () => api.get('/auth/me'),
+  // 忘记密码的3个相关接口
   sendResetCode: (email) => api.post('/password-reset/send-code', {}, { params: { email } }),
   verifyResetCode: (email, code) => api.post('/password-reset/verify-code', {}, { params: { email, code } }),
   resetPassword: (email, code, newPassword) => api.post('/password-reset/reset-password', {}, { params: { email, code, new_password: newPassword } })
@@ -66,6 +67,7 @@ export const userAPI = {
   delete: (id) => api.delete(`/users/${id}`),
   getDetail: (id) => api.get(`/users/${id}`),
   update: (id, data) => api.put(`/users/${id}`, data),
+  // 个人信息-修改密码接口
   changePassword: (id, data) => api.put(`/users/${id}/password`, data)
 }
 
@@ -116,7 +118,8 @@ export const reportAPI = {
 export const metricsAPI = {
   getOverview: () => api.get('/metrics/overview'),
   getTrend: () => api.get('/metrics/trend'),
-  getProjectProgress: () => api.get('/metrics/project-progress')
+  getProjectProgress: () => api.get('/metrics/project-progress'),
+  getRecentActivities: (limit = 10) => api.get('/metrics/recent-activities', { params: { limit } })
 }
 
 export default api

@@ -64,3 +64,15 @@ class ProjectProgress(BaseModel):
 
 class ProjectProgressList(BaseModel):
     projects: List[ProjectProgress]
+
+
+class RecentActivity(BaseModel):
+    type: str
+    badge: str
+    time: str
+    title: str
+    description: str
+
+
+class RecentActivityList(BaseModel):
+    activities: List[RecentActivity]

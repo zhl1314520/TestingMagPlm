@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 import logging
-from schemas.report import ReportResponse, ReportPageResponse, MetricsOverview, MetricsTrend, ProjectProgress, ProjectProgressList, ModuleProgress
+from schemas.report import ReportResponse, ReportPageResponse, MetricsOverview, MetricsTrend, ProjectProgress, ProjectProgressList, ModuleProgress, RecentActivity, RecentActivityList
 from models.report import Report
 from DAO import report as crud
 
@@ -51,3 +51,9 @@ async def get_user_project_progress(user_id: int, db: AsyncSession):
         )
         projects.append(project)
     return ProjectProgressList(projects=projects)
+
+
+async def get_user_recent_activities(user_id: int, db: AsyncSession, limit: int = 10):
+    activities_data = await crud.get_recent_activities(user_id, db, limit)
+    activities = [RecentActivity(**activity) for activity in activities_data]
+    return RecentActivityList(activities=activities)

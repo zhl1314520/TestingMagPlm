@@ -89,7 +89,7 @@
             <p>首屏直接看到核心指标，不需要再往下找重点。</p>
           </div>
 
-          <button class="refresh-btn" @click="loadMetrics" :disabled="loading">
+          <button class="refresh-btn" @click="loadInsightMetrics" :disabled="loading">
             <span class="refresh-icon" :class="{ spinning: loading }">↻</span>
             <span>刷新</span>
           </button>
@@ -101,6 +101,7 @@
             :key="card.key"
             class="insight-card"
             :class="card.theme"
+            @click="navigateToPanel(card.route)"
           >
             <div class="insight-card-shine"></div>
 
@@ -153,7 +154,7 @@
 
         <div class="project-progress-list" v-if="projectProgress.length > 0">
           <div
-            v-for="(project, index) in projectProgress"
+            v-for="(project, index) in paginatedProjects"
             :key="project.project_id"
             class="project-progress-item"
           >
@@ -224,6 +225,18 @@
               </div>
             </div>
           </div>
+          
+          <div class="pagination" v-if="totalProjectPages > 1">
+            <span 
+              v-for="page in visiblePages" 
+              :key="page"
+              class="pagination-page"
+              :class="{ active: page === projectCurrentPage }"
+              @click="goToProjectPage(page)"
+            >
+              {{ page }}
+            </span>
+          </div>
         </div>
 
         <div class="empty-state" v-else>
@@ -274,9 +287,19 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { metricsAPI } from '../api/index.js'
 
+const router = useRouter()
+
 const metrics = ref({
+  total_projects: 0,
+  total_testcases: 0,
+  total_bugs: 0,
+  total_executions: 0
+})
+
+const insightMetrics = ref({
   total_projects: 0,
   total_testcases: 0,
   total_bugs: 0,
@@ -295,6 +318,8 @@ const userInfo = ref(null)
 const loading = ref(false)
 const projectProgress = ref([])
 const expandedProjects = ref([])
+const projectCurrentPage = ref(1)
+const projectPageSize = ref(12)
 
 const projectColors = [
   { start: '#667eea', end: '#764ba2' },
@@ -377,8 +402,8 @@ const insightCards = computed(() => {
     return `${label} ${value}%`
   }
   
-  const getGrowth = (key) => metrics.value[`${key}_growth`] ?? 0
-  const isGrowthPositive = (key) => metrics.value[`${key}_growth_positive`] ?? true
+  const getGrowth = (key) => insightMetrics.value[`${key}_growth`] ?? 0
+  const isGrowthPositive = (key) => insightMetrics.value[`${key}_growth_positive`] ?? true
   
   return [
     {
@@ -387,11 +412,12 @@ const insightCards = computed(() => {
       icon: '📁',
       kicker: 'Project Scope',
       label: '项目总数',
-      value: metrics.value.total_projects,
+      value: insightMetrics.value.total_projects,
       trend: formatTrend(getGrowth('projects'), isGrowthPositive('projects')),
       trendClass: isGrowthPositive('projects') ? 'positive' : 'negative',
       trendIcon: isGrowthPositive('projects') ? '↑' : '↓',
-      progress: Math.min(metrics.value.total_projects, 100)
+      progress: Math.min(insightMetrics.value.total_projects, 100),
+      route: '/dashboard/projects'
     },
     {
       key: 'testcases',
@@ -399,11 +425,12 @@ const insightCards = computed(() => {
       icon: '📝',
       kicker: 'Coverage Base',
       label: '测试用例',
-      value: metrics.value.total_testcases,
+      value: insightMetrics.value.total_testcases,
       trend: formatTrend(getGrowth('testcases'), isGrowthPositive('testcases')),
       trendClass: isGrowthPositive('testcases') ? 'positive' : 'negative',
       trendIcon: isGrowthPositive('testcases') ? '↑' : '↓',
-      progress: Math.min(metrics.value.total_testcases, 100)
+      progress: Math.min(insightMetrics.value.total_testcases, 100),
+      route: '/dashboard/testcases'
     },
     {
       key: 'bugs',
@@ -411,11 +438,12 @@ const insightCards = computed(() => {
       icon: '🐛',
       kicker: 'Risk Signals',
       label: '缺陷数量',
-      value: metrics.value.total_bugs,
+      value: insightMetrics.value.total_bugs,
       trend: formatTrend(getGrowth('bugs'), !isGrowthPositive('bugs')),
       trendClass: isGrowthPositive('bugs') ? 'negative' : 'positive',
       trendIcon: isGrowthPositive('bugs') ? '↑' : '↓',
-      progress: Math.min(metrics.value.total_bugs, 100)
+      progress: Math.min(insightMetrics.value.total_bugs, 100),
+      route: '/dashboard/bugs'
     },
     {
       key: 'executions',
@@ -423,11 +451,12 @@ const insightCards = computed(() => {
       icon: '▶️',
       kicker: 'Automation Pace',
       label: '执行次数',
-      value: metrics.value.total_executions,
+      value: insightMetrics.value.total_executions,
       trend: formatTrend(getGrowth('executions'), isGrowthPositive('executions')),
       trendClass: isGrowthPositive('executions') ? 'positive' : 'negative',
       trendIcon: isGrowthPositive('executions') ? '↑' : '↓',
-      progress: Math.min(metrics.value.total_executions, 100)
+      progress: Math.min(insightMetrics.value.total_executions, 100),
+      route: '/dashboard/executions'
     }
   ]
 })
@@ -441,36 +470,38 @@ const toggleProject = (projectId) => {
   }
 }
 
-const recentActivities = [
-  {
-    type: 'success',
-    badge: '完成',
-    time: '2 小时前',
-    title: '测试执行完成',
-    description: '项目 A 的接口回归已结束，当前通过率稳定在 95%。'
-  },
-  {
-    type: 'warning',
-    badge: '新增',
-    time: '5 小时前',
-    title: '发现新缺陷',
-    description: '项目 B 的登录模块出现高优先级问题，已进入跟踪流程。'
-  },
-  {
-    type: 'info',
-    badge: '创建',
-    time: '1 天前',
-    title: '项目创建',
-    description: '新项目 C 已建立，团队开始补充基础测试用例。'
-  },
-  {
-    type: 'success',
-    badge: '更新',
-    time: '2 天前',
-    title: '测试用例更新',
-    description: '项目 A 新增 10 条核心路径验证，用于下一轮回归。'
+const navigateToPanel = (route) => {
+  if (route) {
+    router.push(route)
   }
-]
+}
+
+const totalProjectPages = computed(() => {
+  return Math.ceil(projectProgress.value.length / projectPageSize.value)
+})
+
+const visiblePages = computed(() => {
+  const total = totalProjectPages.value
+  const pages = []
+  for (let i = 1; i <= Math.min(3, total); i++) {
+    pages.push(i)
+  }
+  return pages
+})
+
+const paginatedProjects = computed(() => {
+  const start = (projectCurrentPage.value - 1) * projectPageSize.value
+  const end = start + projectPageSize.value
+  return projectProgress.value.slice(start, end)
+})
+
+const goToProjectPage = (page) => {
+  if (page >= 1 && page <= totalProjectPages.value) {
+    projectCurrentPage.value = page
+  }
+}
+
+const recentActivities = ref([])
 
 onMounted(async () => {
   const storedUserInfo = localStorage.getItem('user_info')
@@ -478,17 +509,35 @@ onMounted(async () => {
     userInfo.value = JSON.parse(storedUserInfo)
   }
 
-  await loadMetrics()
-  await loadProjectProgress()
+  await Promise.all([
+    loadMetrics(),
+    loadInsightMetrics(),
+    loadProjectProgress(),
+    loadRecentActivities()
+  ])
 })
 
 const loadMetrics = async () => {
+  try {
+    const response = await metricsAPI.getOverview()
+    metrics.value = {
+      total_projects: response.data.total_projects,
+      total_testcases: response.data.total_testcases,
+      total_bugs: response.data.total_bugs,
+      total_executions: response.data.total_executions
+    }
+  } catch (error) {
+    console.error('获取概览数据失败:', error)
+  }
+}
+
+const loadInsightMetrics = async () => {
   loading.value = true
   try {
     const response = await metricsAPI.getOverview()
-    metrics.value = response.data
+    insightMetrics.value = response.data
   } catch (error) {
-    console.error('获取概览数据失败:', error)
+    console.error('获取数据洞察失败:', error)
   } finally {
     loading.value = false
   }
@@ -500,6 +549,15 @@ const loadProjectProgress = async () => {
     projectProgress.value = response.data.projects || []
   } catch (error) {
     console.error('获取项目进展失败:', error)
+  }
+}
+
+const loadRecentActivities = async () => {
+  try {
+    const response = await metricsAPI.getRecentActivities(10)
+    recentActivities.value = response.data.activities || []
+  } catch (error) {
+    console.error('获取最近活动失败:', error)
   }
 }
 </script>
@@ -1052,6 +1110,7 @@ const loadProjectProgress = async () => {
   border-radius: 1.55rem;
   color: white;
   box-shadow: var(--shadow-soft);
+  cursor: pointer;
   transition: transform 0.28s ease, box-shadow 0.28s ease;
 }
 
@@ -1159,6 +1218,7 @@ const loadProjectProgress = async () => {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(360px, 0.95fr);
   gap: 1.5rem;
+  align-items: stretch;
 }
 
 .quick-actions-section,
@@ -1170,6 +1230,12 @@ const loadProjectProgress = async () => {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
   border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-actions-section {
+  overflow-y: auto;
 }
 
 .project-progress-list {
@@ -1177,6 +1243,7 @@ const loadProjectProgress = async () => {
   flex-direction: column;
   gap: 1rem;
   margin-top: 1.4rem;
+  flex: 1;
 }
 
 .project-progress-item {
@@ -1504,6 +1571,67 @@ const loadProjectProgress = async () => {
   color: var(--page-muted);
   font-size: 0.9rem;
   line-height: 1.7;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(96, 108, 232, 0.1);
+}
+
+.pagination-btn {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #edf1ff, #e9f7ff);
+  color: #5066ea;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d0d9ff, #c5e5ff);
+  transform: translateY(-1px);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-page {
+  min-width: 3rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--page-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-page:hover {
+  background: rgba(96, 108, 232, 0.08);
+  color: var(--page-ink);
+}
+
+.pagination-page.active {
+  background: linear-gradient(135deg, #6175ec, #5066ea);
+  color: white;
 }
 
 @keyframes spin {

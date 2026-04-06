@@ -13,13 +13,13 @@ logger = logging.getLogger(__name__)
 
 # 邮件配置（实际项目中应该从环境变量读取）
 SMTP_CONFIG = {
-    "hostname": os.getenv("SMTP_HOSTNAME", "smtp.example.com"),  # SMTP 服务器地址
-    "port": int(os.getenv("SMTP_PORT", "587")),  # SMTP 端口（587 for TLS, 465 for SSL）
-    "username": os.getenv("SMTP_USERNAME", "your-email@example.com"),  # 邮箱账号
-    "password": os.getenv("SMTP_PASSWORD", "your-password"),  # 邮箱密码或授权码
-    "use_tls": os.getenv("SMTP_USE_TLS", "true").lower() == "true",  # 是否使用 TLS
-    "from_email": os.getenv("SMTP_FROM_EMAIL", "your-email@example.com"),  # 发件人邮箱
-    "from_name": os.getenv("SMTP_FROM_NAME", "TestingMagPlm")  # 发件人名称
+    "hostname": os.getenv("SMTP_HOSTNAME", "smtp.163.com"),
+    "port": int(os.getenv("SMTP_PORT", "465")),
+    "username": os.getenv("SMTP_USERNAME", "17201665342@163.com"),
+    "password": os.getenv("SMTP_PASSWORD", "MARAk7t6jJpUDMNg"),
+    "use_tls": os.getenv("SMTP_USE_TLS", "false").lower() == "true",
+    "from_email": os.getenv("SMTP_FROM_EMAIL", "17201665342@163.com"),
+    "from_name": os.getenv("SMTP_FROM_NAME", "TestingMagPlm")
 }
 
 # 开发模式：如果为 True，邮件发送失败时仍返回成功，并在控制台打印验证码
@@ -60,7 +60,7 @@ async def send_verification_email(to_email: str, code: str) -> bool:
                 
                 <p><strong>注意：</strong></p>
                 <ul>
-                    <li>该验证码将在 <strong>10 分钟</strong> 后失效</li>
+                    <li>该验证码将在 <strong>1 分钟</strong> 后失效</li>
                     <li>请勿将验证码泄露给他人</li>
                     <li>如果您没有请求重置密码，请忽略此邮件</li>
                 </ul>
@@ -84,7 +84,7 @@ async def send_verification_email(to_email: str, code: str) -> bool:
         验证码：{code}
         
         注意：
-        - 该验证码将在 10 分钟后失效
+        - 该验证码将在 1 分钟后失效
         - 请勿将验证码泄露给他人
         - 如果您没有请求重置密码，请忽略此邮件
         
@@ -111,7 +111,7 @@ async def send_verification_email(to_email: str, code: str) -> bool:
             port=SMTP_CONFIG["port"],
             username=SMTP_CONFIG["username"],
             password=SMTP_CONFIG["password"],
-            start_tls=SMTP_CONFIG["use_tls"]
+            use_tls=True
         )
         
         logger.info(f"验证码邮件已发送至：{to_email}")
@@ -186,7 +186,7 @@ async def send_welcome_email(to_email: str, username: str) -> bool:
             port=SMTP_CONFIG["port"],
             username=SMTP_CONFIG["username"],
             password=SMTP_CONFIG["password"],
-            start_tls=SMTP_CONFIG["use_tls"]
+            use_tls=True
         )
         
         logger.info(f"欢迎邮件已发送至：{to_email}")
