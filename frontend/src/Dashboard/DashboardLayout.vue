@@ -1,11 +1,14 @@
 <template>
-  <div class="dashboard">
-    <!-- 顶部导航栏 -->
-    <nav class="navbar">
+  <div class="dashboard noise-texture gradient-mesh">
+    <nav class="navbar glass-panel">
       <div class="nav-container">
         <div class="nav-brand" @click="router.push('/dashboard')">
           <div class="brand-logo">
-            <div class="logo-icon">◈</div>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </div>
           <div class="brand-info">
             <span class="brand-name">HBNU-TMP</span>
@@ -21,7 +24,7 @@
             class="nav-item"
             :class="{ 'nav-item-active': isActive(item.path) }"
           >
-            <span class="nav-icon">{{ item.icon }}</span>
+            <span class="nav-icon" v-html="item.icon"></span>
             <span class="nav-label">{{ item.label }}</span>
             <span class="nav-indicator"></span>
           </router-link>
@@ -29,64 +32,85 @@
         
         <div class="nav-actions">
           <div class="notification-bell">
-            <span class="bell-icon">🔔</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
             <span class="notification-dot"></span>
           </div>
           
           <div class="user-menu-container" @click="toggleUserMenu">
             <div class="user-avatar">
-              <div class="avatar-ring"></div>
               <span class="avatar-text">{{ userInfo?.username?.charAt(0).toUpperCase() }}</span>
             </div>
             <span class="user-name">{{ userInfo?.username }}</span>
             <span class="user-role-badge">{{ userInfo?.role }}</span>
           </div>
           
-          <div v-if="showUserMenu" class="user-dropdown-menu">
-            <div class="dropdown-header">
-              <div class="dropdown-avatar">{{ userInfo?.username?.charAt(0).toUpperCase() }}</div>
-              <div class="dropdown-info">
-                <div class="dropdown-name">{{ userInfo?.username }}</div>
-                <div class="dropdown-role">{{ userInfo?.role }}</div>
+          <Transition name="dropdown">
+            <div v-if="showUserMenu" class="user-dropdown-menu glass-panel">
+              <div class="dropdown-header">
+                <div class="dropdown-avatar">{{ userInfo?.username?.charAt(0).toUpperCase() }}</div>
+                <div class="dropdown-info">
+                  <div class="dropdown-name">{{ userInfo?.username }}</div>
+                  <div class="dropdown-role">{{ userInfo?.role }}</div>
+                </div>
+              </div>
+              
+              <div class="dropdown-section">
+                <div class="dropdown-item" @click.stop="openProfileModal">
+                  <svg class="dropdown-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <span>个人资料</span>
+                  <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </div>
+              </div>
+              
+              <div class="dropdown-divider"></div>
+              
+              <div class="dropdown-item danger" @click="logout">
+                <svg class="dropdown-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span>退出登录</span>
               </div>
             </div>
-            
-            <div class="dropdown-section">
-              <div class="dropdown-item" @click.stop="openProfileModal">
-                <span class="dropdown-icon">👤</span>
-                <span>个人资料</span>
-                <span class="dropdown-arrow">›</span>
-              </div>
-            </div>
-            
-            <div class="dropdown-divider"></div>
-            
-            <div class="dropdown-item danger" @click="logout">
-              <span class="dropdown-icon">🚪</span>
-              <span>退出登录</span>
-            </div>
-          </div>
+          </Transition>
         </div>
       </div>
     </nav>
     
-    <!-- 主内容区域 -->
     <main class="main-content">
       <div class="content-wrapper">
         <router-view />
       </div>
     </main>
     
-    <!-- 个人资料模态框 -->
     <Transition name="modal">
       <div v-if="showProfileModal" class="modal-overlay" @click="showProfileModal = false">
-        <div class="modal-container" @click.stop>
+        <div class="modal-container glass-panel" @click.stop>
           <div class="modal-header">
             <div class="modal-title">
-              <span class="modal-icon">👤</span>
+              <div class="modal-icon-wrapper icon-wrapper-ember">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
               <h2>个人资料</h2>
             </div>
-            <button @click="showProfileModal = false" class="btn-close">×</button>
+            <button @click="showProfileModal = false" class="btn-close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
           
           <div class="modal-body">
@@ -95,7 +119,12 @@
               
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">🆔</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
                   用户 ID
                 </label>
                 <input 
@@ -108,7 +137,10 @@
               
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">📝</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
                   用户名
                 </label>
                 <input 
@@ -121,7 +153,10 @@
               
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">🔒</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
                   密码
                 </label>
                 <input 
@@ -135,7 +170,9 @@
               
               <div class="form-group">
                 <button @click="openPasswordModal" class="btn-change-password">
-                  <span class="btn-icon">🔑</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                  </svg>
                   修改密码
                 </button>
               </div>
@@ -143,7 +180,10 @@
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">
-                    <span class="label-icon">📧</span>
+                    <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
                     邮箱
                   </label>
                   <input 
@@ -156,7 +196,11 @@
                 
                 <div class="form-group">
                   <label class="form-label">
-                    <span class="label-icon">👑</span>
+                    <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 8v8"/>
+                      <path d="M8 12h8"/>
+                    </svg>
                     角色
                   </label>
                   <select v-model="profileForm.role" class="form-select">
@@ -169,7 +213,10 @@
               
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">📅</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
                   创建时间
                 </label>
                 <input 
@@ -193,23 +240,34 @@
       </div>
     </Transition>
     
-    <!-- 修改密码模态框 -->
     <Transition name="modal">
       <div v-if="showPasswordModal" class="modal-overlay" @click="showPasswordModal = false">
-        <div class="modal-container" @click.stop>
+        <div class="modal-container glass-panel" @click.stop>
           <div class="modal-header">
             <div class="modal-title">
-              <span class="modal-icon">🔑</span>
+              <div class="modal-icon-wrapper icon-wrapper-teal">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                </svg>
+              </div>
               <h2>修改密码</h2>
             </div>
-            <button @click="showPasswordModal = false" class="btn-close">×</button>
+            <button @click="showPasswordModal = false" class="btn-close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
           
           <div class="modal-body">
             <div class="profile-section">
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">📧</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
                   当前邮箱
                 </label>
                 <input 
@@ -222,7 +280,10 @@
               
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">🔒</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
                   加密后的原密码
                 </label>
                 <input 
@@ -236,7 +297,10 @@
               
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">🔐</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
                   请输入原密码
                 </label>
                 <div class="password-wrapper">
@@ -251,15 +315,13 @@
                     @click="showOldPassword = !showOldPassword"
                     class="password-toggle"
                   >
-                    <svg v-if="showOldPassword" class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <svg v-if="showOldPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                       <circle cx="12" cy="12" r="3"/>
                     </svg>
-                    <svg v-else class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
-                      <line x1="2" x2="22" y1="2" y2="22"/>
+                    <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
                     </svg>
                   </button>
                 </div>
@@ -267,7 +329,10 @@
               
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">🔑</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
                   请输入新密码
                 </label>
                 <div class="password-wrapper">
@@ -282,15 +347,13 @@
                     @click="showNewPassword = !showNewPassword"
                     class="password-toggle"
                   >
-                    <svg v-if="showNewPassword" class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <svg v-if="showNewPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                       <circle cx="12" cy="12" r="3"/>
                     </svg>
-                    <svg v-else class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
-                      <line x1="2" x2="22" y1="2" y2="22"/>
+                    <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
                     </svg>
                   </button>
                 </div>
@@ -298,7 +361,10 @@
               
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">🔐</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
                   请确认密码
                 </label>
                 <div class="password-wrapper">
@@ -313,15 +379,13 @@
                     @click="showConfirmPassword = !showConfirmPassword"
                     class="password-toggle"
                   >
-                    <svg v-if="showConfirmPassword" class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <svg v-if="showConfirmPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                       <circle cx="12" cy="12" r="3"/>
                     </svg>
-                    <svg v-else class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
-                      <line x1="2" x2="22" y1="2" y2="22"/>
+                    <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
                     </svg>
                   </button>
                 </div>
@@ -331,7 +395,7 @@
           
           <div class="modal-footer">
             <button @click="showPasswordModal = false" class="btn-cancel">取消</button>
-            <button @click="changePassword" class="btn-submit">
+            <button @click="changePassword" class="btn-submit btn-teal">
               <span class="btn-spinner" v-if="passwordLoading"></span>
               <span v-else>确认修改</span>
             </button>
@@ -342,17 +406,31 @@
     
     <Transition name="toast">
       <div v-if="toast.show" class="toast-overlay" @click="hideToast">
-        <div class="toast-container" @click.stop>
+        <div class="toast-container glass-panel" @click.stop>
           <div class="toast-icon" :class="toast.type">
-            <span v-if="toast.type === 'success'">✓</span>
-            <span v-else-if="toast.type === 'error'">✕</span>
-            <span v-else>!</span>
+            <svg v-if="toast.type === 'success'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <svg v-else-if="toast.type === 'error'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
           </div>
           <div class="toast-content">
             <h3 class="toast-title">{{ toast.title }}</h3>
             <p class="toast-message">{{ toast.message }}</p>
           </div>
-          <button @click="hideToast" class="toast-close">×</button>
+          <button @click="hideToast" class="toast-close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
       </div>
     </Transition>
@@ -419,12 +497,12 @@ const isActive = (path) => {
 }
 
 const navItems = [
-  { path: '/dashboard', label: '概览', icon: '◈' },
-  { path: '/dashboard/projects', label: '项目', icon: '◐' },
-  { path: '/dashboard/testcases', label: '用例', icon: '◑' },
-  { path: '/dashboard/executions', label: '执行', icon: '▶' },
-  { path: '/dashboard/bugs', label: '缺陷', icon: '◉' },
-  { path: '/dashboard/reports', label: '报告', icon: '◈' }
+  { path: '/dashboard', label: '概览', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>' },
+  { path: '/dashboard/projects', label: '项目', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>' },
+  { path: '/dashboard/testcases', label: '用例', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>' },
+  { path: '/dashboard/executions', label: '执行', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>' },
+  { path: '/dashboard/bugs', label: '缺陷', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' },
+  { path: '/dashboard/reports', label: '报告', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' }
 ]
 
 onMounted(() => {
@@ -478,7 +556,6 @@ const saveProfile = async () => {
   }
 }
 
-// 打开个人资料模态框时加载数据
 const openProfileModal = async () => {
   await loadProfile()
   showProfileModal.value = true
@@ -558,54 +635,36 @@ const logout = () => {
 <style scoped>
 .dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--paper-cream);
   position: relative;
+  overflow-x: hidden;
 }
 
-.dashboard::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* 顶部导航栏 */
 .navbar {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+  border-bottom: 1px solid rgba(232, 93, 4, 0.08);
   overflow: visible;
 }
 
 .nav-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--space-xl);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 75px;
+  height: 72px;
   overflow: visible;
 }
 
-/* 品牌区域 */
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-md);
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s var(--ease-smooth);
 }
 
 .nav-brand:hover {
@@ -613,26 +672,21 @@ const logout = () => {
 }
 
 .brand-logo {
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--ember-core), var(--ember-glow));
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  animation: logoFloat 3s ease-in-out infinite;
-}
-
-.logo-icon {
-  font-size: 1.75rem;
   color: white;
-  font-weight: 300;
+  box-shadow: var(--shadow-md), 0 0 20px rgba(232, 93, 4, 0.2);
+  transition: transform 0.4s var(--ease-bounce), box-shadow 0.4s var(--ease-smooth);
 }
 
-@keyframes logoFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+.nav-brand:hover .brand-logo {
+  transform: scale(1.08) rotate(-3deg);
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(232, 93, 4, 0.35);
 }
 
 .brand-info {
@@ -641,27 +695,26 @@ const logout = () => {
 }
 
 .brand-name {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ember-core), var(--ember-soft));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  color: transparent;
   letter-spacing: -0.5px;
 }
 
 .brand-slogan {
-  font-size: 0.75rem;
-  color: #64748b;
+  font-size: 0.7rem;
+  color: var(--ink-soft);
   font-weight: 500;
   letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-/* 导航菜单 */
 .nav-menu {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-xs);
   align-items: center;
 }
 
@@ -669,14 +722,14 @@ const logout = () => {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 1rem;
-  color: #64748b;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  color: var(--ink-muted);
   text-decoration: none;
   font-weight: 500;
   font-size: 0.875rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s var(--ease-smooth);
   overflow: hidden;
 }
 
@@ -684,9 +737,10 @@ const logout = () => {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.06), rgba(250, 163, 7, 0.06));
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.3s var(--ease-smooth);
+  border-radius: var(--radius-md);
 }
 
 .nav-item:hover::before {
@@ -694,13 +748,13 @@ const logout = () => {
 }
 
 .nav-item:hover {
-  color: #667eea;
+  color: var(--ember-core);
   transform: translateY(-2px);
 }
 
 .nav-item-active {
-  color: #667eea;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  color: var(--ember-core);
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.08), rgba(250, 163, 7, 0.06));
 }
 
 .nav-item-active .nav-indicator {
@@ -708,12 +762,14 @@ const logout = () => {
 }
 
 .nav-icon {
-  font-size: 1.125rem;
-  transition: transform 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s var(--ease-bounce);
 }
 
 .nav-item:hover .nav-icon {
-  transform: scale(1.2) rotate(5deg);
+  transform: scale(1.15) rotate(5deg);
 }
 
 .nav-label {
@@ -727,39 +783,37 @@ const logout = () => {
   left: 50%;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  transition: all 0.3s;
+  background: linear-gradient(90deg, var(--ember-core), var(--ember-soft));
+  transition: all 0.3s var(--ease-smooth);
   transform: translateX(-50%);
+  border-radius: var(--radius-full);
 }
 
-/* 导航操作区 */
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-md);
   position: relative;
 }
 
 .notification-bell {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: rgba(102, 126, 234, 0.05);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.04), rgba(250, 163, 7, 0.04));
+  color: var(--ink-muted);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s var(--ease-smooth);
 }
 
 .notification-bell:hover {
-  background: rgba(102, 126, 234, 0.1);
-  transform: scale(1.1);
-}
-
-.bell-icon {
-  font-size: 1.25rem;
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.08), rgba(250, 163, 7, 0.08));
+  color: var(--ember-core);
+  transform: scale(1.05);
 }
 
 .notification-dot {
@@ -768,135 +822,108 @@ const logout = () => {
   right: 8px;
   width: 8px;
   height: 8px;
-  background: linear-gradient(135deg, #f093fb, #f5576c);
+  background: linear-gradient(135deg, var(--coral-primary), var(--coral-bright));
   border-radius: 50%;
   border: 2px solid white;
-  animation: pulse 2s ease-in-out infinite;
+  transition: transform 0.3s var(--ease-bounce), box-shadow 0.3s var(--ease-smooth);
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.8; }
+.notification-bell:hover .notification-dot {
+  transform: scale(1.3);
+  box-shadow: 0 0 8px rgba(244, 63, 94, 0.6);
 }
 
-/* 用户菜单 */
 .user-menu-container {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
+  gap: var(--space-sm);
+  padding: 6px var(--space-md) 6px 6px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all 0.3s;
-  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s var(--ease-smooth);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(232, 93, 4, 0.08);
 }
 
 .user-menu-container:hover {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
 .user-avatar {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--teal-deep), var(--teal-bright));
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 700;
-  font-size: 1.125rem;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  font-size: 1rem;
+  box-shadow: 0 0 20px rgba(20, 184, 166, 0.25);
+  transition: transform 0.3s var(--ease-bounce), box-shadow 0.3s var(--ease-smooth);
 }
 
-.avatar-ring {
-  position: absolute;
-  inset: -2px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  z-index: -1;
-  animation: ringRotate 3s linear infinite;
-}
-
-@keyframes ringRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.user-menu-container:hover .user-avatar {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(20, 184, 166, 0.4);
 }
 
 .avatar-text {
-  animation: avatarPulse 2s ease-in-out infinite;
-}
-
-@keyframes avatarPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
 }
 
 .user-name {
   font-weight: 600;
-  color: #1e293b;
+  color: var(--ink-primary);
   font-size: 0.875rem;
 }
 
 .user-role-badge {
-  font-size: 0.75rem;
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
+  font-size: 0.7rem;
+  color: var(--teal-primary);
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(94, 234, 212, 0.08));
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
   font-weight: 600;
   text-transform: capitalize;
 }
 
-/* 用户下拉菜单 */
 .user-dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + 8px);
   right: 0;
   width: 280px;
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  padding: 0.75rem;
-  animation: dropdownSlide 0.3s ease-out;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-sm);
   z-index: 1001;
-}
-
-@keyframes dropdownSlide {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  border: 1px solid rgba(232, 93, 4, 0.08);
 }
 
 .dropdown-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1.25rem;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.04), rgba(250, 163, 7, 0.04));
+  border-radius: var(--radius-md);
 }
 
 .dropdown-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--teal-deep), var(--teal-bright));
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 700;
-  font-size: 1.25rem;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  font-size: 1.1rem;
+  box-shadow: 0 0 15px rgba(20, 184, 166, 0.2);
 }
 
 .dropdown-info {
@@ -905,223 +932,209 @@ const logout = () => {
 
 .dropdown-name {
   font-weight: 700;
-  color: #1e293b;
+  color: var(--ink-primary);
   font-size: 0.875rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 2px;
 }
 
 .dropdown-role {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--ink-soft);
   text-transform: capitalize;
 }
 
 .dropdown-divider {
   height: 1px;
-  background: rgba(0, 0, 0, 0.05);
+  background: linear-gradient(90deg, transparent, rgba(232, 93, 4, 0.1), transparent);
+  margin: var(--space-sm) 0;
 }
 
 .dropdown-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1.25rem;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   cursor: pointer;
-  transition: all 0.2s;
-  color: #64748b;
+  transition: all 0.25s var(--ease-smooth);
+  color: var(--ink-muted);
+  border-radius: var(--radius-md);
 }
 
 .dropdown-item:hover {
-  background: rgba(102, 126, 234, 0.05);
-  color: #667eea;
-  padding-left: 1.5rem;
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.06), rgba(250, 163, 7, 0.06));
+  color: var(--ember-core);
+  padding-left: calc(var(--space-md) + 4px);
 }
 
 .dropdown-icon {
-  font-size: 1.125rem;
-}
-
-.dropdown-section {
-  padding: 0.5rem 0;
-}
-
-.dropdown-section-title {
-  padding: 0.5rem 1.25rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 .dropdown-arrow {
   margin-left: auto;
-  font-size: 1.25rem;
-  color: #94a3b8;
-  transition: transform 0.3s;
+  color: var(--slate-pale);
+  transition: transform 0.3s var(--ease-smooth);
 }
 
 .dropdown-item:hover .dropdown-arrow {
   transform: translateX(4px);
-  color: #667eea;
+  color: var(--ember-core);
 }
 
 .dropdown-item.danger {
-  color: #ef4444;
+  color: var(--coral-primary);
 }
 
 .dropdown-item.danger:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+  background: linear-gradient(135deg, rgba(190, 18, 60, 0.06), rgba(244, 63, 94, 0.06));
+  color: var(--coral-deep);
 }
 
-/* 个人资料模态框 */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(10, 15, 26, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 20px;
+  padding: var(--space-xl);
 }
 
 .modal-container {
-  background: white;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   width: 100%;
-  max-width: 600px;
+  max-width: 560px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-  animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  box-shadow: var(--shadow-xl);
+  animation: scale-bounce 0.4s var(--ease-bounce);
+  border: 1px solid rgba(232, 93, 4, 0.08);
 }
 
 .modal-header {
-  padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: var(--space-xl);
+  border-bottom: 1px solid rgba(232, 93, 4, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
-  background: white;
+  background: inherit;
   z-index: 1;
 }
 
 .modal-title {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-md);
 }
 
-.modal-icon {
-  font-size: 1.5rem;
+.modal-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
 }
 
 .modal-title h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #1f2937;
+  color: var(--ink-primary);
+  font-weight: 700;
 }
 
 .btn-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
   border: none;
-  background: #f3f4f6;
-  color: #6b7280;
-  font-size: 1.5rem;
+  background: rgba(232, 93, 4, 0.04);
+  color: var(--ink-soft);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s var(--ease-smooth);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .btn-close:hover {
-  background: #e5e7eb;
-  color: #374151;
+  background: rgba(232, 93, 4, 0.08);
+  color: var(--ember-core);
+  transform: rotate(90deg);
 }
 
 .modal-body {
-  padding: 24px;
+  padding: var(--space-xl);
 }
 
 .profile-section {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-xl);
 }
 
 .section-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #e5e7eb;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid rgba(232, 93, 4, 0.15);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--space-md);
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-lg);
 }
 
 .form-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
   font-weight: 500;
-  color: #374151;
-  font-size: 0.95rem;
+  color: var(--ink-secondary);
+  font-size: 0.875rem;
 }
 
 .label-icon {
-  font-size: 1.1rem;
+  color: var(--ember-core);
 }
 
 .form-input,
 .form-select {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  font-size: 1rem;
+  padding: var(--space-sm) var(--space-md);
+  border: 2px solid rgba(232, 93, 4, 0.1);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
   font-family: inherit;
-  transition: all 0.3s;
+  transition: all 0.3s var(--ease-smooth);
   background: white;
+  color: var(--ink-primary);
 }
 
 .form-input:focus,
 .form-select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  border-color: var(--ember-core);
+  box-shadow: 0 0 0 4px rgba(232, 93, 4, 0.1);
 }
 
 .form-input.disabled {
-  background: #f3f4f6;
-  color: #9ca3af;
+  background: var(--paper-muted);
+  color: var(--ink-soft);
   cursor: not-allowed;
+  border-color: transparent;
 }
 
 .password-wrapper {
@@ -1129,127 +1142,120 @@ const logout = () => {
 }
 
 .password-wrapper .form-input {
-  padding-right: 45px;
+  padding-right: 48px;
 }
 
 .password-toggle {
   position: absolute;
-  right: 12px;
+  right: var(--space-sm);
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #9ca3af;
+  color: var(--ink-soft);
   cursor: pointer;
-  padding: 0;
+  padding: var(--space-xs);
   display: flex;
   align-items: center;
-  transition: color 0.2s;
+  transition: color 0.2s var(--ease-smooth);
 }
 
 .password-toggle:hover {
-  color: #374151;
-}
-
-.password-toggle .icon {
-  width: 20px;
-  height: 20px;
+  color: var(--ember-core);
 }
 
 .btn-change-password {
   width: 100%;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 1rem;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
-  border: 2px solid #667eea;
-  background: white;
-  color: #667eea;
+  transition: all 0.3s var(--ease-smooth);
+  border: 2px solid var(--ember-core);
+  background: transparent;
+  color: var(--ember-core);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-sm);
 }
 
 .btn-change-password:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ember-core), var(--ember-glow));
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.btn-icon {
-  font-size: 1.1rem;
+  box-shadow: var(--shadow-md), 0 0 20px rgba(232, 93, 4, 0.2);
 }
 
 .modal-footer {
-  padding: 24px;
-  border-top: 1px solid #e5e7eb;
+  padding: var(--space-xl);
+  border-top: 1px solid rgba(232, 93, 4, 0.08);
   display: flex;
-  gap: 12px;
+  gap: var(--space-md);
   justify-content: flex-end;
   position: sticky;
   bottom: 0;
-  background: white;
+  background: inherit;
 }
 
 .btn-cancel,
 .btn-submit {
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 1rem;
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s var(--ease-smooth);
   border: none;
 }
 
 .btn-cancel {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: rgba(232, 93, 4, 0.04);
+  color: var(--ink-muted);
 }
 
 .btn-cancel:hover {
-  background: #e5e7eb;
-  color: #374151;
+  background: rgba(232, 93, 4, 0.08);
+  color: var(--ink-primary);
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ember-core), var(--ember-glow));
   color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: var(--shadow-md), 0 0 15px rgba(232, 93, 4, 0.15);
 }
 
 .btn-submit:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-lg), 0 0 25px rgba(232, 93, 4, 0.25);
+}
+
+.btn-submit.btn-teal {
+  background: linear-gradient(135deg, var(--teal-deep), var(--teal-bright));
+  box-shadow: var(--shadow-md), 0 0 15px rgba(20, 184, 166, 0.15);
+}
+
+.btn-submit.btn-teal:hover {
+  box-shadow: var(--shadow-lg), 0 0 25px rgba(20, 184, 166, 0.25);
 }
 
 .btn-spinner {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-/* 主内容区域 */
 .main-content {
-  padding: 2rem 0;
-  min-height: calc(100vh - 75px);
+  padding: var(--space-xl) 0;
+  min-height: calc(100vh - 72px);
   position: relative;
   z-index: 1;
 }
@@ -1257,13 +1263,152 @@ const logout = () => {
 .content-wrapper {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--space-xl);
 }
 
-/* 响应式设计 */
+.toast-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 26, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.toast-container {
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-xl);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  max-width: 400px;
+  animation: scale-bounce 0.3s var(--ease-bounce);
+  border: 1px solid rgba(232, 93, 4, 0.08);
+}
+
+.toast-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.toast-icon.success {
+  background: linear-gradient(135deg, var(--forest-primary), var(--forest-bright));
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.toast-icon.error {
+  background: linear-gradient(135deg, var(--coral-deep), var(--coral-bright));
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
+}
+
+.toast-icon.warning {
+  background: linear-gradient(135deg, var(--amber-primary), var(--amber-soft));
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+}
+
+.toast-message {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+.toast-close {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease-smooth);
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  background: rgba(232, 93, 4, 0.06);
+  color: var(--ember-core);
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s var(--ease-smooth);
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.dropdown-enter-active {
+  animation: dropdown-in 0.3s var(--ease-bounce);
+}
+
+.dropdown-leave-active {
+  animation: dropdown-out 0.2s var(--ease-smooth);
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dropdown-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+}
+
+.toast-enter-active {
+  animation: scale-bounce 0.3s var(--ease-bounce);
+}
+
+.toast-leave-active {
+  animation: fade-out 0.2s var(--ease-smooth);
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
 @media (max-width: 1024px) {
   .nav-container {
-    padding: 0 1rem;
+    padding: 0 var(--space-md);
   }
   
   .nav-label {
@@ -1271,7 +1416,7 @@ const logout = () => {
   }
   
   .content-wrapper {
-    padding: 0 1rem;
+    padding: 0 var(--space-md);
   }
 }
 
@@ -1281,7 +1426,7 @@ const logout = () => {
   }
   
   .brand-name {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
   }
   
   .brand-slogan {
@@ -1297,122 +1442,11 @@ const logout = () => {
   }
   
   .main-content {
-    padding: 1rem 0;
+    padding: var(--space-md) 0;
   }
-}
-
-.toast-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 3000;
-}
-
-.toast-container {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 24px 32px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  max-width: 400px;
-  animation: toastIn 0.3s ease;
-}
-
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(-20px);
+  
+  .form-row {
+    grid-template-columns: 1fr;
   }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.toast-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-  font-weight: bold;
-  flex-shrink: 0;
-}
-
-.toast-icon.success {
-  background: #10b981;
-}
-
-.toast-icon.error {
-  background: #ef4444;
-}
-
-.toast-icon.warning {
-  background: #f59e0b;
-}
-
-.toast-content {
-  flex: 1;
-}
-
-.toast-title {
-  margin: 0 0 4px 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.toast-message {
-  margin: 0;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.toast-close {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  color: #9ca3af;
-  font-size: 1.5rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-
-.toast-close:hover {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.toast-enter-active {
-  animation: fadeIn 0.3s ease;
-}
-
-.toast-leave-active {
-  animation: fadeOut 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
 }
 </style>

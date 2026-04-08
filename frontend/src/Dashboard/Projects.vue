@@ -2,80 +2,139 @@
   <div class="projects-page">
     <div class="page-content">
       <div class="page-header">
-      <div class="header-content">
-        <div class="title-section">
-          <h1 class="page-title">
-            <span class="title-icon">📁</span>
-            项目管理
-          </h1>
-          <p class="page-subtitle">管理和跟踪所有测试项目</p>
+        <div class="header-content">
+          <div class="title-section">
+            <div class="title-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+              </svg>
+              Project Hub
+            </div>
+            <h1 class="page-title">项目管理</h1>
+            <p class="page-subtitle">管理和跟踪所有测试项目，构建质量防线</p>
+          </div>
+          <button @click="showCreateModal = true" class="btn-create">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            创建项目
+          </button>
         </div>
-        <button @click="showCreateModal = true" class="btn-create">
-          <span class="btn-icon">+</span>
+        <div class="header-decoration">
+          <div class="deco-blob deco-blob-1"></div>
+          <div class="deco-blob deco-blob-2"></div>
+        </div>
+      </div>
+
+      <div v-if="projects.length === 0" class="empty-state">
+        <div class="empty-visual">
+          <div class="empty-icon-wrapper">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+              <line x1="12" y1="11" x2="12" y2="17"/>
+              <line x1="9" y1="14" x2="15" y2="14"/>
+            </svg>
+          </div>
+          <div class="empty-glow"></div>
+        </div>
+        <h3>暂无项目</h3>
+        <p>创建第一个项目来开始您的测试之旅</p>
+        <button @click="showCreateModal = true" class="btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
           创建项目
         </button>
       </div>
-    </div>
 
-    <div v-if="projects.length === 0" class="empty-state">
-      <div class="empty-icon">📂</div>
-      <h3>暂无项目</h3>
-      <p>创建第一个项目来开始您的测试之旅</p>
-      <button @click="showCreateModal = true" class="btn-primary">创建项目</button>
-    </div>
-
-    <div v-else class="projects-grid">
-      <div v-for="project in projects" :key="project.id" class="project-card" @click="viewProject(project.id)">
-        <div class="card-glow"></div>
-        <div class="card-header">
-          <div class="project-icon">
-            <span class="icon-bg"></span>
-            <span class="icon-emoji">🚀</span>
-          </div>
-          <div class="status-indicator"></div>
-        </div>
-        
-        <div class="card-body">
-          <h3 class="project-name">{{ project.name }}</h3>
-          <p class="project-description">{{ project.description || '暂无描述' }}</p>
+      <div v-else class="projects-grid">
+        <article
+          v-for="(project, index) in projects"
+          :key="project.id"
+          class="project-card"
+          :class="`card-theme-${(index % 4) + 1}`"
+          @click="viewProject(project.id)"
+        >
+          <div class="card-accent-bar"></div>
           
-          <div class="project-stats">
-            <div class="stat-item">
-              <span class="stat-icon">📅</span>
-              <span class="stat-label">创建时间</span>
-              <span class="stat-value">{{ formatDate(project.created_at) }}</span>
+          <div class="card-header">
+            <div class="project-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <div class="status-dot"></div>
+          </div>
+          
+          <div class="card-body">
+            <h3 class="project-name">{{ project.name }}</h3>
+            <p class="project-description">{{ project.description || '暂无描述' }}</p>
+            
+            <div class="project-meta">
+              <div class="meta-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>{{ formatDate(project.created_at) }}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="card-footer">
-          <div class="action-buttons" @click.stop>
-            <button @click="openEditModal(project)" class="btn-edit" title="修改">
-              <span>✏️</span>
-            </button>
-            <button @click="deleteProject(project.id)" class="btn-delete" title="删除">
-              <span>🗑</span>
-            </button>
+          <div class="card-footer">
+            <div class="action-buttons" @click.stop>
+              <button @click="openEditModal(project)" class="btn-action btn-edit" title="修改">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button @click="deleteProject(project.id)" class="btn-action btn-delete" title="删除">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  <line x1="10" y1="11" x2="10" y2="17"/>
+                  <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
+        </article>
       </div>
     </div>
 
     <Transition name="modal">
       <div v-if="showCreateModal" class="modal-overlay" @click="showCreateModal = false">
-        <div class="modal-container" @click.stop>
+        <div class="modal-container glass-panel" @click.stop>
           <div class="modal-header">
             <div class="modal-title">
-              <span class="modal-icon">✨</span>
+              <div class="modal-icon-wrapper icon-wrapper-ember">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </div>
               <h2>创建新项目</h2>
             </div>
-            <button @click="showCreateModal = false" class="btn-close">×</button>
+            <button @click="showCreateModal = false" class="btn-close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
           
           <form @submit.prevent="createProject" class="modal-body">
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📝</span>
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
                 项目名称
               </label>
               <input 
@@ -89,7 +148,12 @@
             
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📄</span>
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
                 项目描述
               </label>
               <textarea 
@@ -115,19 +179,32 @@
 
     <Transition name="modal">
       <div v-if="showEditModal" class="modal-overlay" @click="showEditModal = false">
-        <div class="modal-container" @click.stop>
+        <div class="modal-container glass-panel" @click.stop>
           <div class="modal-header">
             <div class="modal-title">
-              <span class="modal-icon">✏️</span>
+              <div class="modal-icon-wrapper icon-wrapper-teal">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </div>
               <h2>修改项目</h2>
             </div>
-            <button @click="showEditModal = false" class="btn-close">×</button>
+            <button @click="showEditModal = false" class="btn-close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
           
           <form @submit.prevent="updateProject" class="modal-body">
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📝</span>
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
                 项目名称
               </label>
               <input 
@@ -141,7 +218,12 @@
             
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📄</span>
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
                 项目描述
               </label>
               <textarea 
@@ -156,7 +238,7 @@
 
           <div class="modal-footer">
             <button @click="showEditModal = false" class="btn-cancel">取消</button>
-            <button @click="updateProject" class="btn-submit">
+            <button @click="updateProject" class="btn-submit btn-teal">
               <span class="btn-spinner" v-if="loading"></span>
               <span v-else>保存修改</span>
             </button>
@@ -167,26 +249,44 @@
 
     <Transition name="toast">
       <div v-if="toast.show" class="toast-overlay" @click="hideToast">
-        <div class="toast-container" @click.stop>
+        <div class="toast-container glass-panel" @click.stop>
           <div class="toast-icon" :class="toast.type">
-            <span v-if="toast.type === 'success'">✓</span>
-            <span v-else-if="toast.type === 'error'">✕</span>
-            <span v-else>!</span>
+            <svg v-if="toast.type === 'success'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <svg v-else-if="toast.type === 'error'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
           </div>
           <div class="toast-content">
             <h3 class="toast-title">{{ toast.title }}</h3>
             <p class="toast-message">{{ toast.message }}</p>
           </div>
-          <button @click="hideToast" class="toast-close">×</button>
+          <button @click="hideToast" class="toast-close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
       </div>
     </Transition>
 
     <Transition name="confirm">
       <div v-if="confirmDialog.show" class="confirm-overlay" @click="cancelConfirm">
-        <div class="confirm-container" @click.stop>
+        <div class="confirm-container glass-panel" @click.stop>
           <div class="confirm-icon">
-            <span>⚠️</span>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
           </div>
           <div class="confirm-content">
             <h3 class="confirm-title">确认删除</h3>
@@ -199,7 +299,6 @@
         </div>
       </div>
     </Transition>
-    </div>
   </div>
 </template>
 
@@ -353,54 +452,52 @@ const formatDate = (dateString) => {
 <style scoped>
 .projects-page {
   min-height: 100%;
-  background: #f8fafc;
-  padding: 24px;
+  padding: var(--space-md);
 }
 
 .page-content {
-  background: white;
-  border-radius: 2rem;
-  padding: 0;
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(232, 93, 4, 0.08);
 }
 
 .page-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  margin: -24px -24px 32px -24px;
-  padding: 32px;
   position: relative;
+  padding: var(--space-xl);
+  background: linear-gradient(145deg, var(--ink-primary) 0%, var(--ink-deep) 100%);
   overflow: hidden;
-  border-radius: 2rem 2rem 0 0;
 }
 
-.page-header::before {
-  content: '';
+.header-decoration {
   position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 300px;
-  height: 300px;
-  background: rgba(255, 255, 255, 0.1);
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.deco-blob {
+  position: absolute;
   border-radius: 50%;
-  animation: float 6s ease-in-out infinite;
+  pointer-events: none;
 }
 
-.page-header::after {
-  content: '';
-  position: absolute;
-  bottom: -30%;
-  left: -5%;
+.deco-blob-1 {
   width: 200px;
   height: 200px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  animation: float 8s ease-in-out infinite reverse;
+  top: -50%;
+  right: -5%;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(232, 93, 4, 0.25) 0%, rgba(232, 93, 4, 0.15) 30%, rgba(232, 93, 4, 0.08) 50%, transparent 70%);
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(5deg); }
+.deco-blob-2 {
+  width: 150px;
+  height: 150px;
+  bottom: -30%;
+  left: 10%;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.2) 0%, rgba(20, 184, 166, 0.12) 30%, rgba(20, 184, 166, 0.06) 50%, transparent 70%);
 }
 
 .header-content {
@@ -415,409 +512,383 @@ const formatDate = (dateString) => {
   color: white;
 }
 
+.title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 1.75rem;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.25), rgba(250, 163, 7, 0.15));
+  border: 1px solid rgba(232, 93, 4, 0.3);
+  color: var(--ember-soft);
+  margin-bottom: var(--space-sm);
+}
+
 .page-title {
   font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.title-icon {
-  font-size: 2.5rem;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  font-weight: 800;
+  margin: 0 0 var(--space-xs) 0;
+  letter-spacing: -0.02em;
 }
 
 .page-subtitle {
   font-size: 1rem;
-  opacity: 0.9;
+  opacity: 0.8;
   margin: 0;
 }
 
 .btn-create {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .btn-create:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
-.btn-icon {
-  font-size: 1.2rem;
-  font-weight: bold;
+  background: linear-gradient(135deg, var(--ember-core), var(--ember-glow));
+  border-color: transparent;
 }
 
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
-  padding: 0 24px 24px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-lg);
+  padding: var(--space-xl);
 }
 
 .project-card {
+  position: relative;
   background: white;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(232, 93, 4, 0.08);
+  transition: transform 0.3s var(--ease-bounce), box-shadow 0.3s var(--ease-smooth);
 }
 
 .project-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
-  border-color: #667eea;
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: var(--shadow-lg);
 }
 
-.card-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+.card-accent-bar {
   height: 4px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  opacity: 0;
-  transition: opacity 0.3s;
+  background: linear-gradient(90deg, var(--ember-core), var(--ember-soft));
 }
 
-.project-card:hover .card-glow {
-  opacity: 1;
-}
+.card-theme-1 .card-accent-bar { background: linear-gradient(90deg, var(--ember-core), var(--ember-soft)); }
+.card-theme-2 .card-accent-bar { background: linear-gradient(90deg, var(--teal-primary), var(--teal-bright)); }
+.card-theme-3 .card-accent-bar { background: linear-gradient(90deg, var(--coral-primary), var(--coral-bright)); }
+.card-theme-4 .card-accent-bar { background: linear-gradient(90deg, var(--forest-primary), var(--forest-bright)); }
 
 .card-header {
-  padding: 20px;
-  position: relative;
+  padding: var(--space-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .project-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  color: white;
+  box-shadow: var(--shadow-md);
 }
 
-.icon-bg {
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 16px;
-  opacity: 0.3;
-  animation: rotate 3s linear infinite;
-}
+.card-theme-1 .project-icon { background: linear-gradient(135deg, var(--ember-core), var(--ember-glow)); }
+.card-theme-2 .project-icon { background: linear-gradient(135deg, var(--teal-deep), var(--teal-bright)); }
+.card-theme-3 .project-icon { background: linear-gradient(135deg, var(--coral-deep), var(--coral-bright)); }
+.card-theme-4 .project-icon { background: linear-gradient(135deg, var(--forest-deep), var(--forest-bright)); }
 
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.icon-emoji {
-  font-size: 1.8rem;
-  position: relative;
-  z-index: 1;
-}
-
-.status-indicator {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 12px;
-  height: 12px;
-  background: #10b981;
+.status-dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-
-@keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2); }
-  50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  background: var(--forest-bright);
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
 }
 
 .card-body {
-  padding: 0 20px 20px;
+  padding: 0 var(--space-lg) var(--space-lg);
 }
 
 .project-name {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 8px 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin: 0 0 var(--space-sm) 0;
 }
 
 .project-description {
-  color: #6b7280;
+  color: var(--ink-soft);
   font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0 0 16px 0;
+  line-height: 1.6;
+  margin: 0 0 var(--space-md) 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.project-stats {
-  border-top: 1px solid #e5e7eb;
-  padding-top: 16px;
+.project-meta {
+  padding-top: var(--space-md);
+  border-top: 1px solid rgba(232, 93, 4, 0.08);
 }
 
-.stat-item {
+.meta-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-sm);
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--ink-soft);
 }
 
-.stat-icon {
-  font-size: 1rem;
-}
-
-.stat-label {
-  color: #9ca3af;
-}
-
-.stat-value {
-  font-weight: 500;
-  color: #374151;
-  margin-left: auto;
+.meta-item svg {
+  color: var(--ember-core);
 }
 
 .card-footer {
-  padding: 16px 20px;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  padding: var(--space-md) var(--space-lg);
+  background: linear-gradient(180deg, rgba(232, 93, 4, 0.02), rgba(250, 163, 7, 0.01));
+  border-top: 1px solid rgba(232, 93, 4, 0.06);
 }
 
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   justify-content: flex-end;
 }
 
-.btn-edit,
-.btn-delete {
+.btn-action {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
-  transition: all 0.3s;
 }
 
 .btn-edit {
-  background: #e0e7ff;
-  color: #4338ca;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(94, 234, 212, 0.08));
+  color: var(--teal-primary);
 }
 
 .btn-edit:hover {
-  background: #4338ca;
+  background: linear-gradient(135deg, var(--teal-deep), var(--teal-bright));
   color: white;
-  transform: scale(1.1);
 }
 
 .btn-delete {
-  background: #fee2e2;
-  color: #dc2626;
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(253, 164, 175, 0.08));
+  color: var(--coral-primary);
 }
 
 .btn-delete:hover {
-  background: #dc2626;
+  background: linear-gradient(135deg, var(--coral-deep), var(--coral-bright));
   color: white;
-  transform: scale(1.1);
 }
 
 .empty-state {
   text-align: center;
-  padding: 80px 20px;
-  color: #6b7280;
+  padding: var(--space-3xl) var(--space-xl);
 }
 
-.empty-icon {
-  font-size: 5rem;
-  margin-bottom: 24px;
-  opacity: 0.5;
+.empty-visual {
+  position: relative;
+  display: inline-block;
+  margin-bottom: var(--space-xl);
+}
+
+.empty-icon-wrapper {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.08), rgba(250, 163, 7, 0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ember-core);
+  position: relative;
+  z-index: 1;
+}
+
+.empty-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(232, 93, 4, 0.12) 0%, rgba(232, 93, 4, 0.06) 40%, transparent 70%);
+  box-shadow: 0 0 60px rgba(232, 93, 4, 0.1);
+  border-radius: 50%;
 }
 
 .empty-state h3 {
-  font-size: 1.5rem;
-  color: #374151;
-  margin: 0 0 8px 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin: 0 0 var(--space-sm) 0;
 }
 
 .empty-state p {
-  margin: 0 0 24px 0;
-  color: #9ca3af;
+  margin: 0 0 var(--space-xl) 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
   border: none;
-  padding: 12px 32px;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
+  background: linear-gradient(135deg, var(--ember-core), var(--ember-glow));
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s var(--ease-smooth);
+  box-shadow: var(--shadow-md), 0 0 15px rgba(232, 93, 4, 0.2);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-lg), 0 0 25px rgba(232, 93, 4, 0.3);
 }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(10, 15, 26, 0.5);
   display: flex;
   align-items: flex-start;
   justify-content: center;
   z-index: 1000;
-  padding: 90px 20px 20px;
+  padding: 100px var(--space-xl) var(--space-xl);
   overflow-y: auto;
 }
 
 .modal-container {
-  background: white;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   width: 100%;
   max-width: 500px;
-  max-height: calc(100vh - 140px);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-  animation: slideDown 0.3s ease-out;
+  max-height: calc(100vh - 160px);
+  box-shadow: var(--shadow-xl);
+  animation: scale-bounce 0.4s var(--ease-bounce);
   overflow-y: auto;
-  margin-top: 20px;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  border: 1px solid rgba(232, 93, 4, 0.08);
 }
 
 .modal-header {
-  padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: var(--space-xl);
+  border-bottom: 1px solid rgba(232, 93, 4, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: sticky;
+  top: 0;
+  background: inherit;
+  z-index: 1;
 }
 
 .modal-title {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-md);
 }
 
-.modal-icon {
-  font-size: 1.5rem;
+.modal-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
 }
 
 .modal-title h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #1f2937;
+  color: var(--ink-primary);
+  font-weight: 700;
 }
 
 .btn-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
   border: none;
-  background: #f3f4f6;
-  color: #6b7280;
-  font-size: 1.5rem;
+  background: rgba(232, 93, 4, 0.04);
+  color: var(--ink-soft);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s var(--ease-smooth);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .btn-close:hover {
-  background: #e5e7eb;
-  color: #374151;
+  background: rgba(232, 93, 4, 0.08);
+  color: var(--ember-core);
+  transform: rotate(90deg);
 }
 
 .modal-body {
-  padding: 24px;
+  padding: var(--space-xl);
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-lg);
 }
 
 .form-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.95rem;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  font-weight: 600;
+  color: var(--ink-secondary);
+  font-size: 0.9rem;
 }
 
 .label-icon {
-  font-size: 1.1rem;
+  color: var(--ember-core);
 }
 
 .form-input,
-.form-textarea,
-.form-select {
+.form-textarea {
   width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  font-size: 1rem;
+  padding: var(--space-sm) var(--space-md);
+  border: 2px solid rgba(232, 93, 4, 0.1);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
   font-family: inherit;
-  transition: all 0.3s;
+  transition: all 0.3s var(--ease-smooth);
   background: white;
+  color: var(--ink-primary);
 }
 
 .form-input:focus,
-.form-textarea:focus,
-.form-select:focus {
+.form-textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  border-color: var(--ember-core);
+  box-shadow: 0 0 0 4px rgba(232, 93, 4, 0.1);
 }
 
 .form-textarea {
@@ -826,48 +897,60 @@ const formatDate = (dateString) => {
 }
 
 .modal-footer {
-  padding: 24px;
-  border-top: 1px solid #e5e7eb;
+  padding: var(--space-xl);
+  border-top: 1px solid rgba(232, 93, 4, 0.08);
   display: flex;
-  gap: 12px;
+  gap: var(--space-md);
   justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  background: inherit;
 }
 
 .btn-cancel,
 .btn-submit {
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 1rem;
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s var(--ease-smooth);
   border: none;
 }
 
 .btn-cancel {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: rgba(232, 93, 4, 0.04);
+  color: var(--ink-muted);
 }
 
 .btn-cancel:hover {
-  background: #e5e7eb;
-  color: #374151;
+  background: rgba(232, 93, 4, 0.08);
+  color: var(--ink-primary);
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--ember-core), var(--ember-glow));
   color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: var(--shadow-md), 0 0 15px rgba(232, 93, 4, 0.15);
 }
 
 .btn-submit:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-lg), 0 0 25px rgba(232, 93, 4, 0.25);
+}
+
+.btn-submit.btn-teal {
+  background: linear-gradient(135deg, var(--teal-deep), var(--teal-bright));
+  box-shadow: var(--shadow-md), 0 0 15px rgba(20, 184, 166, 0.15);
+}
+
+.btn-submit.btn-teal:hover {
+  box-shadow: var(--shadow-lg), 0 0 25px rgba(20, 184, 166, 0.25);
 }
 
 .btn-spinner {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
@@ -878,45 +961,10 @@ const formatDate = (dateString) => {
   to { transform: rotate(360deg); }
 }
 
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-@media (max-width: 768px) {
-  .page-header {
-    padding: 24px;
-    margin: -16px -16px 24px -16px;
-  }
-
-  .header-content {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
-  }
-
-  .projects-grid {
-    grid-template-columns: 1fr;
-    padding: 0 16px 16px;
-  }
-
-  .modal-container {
-    margin: 16px;
-  }
-}
-
 .toast-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(10, 15, 26, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -924,58 +972,41 @@ const formatDate = (dateString) => {
 }
 
 .toast-container {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 24px 32px;
-  min-width: 320px;
-  max-width: 90vw;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-xl);
+  box-shadow: var(--shadow-xl);
   display: flex;
   align-items: center;
-  gap: 20px;
-  animation: toastBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-@keyframes toastBounce {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  gap: var(--space-md);
+  max-width: 400px;
+  animation: scale-bounce 0.4s var(--ease-bounce);
+  border: 1px solid rgba(232, 93, 4, 0.08);
 }
 
 .toast-icon {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 600;
   color: white;
   flex-shrink: 0;
 }
 
 .toast-icon.success {
-  background: #10b981;
+  background: linear-gradient(135deg, var(--forest-primary), var(--forest-bright));
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
 }
 
 .toast-icon.error {
-  background: #ef4444;
+  background: linear-gradient(135deg, var(--coral-deep), var(--coral-bright));
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
 }
 
 .toast-icon.warning {
-  background: #f59e0b;
+  background: linear-gradient(135deg, var(--amber-primary), var(--amber-soft));
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
 }
 
 .toast-content {
@@ -985,59 +1016,40 @@ const formatDate = (dateString) => {
 .toast-title {
   margin: 0 0 4px 0;
   font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
+  font-weight: 700;
+  color: var(--ink-primary);
 }
 
 .toast-message {
   margin: 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--ink-soft);
 }
 
 .toast-close {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
   border: none;
   background: transparent;
-  color: #9ca3af;
-  font-size: 1.25rem;
+  color: var(--ink-soft);
   cursor: pointer;
-  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s var(--ease-smooth);
   flex-shrink: 0;
 }
 
 .toast-close:hover {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.toast-enter-active {
-  animation: fadeIn 0.3s ease;
-}
-
-.toast-leave-active {
-  animation: fadeOut 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  background: rgba(232, 93, 4, 0.06);
+  color: var(--ember-core);
 }
 
 .confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(10, 15, 26, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1045,98 +1057,139 @@ const formatDate = (dateString) => {
 }
 
 .confirm-container {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 32px;
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
   min-width: 360px;
   max-width: 90vw;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  animation: confirmBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: var(--shadow-xl);
   text-align: center;
-}
-
-@keyframes confirmBounce {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  animation: scale-bounce 0.4s var(--ease-bounce);
+  border: 1px solid rgba(232, 93, 4, 0.08);
 }
 
 .confirm-icon {
   width: 64px;
   height: 64px;
-  margin: 0 auto 20px;
-  background: #fef3c7;
+  margin: 0 auto var(--space-lg);
   border-radius: 50%;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(217, 119, 6, 0.08));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  color: var(--amber-primary);
 }
 
 .confirm-title {
-  margin: 0 0 8px 0;
+  margin: 0 0 var(--space-sm) 0;
   font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
+  font-weight: 700;
+  color: var(--ink-primary);
 }
 
 .confirm-message {
-  margin: 0 0 24px 0;
+  margin: 0 0 var(--space-xl) 0;
   font-size: 0.9375rem;
-  color: #6b7280;
-  line-height: 1.5;
+  color: var(--ink-soft);
+  line-height: 1.6;
 }
 
 .confirm-actions {
   display: flex;
-  gap: 12px;
+  gap: var(--space-md);
   justify-content: center;
 }
 
 .confirm-btn {
-  padding: 10px 24px;
-  border-radius: 10px;
-  font-size: 0.9375rem;
-  font-weight: 500;
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s var(--ease-smooth);
   border: none;
 }
 
 .confirm-btn.cancel {
-  background: #f3f4f6;
-  color: #374151;
+  background: rgba(232, 93, 4, 0.04);
+  color: var(--ink-muted);
 }
 
 .confirm-btn.cancel:hover {
-  background: #e5e7eb;
+  background: rgba(232, 93, 4, 0.08);
+  color: var(--ink-primary);
 }
 
 .confirm-btn.delete {
-  background: #ef4444;
+  background: linear-gradient(135deg, var(--coral-deep), var(--coral-bright));
   color: white;
+  box-shadow: var(--shadow-sm), 0 0 15px rgba(244, 63, 94, 0.2);
 }
 
 .confirm-btn.delete:hover {
-  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), 0 0 20px rgba(244, 63, 94, 0.3);
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s var(--ease-smooth);
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.toast-enter-active {
+  animation: scale-bounce 0.4s var(--ease-bounce);
+}
+
+.toast-leave-active {
+  animation: fade-out 0.2s var(--ease-smooth);
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
 }
 
 .confirm-enter-active {
-  animation: fadeIn 0.3s ease;
+  animation: scale-bounce 0.4s var(--ease-bounce);
 }
 
 .confirm-leave-active {
-  animation: fadeOut 0.2s ease;
+  animation: fade-out 0.2s var(--ease-smooth);
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: var(--space-lg);
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: flex-start;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+    padding: var(--space-lg);
+    gap: var(--space-md);
+  }
+
+  .modal-overlay {
+    padding: var(--space-lg);
+  }
+
+  .modal-container {
+    margin-top: var(--space-lg);
+  }
 }
 </style>

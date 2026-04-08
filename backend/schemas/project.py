@@ -2,11 +2,11 @@ from typing import List
 from datetime import datetime
 from pydantic import BaseModel, Field
 
-
+# 返回给前端的数据（前端需要在页面显示的数据）
 class ProjectResponse(BaseModel):
     id: int
     name: str
-    description: str | None
+    description: str
     owner_id: int
     created_at: datetime
 
@@ -16,7 +16,7 @@ class ProjectResponse(BaseModel):
 
 class ProjectCreate(BaseModel):
     name: str = Field(..., max_length=100)
-    description: str | None = None
+    description: str
 
 
 class ProjectUpdate(BaseModel):

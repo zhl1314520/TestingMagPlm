@@ -4,16 +4,26 @@
       <div class="page-header">
       <div class="header-content">
         <div class="title-section">
-          <h1 class="page-title">
-            <span class="title-icon">▶️</span>
-            测试执行
-          </h1>
+          <div class="title-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Test Runner
+          </div>
+          <h1 class="page-title">测试执行</h1>
           <p class="page-subtitle">执行和监控测试任务</p>
         </div>
         <button @click="showCreateModal = true" class="btn-create">
-          <span class="btn-icon">+</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
           创建执行
         </button>
+      </div>
+      <div class="header-decoration">
+        <div class="deco-blob deco-blob-1"></div>
+        <div class="deco-blob deco-blob-2"></div>
       </div>
     </div>
 
@@ -442,29 +452,58 @@ const updateExecution = async () => {
 }
 
 .page-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  margin: -24px -24px 32px -24px;
-  padding: 32px;
   position: relative;
+  padding: var(--space-xl);
+  background: linear-gradient(145deg, var(--ink-primary) 0%, var(--ink-deep) 100%);
   overflow: hidden;
-  border-radius: 2rem 2rem 0 0;
 }
 
-.page-header::before {
-  content: '';
+.header-decoration {
   position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 300px;
-  height: 300px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  animation: float 6s ease-in-out infinite;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(5deg); }
+.deco-blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.deco-blob-1 {
+  width: 200px;
+  height: 200px;
+  top: -50%;
+  right: -5%;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.25) 0%, rgba(34, 197, 94, 0.15) 30%, rgba(34, 197, 94, 0.08) 50%, transparent 70%);
+}
+
+.deco-blob-2 {
+  width: 150px;
+  height: 150px;
+  bottom: -40%;
+  left: 10%;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(134, 239, 172, 0.2) 0%, rgba(134, 239, 172, 0.12) 30%, rgba(134, 239, 172, 0.06) 50%, transparent 70%);
+}
+
+.title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 1.75rem;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(134, 239, 172, 0.15));
+  color: var(--forest-soft);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  margin-bottom: var(--space-sm);
 }
 
 .header-content {

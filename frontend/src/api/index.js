@@ -116,7 +116,7 @@ export const reportAPI = {
 }
 
 export const metricsAPI = {
-  getOverview: () => api.get('/metrics/overview'),
+  getOverview: (params = {}) => api.get('/metrics/overview', { params }),
   getTrend: () => api.get('/metrics/trend'),
   getProjectProgress: () => api.get('/metrics/project-progress'),
   getRecentActivities: (limit = 10) => api.get('/metrics/recent-activities', { params: { limit } })

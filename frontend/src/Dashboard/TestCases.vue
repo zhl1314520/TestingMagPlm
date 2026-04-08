@@ -4,16 +4,29 @@
       <div class="page-header">
       <div class="header-content">
         <div class="title-section">
-          <h1 class="page-title">
-            <span class="title-icon">📝</span>
-            测试用例管理
-          </h1>
+          <div class="title-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Test Cases
+          </div>
+          <h1 class="page-title">测试用例管理</h1>
           <p class="page-subtitle">编写和管理高质量的测试用例</p>
         </div>
         <button @click="showCreateModal = true" class="btn-create">
-          <span class="btn-icon">+</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
           创建用例
         </button>
+      </div>
+      <div class="header-decoration">
+        <div class="deco-blob deco-blob-1"></div>
+        <div class="deco-blob deco-blob-2"></div>
       </div>
     </div>
 
@@ -21,7 +34,9 @@
       <div class="filters-container">
         <div class="filter-group">
           <label class="filter-label">
-            <span class="filter-icon">📁</span>
+            <svg class="filter-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
             项目
           </label>
           <select v-model="filters.project_id" @change="loadTestCases" class="filter-select">
@@ -34,7 +49,10 @@
         
         <div class="filter-group">
           <label class="filter-label">
-            <span class="filter-icon">✅</span>
+            <svg class="filter-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 11 12 14 22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
             状态
           </label>
           <select v-model="filters.status" @change="loadTestCases" class="filter-select">
@@ -56,10 +74,26 @@
     </div>
 
     <div v-if="testcases.length === 0" class="empty-state">
-      <div class="empty-icon">📋</div>
+      <div class="empty-visual">
+        <div class="empty-icon-wrapper">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <div class="empty-glow"></div>
+      </div>
       <h3>暂无测试用例</h3>
       <p>创建第一个测试用例来开始测试</p>
-      <button @click="showCreateModal = true" class="btn-primary">创建用例</button>
+      <button @click="showCreateModal = true" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        创建用例
+      </button>
     </div>
 
     <div v-else class="testcase-list">
@@ -68,7 +102,11 @@
           <div class="testcase-title">{{ testcase.title }}</div>
           <div class="status-badges">
             <span class="badge module-badge">
-              🔖 {{ testcase.module }}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                <line x1="7" y1="7" x2="7.01" y2="7"/>
+              </svg>
+              {{ testcase.module }}
             </span>
             <span class="badge status-badge" :class="testcase.status">
               {{ getStatusText(testcase.status) }}
@@ -79,7 +117,11 @@
         <div class="card-content">
           <div class="content-section">
             <div class="section-label">
-              <span class="label-icon">👣</span>
+              <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="20" x2="12" y2="10"/>
+                <line x1="18" y1="20" x2="18" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="16"/>
+              </svg>
               执行步骤
             </div>
             <p class="section-text">{{ testcase.steps }}</p>
@@ -87,7 +129,11 @@
 
           <div class="content-section">
             <div class="section-label">
-              <span class="label-icon">🎯</span>
+              <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
               期望结果
             </div>
             <p class="section-text expected">{{ testcase.expected }}</p>
@@ -98,10 +144,18 @@
           <div class="testcase-id">#{{ testcase.id }}</div>
           <div class="action-buttons">
             <button @click="editTestCase(testcase)" class="btn-edit" title="编辑">
-              <span>✏️</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
             </button>
             <button @click="deleteTestCase(testcase.id)" class="btn-delete" title="删除">
-              <span>🗑</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -113,17 +167,33 @@
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <div class="modal-title">
-              <span class="modal-icon">{{ editingTestCase ? '✏️' : '✨' }}</span>
+              <div class="modal-icon-wrapper" :class="editingTestCase ? 'icon-wrapper-teal' : 'icon-wrapper-ember'">
+                <svg v-if="editingTestCase" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </div>
               <h2>{{ editingTestCase ? '编辑用例' : '创建新用例' }}</h2>
             </div>
-            <button @click="closeModal" class="btn-close">×</button>
+            <button @click="closeModal" class="btn-close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
           
           <form @submit.prevent="saveTestCase" class="modal-body">
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">📁</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                  </svg>
                   所属项目
                 </label>
                 <select v-model="testCaseForm.project_id" required class="form-select">
@@ -136,7 +206,10 @@
 
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">🔖</span>
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                    <line x1="7" y1="7" x2="7.01" y2="7"/>
+                  </svg>
                   模块
                 </label>
                 <input 
@@ -151,7 +224,12 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📝</span>
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
                 用例标题
               </label>
               <input 
@@ -165,7 +243,11 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">👣</span>
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="20" x2="12" y2="10"/>
+                  <line x1="18" y1="20" x2="18" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="16"/>
+                </svg>
                 执行步骤
               </label>
               <textarea 
@@ -179,7 +261,11 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">🎯</span>
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="6"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
                 期望结果
               </label>
               <textarea 
@@ -193,7 +279,10 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">✅</span>
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 11 12 14 22 4"/>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
                 用例状态
               </label>
               <div class="status-selector">
@@ -470,41 +559,58 @@ const getStatusText = (status) => {
 }
 
 .page-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  margin: -24px -24px 32px -24px;
-  padding: 32px;
   position: relative;
+  padding: var(--space-xl);
+  background: linear-gradient(145deg, var(--ink-primary) 0%, var(--ink-deep) 100%);
   overflow: hidden;
-  border-radius: 2rem 2rem 0 0;
 }
 
-.page-header::before {
-  content: '';
+.header-decoration {
   position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 300px;
-  height: 300px;
-  background: rgba(255, 255, 255, 0.1);
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.deco-blob {
+  position: absolute;
   border-radius: 50%;
-  animation: float 6s ease-in-out infinite;
+  pointer-events: none;
 }
 
-.page-header::after {
-  content: '';
-  position: absolute;
-  bottom: -30%;
-  left: -5%;
+.deco-blob-1 {
   width: 200px;
   height: 200px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  animation: float 8s ease-in-out infinite reverse;
+  top: -50%;
+  right: -5%;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.25) 0%, rgba(20, 184, 166, 0.15) 30%, rgba(20, 184, 166, 0.08) 50%, transparent 70%);
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(5deg); }
+.deco-blob-2 {
+  width: 150px;
+  height: 150px;
+  bottom: -40%;
+  left: 10%;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(94, 234, 212, 0.2) 0%, rgba(94, 234, 212, 0.12) 30%, rgba(94, 234, 212, 0.06) 50%, transparent 70%);
+}
+
+.title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 1.75rem;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(94, 234, 212, 0.15));
+  color: var(--teal-soft);
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  margin-bottom: var(--space-sm);
 }
 
 .header-content {

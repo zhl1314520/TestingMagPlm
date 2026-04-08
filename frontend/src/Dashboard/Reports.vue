@@ -4,16 +4,29 @@
       <div class="page-header">
         <div class="header-content">
           <div class="title-section">
-            <h1 class="page-title">
-              <span class="title-icon">📊</span>
-              报告统计
-            </h1>
+            <div class="title-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+              Reports
+            </div>
+            <h1 class="page-title">报告统计</h1>
             <p class="page-subtitle">数据驱动质量改进</p>
           </div>
           <button @click="refreshData" class="btn-refresh" :class="{ spinning: loading }">
-            <span class="refresh-icon">🔄</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
             刷新数据
           </button>
+        </div>
+        <div class="header-decoration">
+          <div class="deco-blob deco-blob-1"></div>
+          <div class="deco-blob deco-blob-2"></div>
         </div>
       </div>
 
@@ -22,7 +35,10 @@
           <div class="trend-section">
             <div class="section-header">
               <div class="section-title">
-                <span class="title-icon">📈</span>
+                <svg class="title-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                  <polyline points="17 6 23 6 23 12"/>
+                </svg>
                 <h2>趋势分析</h2>
               </div>
               <div class="section-actions">
@@ -37,7 +53,16 @@
             </div>
 
             <div v-if="trendData.length === 0" class="empty-chart">
-              <div class="empty-icon">📊</div>
+              <div class="empty-visual">
+                <div class="empty-icon-wrapper">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                  </svg>
+                </div>
+                <div class="empty-glow"></div>
+              </div>
               <p>暂无趋势数据</p>
             </div>
           </div>
@@ -47,7 +72,12 @@
           <div class="reports-section">
             <div class="section-header">
               <div class="section-title">
-                <span class="title-icon">📋</span>
+                <svg class="title-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
                 <h2>报告列表</h2>
               </div>
               <div class="section-count">
@@ -61,7 +91,15 @@
             </div>
 
             <div v-else-if="reports.length === 0" class="empty-reports">
-              <div class="empty-icon">📄</div>
+              <div class="empty-visual">
+                <div class="empty-icon-wrapper">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                </div>
+                <div class="empty-glow"></div>
+              </div>
               <h3>暂无报告</h3>
               <p>测试执行后将自动生成报告</p>
             </div>
@@ -71,7 +109,11 @@
                 <div class="card-glow"></div>
                 <div class="report-header">
                   <div class="report-title">
-                    <span class="report-icon">📊</span>
+                    <svg class="report-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="20" x2="18" y2="10"/>
+                      <line x1="12" y1="20" x2="12" y2="4"/>
+                      <line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
                     <h3>{{ report.title }}</h3>
                   </div>
                   <div class="report-date">{{ formatDate(report.created_at) }}</div>
@@ -79,18 +121,29 @@
 
                 <div class="report-meta">
                   <div class="meta-item">
-                    <span class="meta-icon">📁</span>
+                    <svg class="meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
                     <span>项目ID: {{ report.project_id }}</span>
                   </div>
                   <div class="meta-item">
-                    <span class="meta-icon">📝</span>
+                    <svg class="meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
                     <span>总用例: {{ report.total_cases }}</span>
                   </div>
                 </div>
 
                 <div class="report-stats">
                   <div class="stat-item pass">
-                    <div class="stat-icon">✅</div>
+                    <div class="stat-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </div>
                     <div class="stat-content">
                       <div class="stat-value">{{ report.passed_cases }}</div>
                       <div class="stat-label">通过 ({{ (report.pass_rate * 100).toFixed(1) }}%)</div>
@@ -101,7 +154,12 @@
                   </div>
 
                   <div class="stat-item fail">
-                    <div class="stat-icon">❌</div>
+                    <div class="stat-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </div>
                     <div class="stat-content">
                       <div class="stat-value">{{ report.failed_cases }}</div>
                       <div class="stat-label">失败 ({{ (report.fail_rate * 100).toFixed(1) }}%)</div>
@@ -356,27 +414,58 @@ const formatDate = (dateString) => {
 }
 
 .page-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 32px;
   position: relative;
+  padding: var(--space-xl);
+  background: linear-gradient(145deg, var(--ink-primary) 0%, var(--ink-deep) 100%);
   overflow: hidden;
 }
 
-.page-header::before {
-  content: '';
+.header-decoration {
   position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 300px;
-  height: 300px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  animation: float 6s ease-in-out infinite;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(5deg); }
+.deco-blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.deco-blob-1 {
+  width: 200px;
+  height: 200px;
+  top: -50%;
+  right: -5%;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(217, 119, 6, 0.25) 0%, rgba(217, 119, 6, 0.15) 30%, rgba(217, 119, 6, 0.08) 50%, transparent 70%);
+}
+
+.deco-blob-2 {
+  width: 150px;
+  height: 150px;
+  bottom: -40%;
+  left: 10%;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.12) 30%, rgba(251, 191, 36, 0.06) 50%, transparent 70%);
+}
+
+.title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 1.75rem;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.25), rgba(251, 191, 36, 0.15));
+  color: var(--amber-soft);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  margin-bottom: var(--space-sm);
 }
 
 .header-content {
