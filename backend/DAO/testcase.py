@@ -15,7 +15,7 @@ async def create_testcase(testcase: TestCase, db: AsyncSession):
     return testcase
 
 
-async def get_testcase_list(page: int, page_size: int, project_id: int = None, module: str = None, status: str = None, db: AsyncSession = None):
+async def get_testcase_list(page: int, page_size: int, project_id: int = None, module: str = None, status: str = None, created_by: int = None, db: AsyncSession = None):
     count_stmt = select(func.count()).select_from(TestCase)
     
     conditions = []
@@ -25,6 +25,8 @@ async def get_testcase_list(page: int, page_size: int, project_id: int = None, m
         conditions.append(TestCase.module == module)
     if status:
         conditions.append(TestCase.status == status)
+    if created_by:
+        conditions.append(TestCase.created_by == created_by)
     
     if conditions:
         count_stmt = count_stmt.where(and_(*conditions))

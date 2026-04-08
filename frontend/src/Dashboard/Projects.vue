@@ -247,6 +247,88 @@
       </div>
     </Transition>
 
+    <Transition name="modal">
+      <div v-if="showDetailModal" class="modal-overlay" @click="showDetailModal = false">
+        <div class="modal-container glass-panel detail-modal" @click.stop>
+          <div class="modal-header">
+            <div class="modal-title">
+              <div class="modal-icon-wrapper icon-wrapper-detail">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <h2>项目详情</h2>
+            </div>
+            <button @click="showDetailModal = false" class="btn-close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="modal-body" v-if="selectedProject">
+            <div class="detail-section">
+              <div class="detail-label">
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                项目名称
+              </div>
+              <div class="detail-value">{{ selectedProject.name }}</div>
+            </div>
+            
+            <div class="detail-section">
+              <div class="detail-label">
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                项目描述
+              </div>
+              <div class="detail-value description-text">{{ selectedProject.description || '暂无描述' }}</div>
+            </div>
+            
+            <div class="detail-row">
+              <div class="detail-section half">
+                <div class="detail-label">
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  创建时间
+                </div>
+                <div class="detail-value">{{ formatDate(selectedProject.created_at) }}</div>
+              </div>
+              
+              <div class="detail-section half">
+                <div class="detail-label">
+                  <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  更新时间
+                </div>
+                <div class="detail-value">{{ formatDate(selectedProject.updated_at) }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button @click="showDetailModal = false" class="btn-cancel">关闭</button>
+            <button @click="editFromDetail" class="btn-submit btn-teal">
+              编辑项目
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <Transition name="toast">
       <div v-if="toast.show" class="toast-overlay" @click="hideToast">
         <div class="toast-container glass-panel" @click.stop>
@@ -309,6 +391,8 @@ import { projectAPI } from '../api/index.js'
 const projects = ref([])
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
+const showDetailModal = ref(false)
+const selectedProject = ref(null)
 const loading = ref(false)
 const newProject = ref({
   name: '',
@@ -437,6 +521,21 @@ const updateProject = async () => {
     showToast('error', '错误', '修改项目失败')
   } finally {
     loading.value = false
+  }
+}
+
+const viewProject = (projectId) => {
+  const project = projects.value.find(p => p.id === projectId)
+  if (project) {
+    selectedProject.value = project
+    showDetailModal.value = true
+  }
+}
+
+const editFromDetail = () => {
+  if (selectedProject.value) {
+    showDetailModal.value = false
+    openEditModal(selectedProject.value)
   }
 }
 
@@ -822,6 +921,21 @@ const formatDate = (dateString) => {
   border-radius: var(--radius-md);
 }
 
+.icon-wrapper-ember {
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.1), rgba(250, 163, 7, 0.08));
+  color: var(--ember-core);
+}
+
+.icon-wrapper-teal {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(94, 234, 212, 0.08));
+  color: var(--teal-primary);
+}
+
+.icon-wrapper-detail {
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.1), rgba(20, 184, 166, 0.08));
+  color: var(--ember-core);
+}
+
 .modal-title h2 {
   margin: 0;
   font-size: 1.25rem;
@@ -851,6 +965,52 @@ const formatDate = (dateString) => {
 
 .modal-body {
   padding: var(--space-xl);
+}
+
+.detail-modal {
+  max-width: 560px;
+}
+
+.detail-section {
+  margin-bottom: var(--space-lg);
+}
+
+.detail-section.half {
+  flex: 1;
+}
+
+.detail-row {
+  display: flex;
+  gap: var(--space-xl);
+}
+
+.detail-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  font-weight: 600;
+  color: var(--ink-secondary);
+  font-size: 0.9rem;
+}
+
+.detail-label .label-icon {
+  color: var(--ember-core);
+}
+
+.detail-value {
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(232, 93, 4, 0.03);
+  border-radius: var(--radius-md);
+  color: var(--ink-primary);
+  font-size: 0.95rem;
+  border: 1px solid rgba(232, 93, 4, 0.08);
+}
+
+.detail-value.description-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
 }
 
 .form-group {

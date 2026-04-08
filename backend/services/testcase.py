@@ -34,8 +34,8 @@ async def create_testcase(testcase_data: TestCaseCreate, user_id: int, db: Async
         raise HTTPException(status_code=400, detail=f"创建测试用例失败: {str(e)}")
 
 
-async def get_testcase_list(page: int, page_size: int, project_id: int = None, module: str = None, status: str = None, db: AsyncSession = None):
-    total, items = await crud.get_testcase_list(page, page_size, project_id, module, status, db)
+async def get_testcase_list(page: int, page_size: int, project_id: int = None, module: str = None, status: str = None, created_by: int = None, db: AsyncSession = None):
+    total, items = await crud.get_testcase_list(page, page_size, project_id, module, status, created_by, db)
     return TestCasePageResponse(
         total=total,
         items=items

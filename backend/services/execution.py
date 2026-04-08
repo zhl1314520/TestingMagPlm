@@ -11,9 +11,9 @@ from DAO import testcase as testcase_crud
 logger = logging.getLogger(__name__)
 
 
-async def create_execution(execution_data: ExecutionCreate, db: AsyncSession):
-    logger.info("创建测试执行: project_id=%s, name=%s, type=%s", 
-                execution_data.project_id, execution_data.name, execution_data.type)
+async def create_execution(execution_data: ExecutionCreate, user_id: int, db: AsyncSession):
+    logger.info("创建测试执行: project_id=%s, name=%s, type=%s, user_id=%s", 
+                execution_data.project_id, execution_data.name, execution_data.type, user_id)
 
     new_execution = Execution(
         project_id=execution_data.project_id,
@@ -24,7 +24,8 @@ async def create_execution(execution_data: ExecutionCreate, db: AsyncSession):
         total_cases=0,
         passed_cases=0,
         failed_cases=0,
-        pass_rate=0.00
+        pass_rate=0.00,
+        executed_by=user_id
     )
 
     await crud.create_execution(new_execution, db)
@@ -35,8 +36,8 @@ async def create_execution(execution_data: ExecutionCreate, db: AsyncSession):
     return new_execution
 
 
-async def get_execution_list(page: int, page_size: int, project_id: int = None, db: AsyncSession = None):
-    total, items = await crud.get_execution_list(page, page_size, project_id, db)
+async def get_execution_list(page: int, page_size: int, project_id: int = None, executed_by: int = None, db: AsyncSession = None):
+    total, items = await crud.get_execution_list(page, page_size, project_id, executed_by, db)
     return ExecutionPageResponse(
         total=total,
         items=items

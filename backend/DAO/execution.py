@@ -15,11 +15,18 @@ async def create_execution(execution: Execution, db: AsyncSession):
     return execution
 
 
-async def get_execution_list(page: int, page_size: int, project_id: int = None, db: AsyncSession = None):
+async def get_execution_list(page: int, page_size: int, project_id: int = None, executed_by: int = None, db: AsyncSession = None):
     count_stmt = select(func.count()).select_from(Execution)
     
+    conditions = []
     if project_id:
-        count_stmt = count_stmt.where(Execution.project_id == project_id)
+        conditions.append(Execution.project_id == project_id)
+    if executed_by:
+        conditions.append(Execution.executed_by == executed_by)
+    
+    if conditions:
+        from sqlalchemy import and_
+        count_stmt = count_stmt.where(and_(*conditions))
     
     total = (await db.execute(count_stmt)).scalar()
 
@@ -30,8 +37,9 @@ async def get_execution_list(page: int, page_size: int, project_id: int = None, 
         .order_by(Execution.id.desc())
     )
     
-    if project_id:
-        stmt = stmt.where(Execution.project_id == project_id)
+    if conditions:
+        from sqlalchemy import and_
+        stmt = stmt.where(and_(*conditions))
     
     result = await db.execute(stmt)
     items = result.scalars().all()

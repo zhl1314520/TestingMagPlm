@@ -33,15 +33,26 @@
     <div class="filters-section">
       <div class="filters-container">
         <div class="filter-group">
-          <label class="filter-label">
-            <svg class="filter-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-            </svg>
-            项目
-          </label>
+          <div class="filter-label-row">
+            <label class="filter-label">
+              <svg class="filter-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+              </svg>
+              项目
+            </label>
+            <div class="project-search-wrapper">
+              <input 
+                v-model="projectSearchKeyword" 
+                type="text" 
+                placeholder="搜索项目名称" 
+                class="project-search-input"
+              />
+              <button @click="searchProjects" class="project-search-btn">查询</button>
+            </div>
+          </div>
           <select v-model="filters.project_id" @change="loadTestCases" class="filter-select">
             <option value="">全部项目</option>
-            <option v-for="project in projects" :key="project.id" :value="project.id">
+            <option v-for="project in filteredProjects" :key="project.id" :value="project.id">
               {{ project.name }}
             </option>
           </select>
@@ -355,6 +366,7 @@ import { testcaseAPI, projectAPI } from '../api/index.js'
 
 const testcases = ref([])
 const projects = ref([])
+const projectSearchKeyword = ref('')
 const showCreateModal = ref(false)
 const editingTestCase = ref(null)
 const loading = ref(false)
@@ -400,6 +412,21 @@ const statusMap = {
   '阻塞': { text: '阻塞', icon: '🚫' }
 }
 
+const filteredProjects = computed(() => {
+  if (!projectSearchKeyword.value) {
+    return projects.value
+  }
+  return projects.value.filter(project => 
+    project.name.toLowerCase().includes(projectSearchKeyword.value.toLowerCase())
+  )
+})
+
+const searchProjects = () => {
+  // 搜索功能已通过filteredProjects自动实现
+  // 这个方法可以用于触发额外的操作，如日志记录
+  console.log('搜索项目:', projectSearchKeyword.value)
+}
+
 onMounted(async () => {
   await loadProjects()
   await loadTestCases()
@@ -407,7 +434,7 @@ onMounted(async () => {
 
 const loadProjects = async () => {
   try {
-    const response = await projectAPI.getList()
+    const response = await projectAPI.getList(1, 100)
     projects.value = response.data.items
   } catch (error) {
     console.error('加载项目列表失败:', error)
@@ -701,10 +728,17 @@ const getStatusText = (status) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
   font-weight: 500;
   color: #374151;
   font-size: 0.9rem;
+}
+
+.filter-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 12px;
 }
 
 .filter-icon {
@@ -726,6 +760,45 @@ const getStatusText = (status) => {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.project-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project-search-input {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+}
+
+.project-search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.project-search-btn {
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.project-search-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .filter-stats {

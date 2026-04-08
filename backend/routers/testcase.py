@@ -27,9 +27,10 @@ async def get_testcase_list(
     project_id: int = Query(None),
     module: str = Query(None),
     status: str = Query(None),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    return await service.get_testcase_list(page, page_size, project_id, module, status, db)
+    return await service.get_testcase_list(page, page_size, project_id, module, status, current_user["user_id"], db)
 
 
 @router.get("/{id}", response_model=TestCaseResponse)
