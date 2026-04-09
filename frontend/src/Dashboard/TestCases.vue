@@ -134,8 +134,41 @@
                 <line x1="6" y1="20" x2="6" y2="16"/>
               </svg>
               执行步骤
+              <button @click="showStepsDetail(testcase)" class="btn-detail">详情</button>
             </div>
-            <p class="section-text">{{ testcase.steps }}</p>
+            <p class="section-text steps-text">{{ testcase.steps }}</p>
+          </div>
+
+          <div class="content-section meta-info">
+            <div class="meta-row">
+              <div class="meta-item">
+                <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span class="meta-label">优先级:</span>
+                <span class="meta-value priority-badge" :class="testcase.priority">{{ getPriorityText(testcase.priority) }}</span>
+              </div>
+              <div class="meta-item">
+                <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span class="meta-label">创建时间:</span>
+                <span class="meta-value">{{ formatDate(testcase.created_at) }}</span>
+              </div>
+              <div class="meta-item">
+                <svg class="meta-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span class="meta-label">更新时间:</span>
+                <span class="meta-value">{{ formatDate(testcase.updated_at) }}</span>
+              </div>
+            </div>
           </div>
 
           <div class="content-section">
@@ -291,6 +324,29 @@
             <div class="form-group">
               <label class="form-label">
                 <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                优先级
+              </label>
+              <div class="priority-selector">
+                <button 
+                  type="button"
+                  v-for="priority in priorityOptions" 
+                  :key="priority.value"
+                  @click="testCaseForm.priority = priority.value"
+                  :class="['priority-option', priority.value, { active: testCaseForm.priority === priority.value }]"
+                >
+                  <span class="priority-indicator"></span>
+                  {{ priority.label }}
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="9 11 12 14 22 4"/>
                   <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                 </svg>
@@ -339,6 +395,43 @@
       </div>
     </Transition>
 
+    <Transition name="modal">
+      <div v-if="showStepsModal" class="modal-overlay" @click="showStepsModal = false">
+        <div class="modal-container glass-panel detail-modal" @click.stop>
+          <div class="modal-header">
+            <div class="modal-title">
+              <div class="modal-icon-wrapper icon-wrapper-detail">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="20" x2="12" y2="10"/>
+                  <line x1="18" y1="20" x2="18" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="16"/>
+                </svg>
+              </div>
+              <h2>执行步骤详情</h2>
+            </div>
+            <button @click="showStepsModal = false" class="btn-close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="modal-body" v-if="selectedTestCase">
+            <div class="steps-detail-container">
+              <div v-for="(step, index) in getStepsArray(selectedTestCase.steps)" :key="index" class="step-item">
+                <span class="step-content">{{ step }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button @click="showStepsModal = false" class="btn-cancel">关闭</button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <Transition name="confirm">
       <div v-if="confirmDialog.show" class="confirm-overlay" @click="cancelConfirm">
         <div class="confirm-container" @click.stop>
@@ -370,6 +463,8 @@ const projectSearchKeyword = ref('')
 const showCreateModal = ref(false)
 const editingTestCase = ref(null)
 const loading = ref(false)
+const showStepsModal = ref(false)
+const selectedTestCase = ref(null)
 
 const filters = ref({
   project_id: '',
@@ -382,7 +477,8 @@ const testCaseForm = ref({
   title: '',
   steps: '',
   expected: '',
-  status: '有效'
+  status: '有效',
+  priority: 'p3'
 })
 
 const toast = ref({
@@ -403,6 +499,13 @@ const statusOptions = [
   { value: '有效', label: '有效' },
   { value: '已弃用', label: '已弃用' },
   { value: '阻塞', label: '阻塞' }
+]
+
+const priorityOptions = [
+  { value: 'p0', label: 'P0-最高' },
+  { value: 'p1', label: 'P1-高' },
+  { value: 'p2', label: 'P2-中' },
+  { value: 'p3', label: 'P3-低' }
 ]
 
 const statusMap = {
@@ -561,12 +664,44 @@ const closeModal = () => {
     title: '',
     steps: '',
     expected: '',
-    status: '有效'
+    status: '有效',
+    priority: 'p3'
   }
 }
 
 const getStatusText = (status) => {
   return statusMap[status]?.text || status
+}
+
+const getPriorityText = (priority) => {
+  const priorityMap = {
+    'p0': 'P0-最高',
+    'p1': 'P1-高',
+    'p2': 'P2-中',
+    'p3': 'P3-低'
+  }
+  return priorityMap[priority] || priority
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const showStepsDetail = (testcase) => {
+  selectedTestCase.value = testcase
+  showStepsModal.value = true
+}
+
+const getStepsArray = (steps) => {
+  if (!steps) return []
+  return steps.split('\n').filter(step => step.trim())
 }
 </script>
 
@@ -951,6 +1086,93 @@ const getStatusText = (status) => {
   font-weight: 500;
 }
 
+.meta-info {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.03), rgba(118, 75, 162, 0.02));
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.meta-icon {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.meta-label {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.meta-value {
+  color: #374151;
+  font-weight: 600;
+}
+
+.priority-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.priority-badge.p0 {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  color: white;
+}
+
+.priority-badge.p1 {
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: white;
+}
+
+.priority-badge.p2 {
+  background: linear-gradient(135deg, #ca8a04, #eab308);
+  color: white;
+}
+
+.priority-badge.p3 {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: white;
+}
+
+.steps-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-detail {
+  margin-left: auto;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: none;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.08));
+  color: #667eea;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-detail:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateY(-1px);
+}
+
 .card-footer {
   padding: 16px 20px;
   background: #f9fafb;
@@ -1236,6 +1458,57 @@ const getStatusText = (status) => {
 .status-option.已弃用.active { background: #9ca3af; border-color: #9ca3af; }
 .status-option.阻塞.active { background: #f87171; border-color: #f87171; }
 
+.priority-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.priority-option {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.priority-option .priority-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  transition: all 0.3s;
+}
+
+.priority-option.p0 { border-color: #dc2626; }
+.priority-option.p0 .priority-indicator { background: #dc2626; }
+.priority-option.p1 { border-color: #ea580c; }
+.priority-option.p1 .priority-indicator { background: #ea580c; }
+.priority-option.p2 { border-color: #ca8a04; }
+.priority-option.p2 .priority-indicator { background: #ca8a04; }
+.priority-option.p3 { border-color: #16a34a; }
+.priority-option.p3 .priority-indicator { background: #16a34a; }
+
+.priority-option.active {
+  color: white;
+  transform: scale(1.05);
+}
+
+.priority-option.p0.active { background: #dc2626; border-color: #dc2626; }
+.priority-option.p1.active { background: #ea580c; border-color: #ea580c; }
+.priority-option.p2.active { background: #ca8a04; border-color: #ca8a04; }
+.priority-option.p3.active { background: #16a34a; border-color: #16a34a; }
+
 .modal-footer {
   padding: 24px;
   border-top: 1px solid #e5e7eb;
@@ -1290,6 +1563,37 @@ const getStatusText = (status) => {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.glass-panel {
+  background: white;
+}
+
+.detail-modal {
+  max-width: 560px;
+}
+
+.icon-wrapper-detail {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.08));
+  color: #667eea;
+}
+
+.steps-detail-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step-item {
+  padding: 12px;
+  background: rgba(102, 126, 234, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(102, 126, 234, 0.08);
+}
+
+.step-content {
+  color: #374151;
+  line-height: 1.6;
 }
 
 .modal-enter-active,

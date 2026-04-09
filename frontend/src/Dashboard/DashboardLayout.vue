@@ -527,6 +527,10 @@ const loadProfile = async () => {
   try {
     const response = await userAPI.getDetail(userInfo.value.id)
     profileForm.value = response.data
+    if (profileForm.value.created_at) {
+      const date = new Date(profileForm.value.created_at)
+      profileForm.value.created_at = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    }
   } catch (error) {
     console.error('加载个人资料失败:', error)
   }

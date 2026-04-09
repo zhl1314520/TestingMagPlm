@@ -21,5 +21,7 @@ class TestCase(Base):
     steps: Mapped[str] = mapped_column(Text, nullable=False)
     expected: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="有效")
+    priority: Mapped[str] = mapped_column(String(20), nullable=False, default="p3")
     created_by: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())

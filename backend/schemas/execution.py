@@ -26,11 +26,15 @@ class ExecutionCreate(BaseModel):
     project_id: int
     name: str = Field(..., max_length=200)
     type: str = Field(default="手动执行", max_length=20)
+    status: str = Field(default="等待中", max_length=20)
+    result: str = Field(..., max_length=2000)
 
 
 class ExecutionUpdate(BaseModel):
     name: str | None = Field(None, max_length=200)
     type: str | None = Field(None, max_length=20)
+    status: str | None = Field(None, max_length=20)
+    result: str | None = Field(None, max_length=2000)
 
 
 class ExecutionPageResponse(BaseModel):

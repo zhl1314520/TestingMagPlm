@@ -11,8 +11,10 @@ class TestCaseResponse(BaseModel):
     steps: str
     expected: str
     status: str
-    created_by: int | None = None
+    priority: str
+    created_by: int
     created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
@@ -25,6 +27,7 @@ class TestCaseCreate(BaseModel):
     steps: str
     expected: str
     status: str = Field("有效", max_length=20)
+    priority: str = Field("p3", max_length=20)
 
 
 class TestCaseUpdate(BaseModel):
@@ -33,6 +36,7 @@ class TestCaseUpdate(BaseModel):
     steps: str | None = None
     expected: str | None = None
     status: str | None = None
+    priority: str | None = None
 
 
 class TestCasePageResponse(BaseModel):

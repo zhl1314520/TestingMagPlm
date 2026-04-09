@@ -14,6 +14,7 @@ class BugResponse(BaseModel):
     reporter_id: int
     assignee_id: int | None
     created_at: datetime
+    updated_at: datetime | None
 
     class Config:
         from_attributes = True

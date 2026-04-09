@@ -126,11 +126,28 @@
               <span class="meta-label">优先级</span>
               <span class="priority-badge" :class="bug.priority">{{ getPriorityText(bug.priority) }}</span>
             </div>
+            <div v-if="bug.testcase_id" class="meta-item">
+              <span class="meta-icon">📋</span>
+              <span class="meta-label">测试用例</span>
+              <span class="meta-value">#{{ bug.testcase_id }}</span>
+            </div>
+            <div v-if="bug.reporter_id" class="meta-item">
+              <span class="meta-icon">👤</span>
+              <span class="meta-label">报告者</span>
+              <span class="meta-value">用户 #{{ bug.reporter_id }}</span>
+            </div>
           </div>
 
           <div class="bug-time">
             <span class="time-icon">📅</span>
-            <span class="time-text">创建于 {{ formatDate(bug.created_at) }}</span>
+            <span class="time-label">创建时间：</span>
+            <span class="time-text">{{ formatDate(bug.created_at) }}</span>
+          </div>
+
+          <div v-if="bug.updated_at && hasUpdatedTime(bug)" class="bug-time">
+            <span class="time-icon">🔄</span>
+            <span class="time-label">更新时间：</span>
+            <span class="time-text">{{ formatDate(bug.updated_at) }}</span>
           </div>
         </div>
 
@@ -495,6 +512,15 @@ const formatDate = (dateString) => {
     month: 'long',
     day: 'numeric'
   })
+}
+
+const hasUpdatedTime = (bug) => {
+  if (!bug.updated_at) return false
+  
+  const createdTime = new Date(bug.created_at).getTime()
+  const updatedTime = new Date(bug.updated_at).getTime()
+  
+  return updatedTime > createdTime
 }
 
 const getStatusText = (status) => {
@@ -962,10 +988,16 @@ const getPriorityText = (priority) => {
   border-radius: 10px;
   font-size: 0.85rem;
   color: #6b7280;
+  margin-bottom: 12px;
 }
 
 .time-icon {
   font-size: 1rem;
+}
+
+.time-label {
+  font-weight: 500;
+  color: #374151;
 }
 
 .card-footer {

@@ -96,7 +96,14 @@
 
           <div class="execution-time">
             <span class="time-icon">📅</span>
+            <span class="time-label">创建时间：</span>
             <span class="time-text">{{ formatDate(execution.created_at) }}</span>
+          </div>
+
+          <div v-if="hasUpdatedTime(execution)" class="execution-time">
+            <span class="time-icon">🔄</span>
+            <span class="time-label">更新时间：</span>
+            <span class="time-text">{{ formatDate(execution.updated_at) }}</span>
           </div>
 
           <div v-if="execution.result" class="execution-result">
@@ -192,6 +199,34 @@
                 </button>
               </div>
             </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-icon">📊</span>
+                执行状态
+              </label>
+              <select v-model="executionForm.status" class="form-select">
+                <option value="等待中">等待中</option>
+                <option value="执行中">执行中</option>
+                <option value="已完成">已完成</option>
+                <option value="失败">失败</option>
+                <option value="已取消">已取消</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-icon">📝</span>
+                执行结果 <span class="required-mark">*</span>
+              </label>
+              <textarea 
+                v-model="executionForm.result" 
+                placeholder="请输入执行结果"
+                class="form-textarea"
+                rows="3"
+                required
+              ></textarea>
+            </div>
           </form>
 
           <div class="modal-footer">
@@ -255,6 +290,34 @@
                 </button>
               </div>
             </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-icon">📊</span>
+                执行状态
+              </label>
+              <select v-model="editForm.status" class="form-select">
+                <option value="等待中">等待中</option>
+                <option value="执行中">执行中</option>
+                <option value="已完成">已完成</option>
+                <option value="失败">失败</option>
+                <option value="已取消">已取消</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span class="label-icon">📝</span>
+                执行结果 <span class="required-mark">*</span>
+              </label>
+              <textarea 
+                v-model="editForm.result" 
+                placeholder="请输入执行结果"
+                class="form-textarea"
+                rows="3"
+                required
+              ></textarea>
+            </div>
           </form>
 
           <div class="modal-footer">
@@ -263,6 +326,59 @@
               <span class="btn-spinner" v-if="loading"></span>
               <span v-else>保存修改</span>
             </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="toast">
+      <div v-if="toast.show" class="toast-overlay" @click="hideToast">
+        <div class="toast-container glass-panel" @click.stop>
+          <div class="toast-icon" :class="toast.type">
+            <svg v-if="toast.type === 'success'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <svg v-else-if="toast.type === 'error'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <div class="toast-content">
+            <h3 class="toast-title">{{ toast.title }}</h3>
+            <p class="toast-message">{{ toast.message }}</p>
+          </div>
+          <button @click="hideToast" class="toast-close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="confirm">
+      <div v-if="confirmDialog.show" class="confirm-overlay" @click="cancelConfirm">
+        <div class="confirm-container glass-panel" @click.stop>
+          <div class="confirm-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="confirm-content">
+            <h3 class="confirm-title">确认删除</h3>
+            <p class="confirm-message">{{ confirmDialog.message }}</p>
+          </div>
+          <div class="confirm-actions">
+            <button @click="cancelConfirm" class="confirm-btn cancel">取消</button>
+            <button @click="confirmAction" class="confirm-btn delete">删除</button>
           </div>
         </div>
       </div>
@@ -290,13 +406,30 @@ const filters = ref({
 const executionForm = ref({
   project_id: '',
   name: '',
-  type: '手动执行'
+  type: '手动执行',
+  status: '等待中',
+  result: ''
 })
 
 const editForm = ref({
   id: null,
   name: '',
-  type: ''
+  type: '',
+  status: '',
+  result: ''
+})
+
+const toast = ref({
+  show: false,
+  type: 'success',
+  title: '',
+  message: ''
+})
+
+const confirmDialog = ref({
+  show: false,
+  message: '',
+  onConfirm: null
 })
 
 const statusMap = {
@@ -355,7 +488,12 @@ const loadExecutions = async () => {
 
 const createExecution = async () => {
   if (!executionForm.value.name.trim()) {
-    alert('请输入执行名称')
+    showToast('warning', '提示', '请输入执行名称')
+    return
+  }
+  
+  if (!executionForm.value.result.trim()) {
+    showToast('warning', '提示', '请输入执行结果')
     return
   }
   
@@ -363,11 +501,12 @@ const createExecution = async () => {
   try {
     await executionAPI.create(executionForm.value)
     showCreateModal.value = false
-    executionForm.value = { project_id: '', name: '', type: '手动执行' }
+    executionForm.value = { project_id: '', name: '', type: '手动执行', status: '等待中', result: '' }
     await loadExecutions()
+    showToast('success', '成功', '创建成功！')
   } catch (error) {
     console.error('创建执行失败:', error)
-    alert('创建执行失败')
+    showToast('error', '错误', '创建执行失败')
   } finally {
     loading.value = false
   }
@@ -377,22 +516,50 @@ const runExecution = async (id) => {
   try {
     await executionAPI.run(id)
     await loadExecutions()
+    showToast('success', '成功', '运行成功！')
   } catch (error) {
     console.error('运行执行失败:', error)
-    alert('运行执行失败')
+    showToast('error', '错误', '运行执行失败')
   }
 }
 
 const deleteExecution = async (id) => {
-  if (!confirm('确定要删除这个执行吗？')) return
-  
-  try {
-    await executionAPI.delete(id)
-    await loadExecutions()
-  } catch (error) {
-    console.error('删除执行失败:', error)
-    alert('删除执行失败')
+  showConfirm('确定要删除这个执行吗？此操作无法撤销。', async () => {
+    try {
+      await executionAPI.delete(id)
+      await loadExecutions()
+      showToast('success', '成功', '删除成功！')
+    } catch (error) {
+      console.error('删除执行失败:', error)
+      showToast('error', '错误', '删除执行失败')
+    }
+  })
+}
+
+const showToast = (type, title, message) => {
+  toast.value = { show: true, type, title, message }
+  setTimeout(() => {
+    hideToast()
+  }, 3000)
+}
+
+const hideToast = () => {
+  toast.value.show = false
+}
+
+const showConfirm = (message, onConfirm) => {
+  confirmDialog.value = { show: true, message, onConfirm }
+}
+
+const cancelConfirm = () => {
+  confirmDialog.value.show = false
+}
+
+const confirmAction = () => {
+  if (confirmDialog.value.onConfirm) {
+    confirmDialog.value.onConfirm()
   }
+  confirmDialog.value.show = false
 }
 
 const formatDate = (dateString) => {
@@ -411,6 +578,15 @@ const formatResult = (result) => {
   } catch {
     return result
   }
+}
+
+const hasUpdatedTime = (execution) => {
+  if (!execution.updated_at) return false
+  
+  const createdTime = new Date(execution.created_at).getTime()
+  const updatedTime = new Date(execution.updated_at).getTime()
+  
+  return updatedTime > createdTime
 }
 
 const getStatusText = (status) => {
@@ -433,14 +609,21 @@ const editExecution = (execution) => {
   editForm.value = {
     id: execution.id,
     name: execution.name,
-    type: execution.type
+    type: execution.type,
+    status: execution.status,
+    result: execution.result
   }
   showEditModal.value = true
 }
 
 const updateExecution = async () => {
   if (!editForm.value.name.trim()) {
-    alert('请输入执行名称')
+    showToast('warning', '提示', '请输入执行名称')
+    return
+  }
+  
+  if (!editForm.value.result.trim()) {
+    showToast('warning', '提示', '请输入执行结果')
     return
   }
   
@@ -448,13 +631,16 @@ const updateExecution = async () => {
   try {
     await executionAPI.update(editForm.value.id, {
       name: editForm.value.name,
-      type: editForm.value.type
+      type: editForm.value.type,
+      status: editForm.value.status,
+      result: editForm.value.result
     })
     showEditModal.value = false
     await loadExecutions()
+    showToast('success', '成功', '修改成功！')
   } catch (error) {
     console.error('修改执行失败:', error)
-    alert('修改执行失败')
+    showToast('error', '错误', '修改执行失败')
   } finally {
     loading.value = false
   }
@@ -904,6 +1090,11 @@ const updateExecution = async () => {
   font-size: 1rem;
 }
 
+.time-label {
+  font-weight: 500;
+  color: #374151;
+}
+
 .execution-result {
   margin-top: 16px;
 }
@@ -1142,6 +1333,12 @@ const updateExecution = async () => {
   font-weight: 500;
   color: #374151;
   font-size: 0.95rem;
+}
+
+.required-mark {
+  color: #ef4444;
+  font-weight: 700;
+  margin-left: 2px;
 }
 
 .label-icon {
@@ -1534,5 +1731,207 @@ const updateExecution = async () => {
   .pass-rate-text {
     text-align: center;
   }
+}
+
+.toast-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 26, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.toast-container {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 400px;
+  animation: scale-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(232, 93, 4, 0.08);
+}
+
+@keyframes scale-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.toast-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.toast-icon.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.toast-icon.error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.toast-icon.warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.toast-message {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.toast-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  background: rgba(232, 93, 4, 0.06);
+  color: #e85d04;
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 26, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.confirm-container {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  min-width: 360px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: scale-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(232, 93, 4, 0.08);
+}
+
+.confirm-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(217, 119, 6, 0.08));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f59e0b;
+}
+
+.confirm-title {
+  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.confirm-message {
+  margin: 0 0 32px 0;
+  font-size: 0.9375rem;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.confirm-btn {
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.confirm-btn.cancel {
+  background: rgba(232, 93, 4, 0.04);
+  color: #6b7280;
+}
+
+.confirm-btn.cancel:hover {
+  background: rgba(232, 93, 4, 0.08);
+  color: #1f2937;
+}
+
+.confirm-btn.delete {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.confirm-btn.delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.3s;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+}
+
+.confirm-enter-active,
+.confirm-leave-active {
+  transition: opacity 0.3s;
+}
+
+.confirm-enter-from,
+.confirm-leave-to {
+  opacity: 0;
 }
 </style>

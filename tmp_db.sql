@@ -11,7 +11,7 @@
  Target Server Version : 80031
  File Encoding         : 65001
 
- Date: 01/04/2026 16:07:34
+ Date: 09/04/2026 15:49:58
 */
 
 SET NAMES utf8mb4;
@@ -27,8 +27,8 @@ CREATE TABLE `bugs`  (
   `testcase_id` int UNSIGNED NULL DEFAULT NULL,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `status` enum('新建','打开','处理中','已修复','测试通过','已关闭') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '新建',
-  `priority` enum('p0','p1','p2','p3') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'p3',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'new',
+  `priority` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'medium',
   `assignee_id` int UNSIGNED NULL DEFAULT NULL,
   `reporter_id` int UNSIGNED NULL DEFAULT NULL,
   `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
@@ -46,14 +46,15 @@ CREATE TABLE `bugs`  (
   CONSTRAINT `bugs_ibfk_2` FOREIGN KEY (`testcase_id`) REFERENCES `test_cases` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
   CONSTRAINT `bugs_ibfk_3` FOREIGN KEY (`assignee_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
   CONSTRAINT `bugs_ibfk_4` FOREIGN KEY (`reporter_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of bugs
 -- ----------------------------
-INSERT INTO `bugs` VALUES (1, 1, 1, '用户登录时偶发性白屏', '在执行测试用例\"验证普通用户使用正确凭据登录成功\"时，偶尔出现登录后页面完全空白，F5刷新后恢复正常。概率约为1/10。', '打开', 'p1', 1, 3, '2026-04-01 13:00:21', '2026-04-01 13:00:21', NULL);
-INSERT INTO `bugs` VALUES (2, 2, 2, '支付成功后未发送确认邮件', '按照测试步骤完成支付后，支付结果显示成功，但用户未收到预期的支付确认邮件。检查了垃圾邮件箱也未找到。', '处理中', 'p0', 2, 1, '2026-04-01 13:00:21', '2026-04-01 13:00:21', NULL);
-INSERT INTO `bugs` VALUES (3, 3, NULL, '报告导出功能在大数据量下崩溃', '当系统中存在大量错误日志时（例如超过1万条），尝试使用\"导出为PDF\"功能会导致整个报告模块无响应甚至崩溃。', '打开', 'p1', 1, 2, '2026-04-01 13:00:21', '2026-04-01 13:00:21', NULL);
+INSERT INTO `bugs` VALUES (1, 1, 1, '用户登录时偶发性白屏', '在执行测试用例\"验证普通用户使用正确凭据登录成功\"时，偶尔出现登录后页面完全空白，F5刷新后恢复正常。概率约为1/10。', 'new', 'high', 1, 3, '2026-04-01 13:00:21', '2026-04-05 10:53:21', NULL);
+INSERT INTO `bugs` VALUES (2, 2, 2, '支付成功后未发送确认邮件', '按照测试步骤完成支付后，支付结果显示成功，但用户未收到预期的支付确认邮件。检查了垃圾邮件箱也未找到。', 'in_progress', 'critical', 2, 1, '2026-04-01 13:00:21', '2026-04-05 10:53:21', NULL);
+INSERT INTO `bugs` VALUES (3, 3, 3, '报告导出功能在大数据量下崩溃', '当系统中存在大量错误日志时（例如超过1万条），尝试使用\"导出为PDF\"功能会导致整个报告模块无响应甚至崩溃。', 'new', 'high', 1, 2, '2026-04-01 13:00:21', '2026-04-05 11:10:00', NULL);
+INSERT INTO `bugs` VALUES (6, 11, NULL, '1111', '1111', 'new', 'low', NULL, 3, '2026-04-05 12:40:59', '2026-04-05 12:40:59', NULL);
 
 -- ----------------------------
 -- Table structure for executions
@@ -80,12 +81,12 @@ CREATE TABLE `executions`  (
   INDEX `executed_by`(`executed_by`) USING BTREE,
   CONSTRAINT `executions_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `executions_ibfk_2` FOREIGN KEY (`executed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of executions
 -- ----------------------------
-INSERT INTO `executions` VALUES (1, 1, 'Sprint 1 回归测试', '手动执行', '已完成', '本次回归测试覆盖了核心功能。发现一个次要bug，已在JIRA中记录。', 5, 4, 1, 80.00, 3, '2026-04-01 12:48:41', '2026-04-01 12:48:41');
+INSERT INTO `executions` VALUES (1, 1, '修改后的执行名称', '自动化执行', '已完成', '本次回归测试覆盖了核心功能。发现一个次要bug，已在JIRA中记录。', 5, 4, 1, 80.00, 3, '2026-04-01 12:48:41', '2026-04-05 10:28:51');
 INSERT INTO `executions` VALUES (2, 2, '部署后自动化冒烟测试', '自动化执行', '失败', '自动化脚本执行时，支付网关模拟器无响应，导致关键支付流程用例失败。', 10, 7, 3, 70.00, 1, '2026-04-01 12:48:41', '2026-04-01 12:48:41');
 INSERT INTO `executions` VALUES (3, 3, '新报告模块 Alpha 版测试', '手动执行', '执行中', '正在执行针对新报告模块的探索性测试。', 8, 2, 1, 25.00, 3, '2026-04-01 12:48:41', '2026-04-01 12:48:41');
 
@@ -104,7 +105,7 @@ CREATE TABLE `project_members`  (
   INDEX `idx_user_id`(`user_id`) USING BTREE,
   CONSTRAINT `project_members_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `project_members_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 34 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of project_members
@@ -116,6 +117,25 @@ INSERT INTO `project_members` VALUES (4, 2, 2, 'PM', '2026-04-01 11:37:38');
 INSERT INTO `project_members` VALUES (5, 2, 1, 'developer', '2026-04-01 11:37:38');
 INSERT INTO `project_members` VALUES (6, 3, 3, 'tester', '2026-04-01 11:37:38');
 INSERT INTO `project_members` VALUES (7, 3, 2, 'PM', '2026-04-01 11:37:38');
+INSERT INTO `project_members` VALUES (8, 5, 3, 'PM', '2026-04-04 14:42:19');
+INSERT INTO `project_members` VALUES (9, 6, 3, 'PM', '2026-04-04 14:57:00');
+INSERT INTO `project_members` VALUES (14, 11, 3, 'PM', '2026-04-04 16:09:02');
+INSERT INTO `project_members` VALUES (15, 1, 4, 'tester', '2026-04-05 10:54:34');
+INSERT INTO `project_members` VALUES (18, 14, 3, 'PM', '2026-04-06 10:46:37');
+INSERT INTO `project_members` VALUES (19, 15, 3, 'PM', '2026-04-06 10:47:20');
+INSERT INTO `project_members` VALUES (20, 16, 3, 'PM', '2026-04-06 10:53:49');
+INSERT INTO `project_members` VALUES (21, 17, 3, 'PM', '2026-04-06 11:14:51');
+INSERT INTO `project_members` VALUES (22, 18, 3, 'PM', '2026-04-06 11:15:52');
+INSERT INTO `project_members` VALUES (23, 19, 3, 'PM', '2026-04-06 11:16:01');
+INSERT INTO `project_members` VALUES (24, 20, 3, 'PM', '2026-04-06 11:16:09');
+INSERT INTO `project_members` VALUES (25, 21, 3, 'PM', '2026-04-06 11:16:17');
+INSERT INTO `project_members` VALUES (27, 23, 3, 'PM', '2026-04-07 13:43:08');
+INSERT INTO `project_members` VALUES (28, 24, 3, 'PM', '2026-04-07 13:43:20');
+INSERT INTO `project_members` VALUES (29, 25, 3, 'PM', '2026-04-07 13:43:31');
+INSERT INTO `project_members` VALUES (30, 26, 3, 'PM', '2026-04-07 13:43:44');
+INSERT INTO `project_members` VALUES (31, 27, 3, 'PM', '2026-04-07 13:43:53');
+INSERT INTO `project_members` VALUES (32, 28, 3, 'PM', '2026-04-07 13:44:00');
+INSERT INTO `project_members` VALUES (33, 29, 3, 'PM', '2026-04-07 16:54:03');
 
 -- ----------------------------
 -- Table structure for projects
@@ -133,7 +153,7 @@ CREATE TABLE `projects`  (
   INDEX `idx_owner_id`(`owner_id`) USING BTREE,
   INDEX `idx_deleted_at`(`deleted_at`) USING BTREE,
   CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 30 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of projects
@@ -141,6 +161,24 @@ CREATE TABLE `projects`  (
 INSERT INTO `projects` VALUES (1, 'Normal Management Project', '一个普通的管理系统', 1, '2026-04-01 11:37:38', '2026-04-01 11:37:38', NULL);
 INSERT INTO `projects` VALUES (2, 'HBNU Payment System', 'HBNU 支付系统', 2, '2026-04-01 11:37:38', '2026-04-01 11:37:38', NULL);
 INSERT INTO `projects` VALUES (3, 'QA Testing Suite', 'QA 质量保证系统', 3, '2026-04-01 11:37:38', '2026-04-01 11:37:38', NULL);
+INSERT INTO `projects` VALUES (5, 'Test Project ABC', 'This is a test project', 3, '2026-04-04 14:42:19', '2026-04-04 14:42:19', NULL);
+INSERT INTO `projects` VALUES (6, 'Test Project Final', 'This is a final test project', 3, '2026-04-04 14:57:00', '2026-04-04 14:57:00', NULL);
+INSERT INTO `projects` VALUES (11, '测试项目', '这是一个仅供测试的项目\n', 3, '2026-04-04 16:09:02', '2026-04-04 16:09:02', NULL);
+INSERT INTO `projects` VALUES (14, '4.6', '4.6项目', 3, '2026-04-06 10:46:37', '2026-04-06 10:46:37', NULL);
+INSERT INTO `projects` VALUES (15, '4.6.1', '4.6.1\n', 3, '2026-04-06 10:47:20', '2026-04-06 10:47:20', NULL);
+INSERT INTO `projects` VALUES (16, '4.6.2', '4.6.2\n', 3, '2026-04-06 10:53:49', '2026-04-06 10:53:49', NULL);
+INSERT INTO `projects` VALUES (17, '创建新项目', '新项目', 3, '2026-04-06 11:14:51', '2026-04-06 11:14:51', NULL);
+INSERT INTO `projects` VALUES (18, '测试项目1', '测试项目1', 3, '2026-04-06 11:15:52', '2026-04-06 11:15:52', NULL);
+INSERT INTO `projects` VALUES (19, '测试项目2', '测试项目2', 3, '2026-04-06 11:16:01', '2026-04-06 11:16:01', NULL);
+INSERT INTO `projects` VALUES (20, '测试项目3', '测试项目3', 3, '2026-04-06 11:16:09', '2026-04-06 11:16:09', NULL);
+INSERT INTO `projects` VALUES (21, '测试项目4', '测试项目4', 3, '2026-04-06 11:16:17', '2026-04-06 11:16:17', NULL);
+INSERT INTO `projects` VALUES (23, '测试项目5', '测试项目5', 3, '2026-04-07 13:43:08', '2026-04-07 13:43:08', NULL);
+INSERT INTO `projects` VALUES (24, '测试项目6', '测试项目5', 3, '2026-04-07 13:43:20', '2026-04-07 13:43:20', NULL);
+INSERT INTO `projects` VALUES (25, '测试项目7', '测试项目7', 3, '2026-04-07 13:43:31', '2026-04-07 13:43:31', NULL);
+INSERT INTO `projects` VALUES (26, '测试项目8', '测试项目8', 3, '2026-04-07 13:43:44', '2026-04-07 13:43:44', NULL);
+INSERT INTO `projects` VALUES (27, '测试项目9', '测试项目9', 3, '2026-04-07 13:43:53', '2026-04-07 13:43:53', NULL);
+INSERT INTO `projects` VALUES (28, '测试项目10', '测试项目10', 3, '2026-04-07 13:44:00', '2026-04-07 13:44:00', NULL);
+INSERT INTO `projects` VALUES (29, '测试112', '111', 3, '2026-04-07 16:54:03', '2026-04-09 14:19:03', NULL);
 
 -- ----------------------------
 -- Table structure for reports
@@ -168,7 +206,7 @@ CREATE TABLE `reports`  (
   CONSTRAINT `reports_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `reports_ibfk_2` FOREIGN KEY (`execution_id`) REFERENCES `executions` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
   CONSTRAINT `reports_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of reports
@@ -190,7 +228,7 @@ CREATE TABLE `test_cases`  (
   `expected` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `status` enum('草稿','有效','已弃用','阻塞') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '有效',
   `priority` enum('p0','p1','p2','p3') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'p3',
-  `created_by` int UNSIGNED NULL DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
   `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` datetime NULL DEFAULT NULL,
@@ -199,17 +237,17 @@ CREATE TABLE `test_cases`  (
   INDEX `idx_module`(`module`) USING BTREE,
   INDEX `idx_status`(`status`) USING BTREE,
   INDEX `idx_project_module_status`(`project_id`, `module`, `status`) USING BTREE,
-  INDEX `created_by`(`created_by`) USING BTREE,
+  INDEX `fk_test_cases_created_by`(`created_by`) USING BTREE,
   CONSTRAINT `test_cases_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT `test_cases_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+  CONSTRAINT `fk_test_cases_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of test_cases
 -- ----------------------------
 INSERT INTO `test_cases` VALUES (1, 1, '用户登录模块', '验证普通用户使用正确凭据登录成功', '1. 打开登录页面\n2. 输入用户名 \"testuser\"\n3. 输入密码 \"correct_password\"\n4. 点击登录按钮', '用户应成功登录，跳转到主页', '有效', 'p1', 1, '2026-04-01 11:43:03', '2026-04-01 11:43:03', NULL);
 INSERT INTO `test_cases` VALUES (2, 2, '支付处理模块', '验证信用卡支付流程', '1. 选择商品并进入支付页面\n2. 选择信用卡支付方式\n3. 输入有效的信用卡号、有效期、CVV\n4. 点击支付按钮', '支付应成功处理，显示成功页面并生成订单', '有效', 'p0', 2, '2026-04-01 11:43:03', '2026-04-01 11:43:03', NULL);
-INSERT INTO `test_cases` VALUES (3, 3, '报告生成模块', '验证错误报告能否成功导出为PDF', '1. 在系统中触发一个已知错误\n2. 导航到错误报告页面\n3. 选择该错误报告\n4. 点击“导出为PDF”按钮', 'PDF文件应成功下载，内容包含完整的错误详情和日志', '阻塞', 'p2', 3, '2026-04-01 11:43:03', '2026-04-01 11:43:03', NULL);
+INSERT INTO `test_cases` VALUES (3, 3, '报告生成模块', '验证错误报告能否成功导出为 PDF', '1. 在系统中触发一个已知错误\n2. 导航到错误报告页面\n3. 选择该错误报告\n4. 点击“导出为PDF”按钮省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略省略', 'PDF文件应成功下载，内容包含完整的错误详情和日志', '阻塞', 'p2', 3, '2026-04-01 11:43:03', '2026-04-09 15:18:11', NULL);
 
 -- ----------------------------
 -- Table structure for users
@@ -229,13 +267,14 @@ CREATE TABLE `users`  (
   UNIQUE INDEX `uk_email`(`email`) USING BTREE,
   INDEX `idx_role`(`role`) USING BTREE,
   INDEX `idx_deleted_at`(`deleted_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of users
 -- ----------------------------
 INSERT INTO `users` VALUES (1, 'Eric', '$2b$12$U2bBC7V4RYdTgC3DLcRuU.ZE9TGeXshLnuR9N9fJsNb6EG0LGJlCW', 'developer', 'eric@163.com', '2026-04-01 10:28:04', '2026-04-01 10:28:04', NULL);
 INSERT INTO `users` VALUES (2, 'Taylor', '$2b$12$vKyfe8XtCc5OP3cC1/uKpuOylJQ4egiTJeuq5ed4k2fBebNSQiwKy', 'PM', 'taylor@163.com', '2026-04-01 10:28:04', '2026-04-01 10:28:04', NULL);
-INSERT INTO `users` VALUES (3, 'Charlie', '$2b$12$SKCIVK3vIS.OklGImi3K0uR7sJ1V54SLfERMrIXQZQss4Y6dpQ1ZG', 'tester', 'charlie@163.com', '2026-04-01 10:28:04', '2026-04-01 10:28:04', NULL);
+INSERT INTO `users` VALUES (3, 'Charlie', '$2b$12$M3mBZSfpHHRPctgD3JzFPeJGZhqPjcc9IiyozCv0AVLzesET9EimO', 'tester', '17201665342@163.com', '2026-04-01 10:28:04', '2026-04-09 13:11:36', NULL);
+INSERT INTO `users` VALUES (4, 'testuser', '$2b$12$Uy0DyOBuLG5AzyC6mB5PXO3XE5S3TGcWzy.htcD2WAOo6Dao93uja', 'tester', 'test@test.com', '2026-04-05 10:54:33', '2026-04-05 10:54:33', NULL);
 
 SET FOREIGN_KEY_CHECKS = 1;

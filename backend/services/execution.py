@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 import logging
@@ -19,8 +20,8 @@ async def create_execution(execution_data: ExecutionCreate, user_id: int, db: As
         project_id=execution_data.project_id,
         name=execution_data.name,
         type=execution_data.type,
-        status="等待中",
-        result="",
+        status=execution_data.status,
+        result=execution_data.result,
         total_cases=0,
         passed_cases=0,
         failed_cases=0,
@@ -66,6 +67,12 @@ async def update_execution(execution_id: int, execution_data: ExecutionUpdate, d
         execution.name = execution_data.name
     if execution_data.type is not None:
         execution.type = execution_data.type
+    if execution_data.status is not None:
+        execution.status = execution_data.status
+    if execution_data.result is not None:
+        execution.result = execution_data.result
+    
+    execution.updated_at = datetime.now()
     
     await db.commit()
     await db.refresh(execution)
@@ -105,6 +112,7 @@ async def run_execution(execution_id: int, db: AsyncSession):
         )
     
     execution.status = "执行中"
+    execution.updated_at = datetime.now()
     await db.commit()
     
     logger.info("开始执行测试: execution_id=%s, project_id=%s", execution_id, execution.project_id)
@@ -164,6 +172,7 @@ async def run_execution(execution_id: int, db: AsyncSession):
         
         execution.status = "已完成"
         execution.result = json.dumps(result, ensure_ascii=False)
+        execution.updated_at = datetime.now()
         await db.commit()
         await db.refresh(execution)
         
@@ -173,6 +182,7 @@ async def run_execution(execution_id: int, db: AsyncSession):
         logger.error("测试执行失败: execution_id=%s, error=%s", execution_id, str(e))
         execution.status = "失败"
         execution.result = json.dumps({"error": str(e)}, ensure_ascii=False)
+        execution.updated_at = datetime.now()
         await db.commit()
         await db.refresh(execution)
         raise HTTPException(

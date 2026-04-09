@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 import logging
@@ -91,6 +92,8 @@ async def update_bug(bug_id: int, bug_data: BugUpdate, db: AsyncSession):
     for field, value in update_data.items():
         setattr(bug, field, value)
     
+    bug.updated_at = datetime.now()
+    
     await crud.update_bug(bug, db)
     await db.commit()
     await db.refresh(bug)
@@ -107,6 +110,7 @@ async def update_bug_status(bug_id: int, status: str, db: AsyncSession):
         )
     
     bug.status = status
+    bug.updated_at = datetime.now()
     await crud.update_bug(bug, db)
     await db.commit()
     await db.refresh(bug)
