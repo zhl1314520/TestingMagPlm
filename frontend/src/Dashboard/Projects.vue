@@ -13,7 +13,7 @@
             <h1 class="page-title">项目管理</h1>
             <p class="page-subtitle">管理和跟踪所有测试项目，构建质量防线</p>
           </div>
-          <button @click="showCreateModal = true" class="btn-create">
+          <button v-if="canCreateProject" @click="showCreateModal = true" class="btn-create">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"/>
               <line x1="5" y1="12" x2="19" y2="12"/>
@@ -40,7 +40,7 @@
         </div>
         <h3>暂无项目</h3>
         <p>创建第一个项目来开始您的测试之旅</p>
-        <button @click="showCreateModal = true" class="btn-primary">
+        <button v-if="canCreateProject" @click="showCreateModal = true" class="btn-primary">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5" y1="12" x2="19" y2="12"/>
@@ -385,7 +385,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { projectAPI } from '../api/index.js'
 
 const projects = ref([])
@@ -394,6 +394,12 @@ const showEditModal = ref(false)
 const showDetailModal = ref(false)
 const selectedProject = ref(null)
 const loading = ref(false)
+const userInfo = ref(null)
+
+const canCreateProject = computed(() => {
+  return userInfo.value && userInfo.value.role !== 'tester'
+})
+
 const newProject = ref({
   name: '',
   description: ''
@@ -418,6 +424,10 @@ const confirmDialog = ref({
 })
 
 onMounted(async () => {
+  const storedUserInfo = localStorage.getItem('user_info')
+  if (storedUserInfo) {
+    userInfo.value = JSON.parse(storedUserInfo)
+  }
   await loadProjects()
 })
 

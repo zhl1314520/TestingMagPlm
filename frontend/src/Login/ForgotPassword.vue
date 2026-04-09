@@ -1,21 +1,21 @@
 <template>
-  <div class="forgot-password-page">
-    <!-- 左侧装饰区域 -->
+  <div class="forgot-password-page noise-texture">
     <div class="left-section">
       <div class="logo-section">
-        <div class="logo-link" @click="animationKey++">
-          <img
-            src="https://i.postimg.cc/nLrDYrHW/icon.png"
-            alt="REFRESH logo"
-            class="logo-image"
-          />
-          <span>REFRESH</span>
-        </div>
+        <a href="/" class="logo-link">
+          <div class="logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+              <path d="M2 17L12 22L22 17"/>
+              <path d="M2 12L12 17L22 12"/>
+            </svg>
+          </div>
+          <span>HBNU-TMP</span>
+        </a>
       </div>
 
       <div class="characters-section">
         <AnimatedCharacters
-          :key="animationKey"
           :isTyping="isTyping"
           :showPassword="false"
           :passwordLength="0"
@@ -25,39 +25,50 @@
       </div>
 
       <div class="footer-links">
-        <a href="/privacy-policy" class="footer-link">Privacy Policy</a>
-        <a href="/terms" class="footer-link">Terms of Service</a>
+        <a href="/privacy-policy" class="footer-link">隐私政策</a>
+        <a href="/terms" class="footer-link">服务条款</a>
       </div>
 
-      <div class="grid-overlay"></div>
-      <div class="blur-circle blur-circle-1"></div>
-      <div class="blur-circle blur-circle-2"></div>
+      <div class="deco-grid"></div>
+      <div class="deco-blob deco-blob-1"></div>
+      <div class="deco-blob deco-blob-2"></div>
+      <div class="deco-blob deco-blob-3"></div>
     </div>
 
-    <!-- 右侧表单区域 -->
     <div class="right-section">
       <div class="form-wrapper">
-        <!-- 移动端 Logo -->
-        <div class="mobile-logo" @click="animationKey++">
-          <img
-            src="https://i.postimg.cc/nLrDYrHW/icon.png"
-            alt="REFRESH logo"
-            class="logo-image"
-          />
-          <span>REFRESH</span>
+        <div class="mobile-logo">
+          <div class="logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+              <path d="M2 17L12 22L22 17"/>
+              <path d="M2 12L12 17L22 12"/>
+            </svg>
+          </div>
+          <span>HBNU-TMP</span>
         </div>
 
-        <!-- 表单头部 -->
         <div class="form-header">
-          <h1 class="form-title">Forgot Password?</h1>
-          <p class="form-subtitle">Enter your email to reset your password</p>
+          <div class="header-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Password Recovery
+          </div>
+          <h1 class="form-title">忘记密码</h1>
+          <p class="form-subtitle">请输入您的邮箱地址以重置密码</p>
         </div>
 
-        <!-- 重置密码表单 -->
         <form @submit.prevent="handleSubmit" class="reset-form">
-          <!-- 邮箱字段 -->
           <div class="form-group">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="form-label">
+              <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              邮箱地址
+            </label>
             <input
               id="email"
               v-model="email"
@@ -72,15 +83,19 @@
             <p v-if="errors.email" class="error-message">{{ errors.email }}</p>
           </div>
 
-          <!-- 验证码字段 -->
           <div class="form-group">
-            <label for="code" class="form-label">Verification Code</label>
+            <label for="code" class="form-label">
+              <svg class="label-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              验证码
+            </label>
             <div class="code-wrapper">
               <input
                 id="code"
                 v-model="code"
                 type="text"
-                placeholder="Enter verification code"
+                placeholder="请输入验证码"
                 class="form-input code-input"
                 autocomplete="off"
                 required
@@ -91,43 +106,47 @@
                 class="send-code-btn"
                 :disabled="isSending || countdown > 0"
               >
-                {{ countdown > 0 ? `${countdown}s` : 'Get Code' }}
+                {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
               </button>
             </div>
             <p v-if="errors.code" class="error-message">{{ errors.code }}</p>
           </div>
 
-          <!-- 错误提示 -->
           <div v-if="errorMessage" class="error-alert">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
             {{ errorMessage }}
           </div>
 
-          <!-- 成功提示 -->
           <div v-if="successMessage" class="success-alert">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
             {{ successMessage }}
           </div>
 
-          <!-- 提交按钮 -->
           <button
             type="submit"
             class="submit-button"
             :disabled="isLoading"
           >
-            <span class="button-text">{{ isLoading ? 'Verifying...' : 'Verify & Continue' }}</span>
-            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <span class="button-text">{{ isLoading ? '验证中...' : '验证并继续' }}</span>
+            <svg class="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14"/>
               <path d="m12 5 7 7-7 7"/>
             </svg>
           </button>
         </form>
 
-        <!-- 返回登录 -->
         <div class="back-to-login">
           <router-link to="/login" class="back-link">
-            <svg class="back-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg class="back-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m15 18-6-6 6-6"/>
             </svg>
-            Back to Login
+            返回登录
           </router-link>
         </div>
       </div>
@@ -143,7 +162,6 @@ import { authAPI } from '../api/index.js'
 
 const router = useRouter()
 
-// 表单数据
 const email = ref('')
 const code = ref('')
 const isTyping = ref(false)
@@ -151,9 +169,7 @@ const isLoading = ref(false)
 const isSending = ref(false)
 const countdown = ref(0)
 const success = ref(false)
-const animationKey = ref(0)
 
-// 错误和成功消息
 const errorMessage = ref('')
 const successMessage = ref('')
 const errors = ref({
@@ -161,40 +177,35 @@ const errors = ref({
   code: ''
 })
 
-// 验证表单
 const validateForm = () => {
   errors.value = { email: '', code: '' }
   let isValid = true
 
-  // 验证邮箱
   if (!email.value) {
-    errors.value.email = 'Email is required'
+    errors.value.email = '请输入邮箱地址'
     isValid = false
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    errors.value.email = 'Please enter a valid email address'
+    errors.value.email = '请输入有效的邮箱地址'
     isValid = false
   }
 
-  // 验证验证码
   if (!code.value) {
-    errors.value.code = 'Verification code is required'
+    errors.value.code = '请输入验证码'
     isValid = false
   } else if (code.value.length < 4) {
-    errors.value.code = 'Verification code must be at least 4 characters'
+    errors.value.code = '验证码至少为 4 位'
     isValid = false
   }
 
   return isValid
 }
 
-// 发送验证码
 const handleSendCode = async () => {
-  // 验证邮箱
   if (!email.value) {
-    errors.value.email = 'Email is required'
+    errors.value.email = '请输入邮箱地址'
     return
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    errors.value.email = 'Please enter a valid email address'
+    errors.value.email = '请输入有效的邮箱地址'
     return
   }
 
@@ -203,12 +214,10 @@ const handleSendCode = async () => {
   errorMessage.value = ''
 
   try {
-    // 调用发送验证码 API
     await authAPI.sendResetCode(email.value)
     
-    successMessage.value = 'Verification code sent to your email!'
+    successMessage.value = '验证码已发送到您的邮箱！'
     
-    // 开始倒计时
     countdown.value = 60
     const timer = setInterval(() => {
       countdown.value--
@@ -217,13 +226,12 @@ const handleSendCode = async () => {
       }
     }, 1000)
   } catch (error) {
-    errorMessage.value = error.response?.data?.detail || 'Failed to send verification code. Please try again.'
+    errorMessage.value = error.response?.data?.detail || '发送验证码失败，请重试。'
   } finally {
     isSending.value = false
   }
 }
 
-// 提交表单
 const handleSubmit = async () => {
   if (!validateForm()) return
 
@@ -232,17 +240,14 @@ const handleSubmit = async () => {
   successMessage.value = ''
 
   try {
-    // 调用验证验证码 API
     await authAPI.verifyResetCode(email.value, code.value)
     
     success.value = true
-    successMessage.value = 'Verification successful! Redirecting...'
+    successMessage.value = '验证成功！正在跳转...'
     
-    // 保存邮箱和验证码到 localStorage，供重置密码页面使用
     localStorage.setItem('reset_email', email.value)
     localStorage.setItem('reset_code', code.value)
     
-    // 延迟跳转到重置密码页面
     setTimeout(() => {
       router.push({
         path: '/reset-password',
@@ -250,7 +255,7 @@ const handleSubmit = async () => {
       })
     }, 1000)
   } catch (error) {
-    errorMessage.value = error.response?.data?.detail || 'Invalid verification code. Please try again.'
+    errorMessage.value = error.response?.data?.detail || '验证码无效，请重试。'
   } finally {
     isLoading.value = false
   }
@@ -271,9 +276,14 @@ const handleSubmit = async () => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(to bottom right, #9ca3af, #6b7280, #4b5563);
-  padding: 3rem;
+  padding: var(--space-2xl);
   color: white;
+  background: 
+    radial-gradient(ellipse at 20% 30%, rgba(232, 93, 4, 0.15), transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(20, 184, 166, 0.12), transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(244, 63, 94, 0.08), transparent 40%),
+    linear-gradient(145deg, var(--ink-primary) 0%, var(--ink-deep) 50%, #0a0f1a 100%);
+  overflow: hidden;
 }
 
 .logo-section {
@@ -286,29 +296,31 @@ const handleSubmit = async () => {
 .logo-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
   color: inherit;
-  padding: 0.5rem;
-  margin: -0.5rem;
-  border-radius: 0.5rem;
-  transition: background-color 0.2s;
-  cursor: pointer;
+  padding: var(--space-sm);
+  margin: calc(var(--space-sm) * -1);
+  border-radius: var(--radius-md);
+  transition: all 0.3s var(--ease-smooth);
 }
 
 .logo-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.logo-image {
-  width: 32px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(4px);
-  padding: 0.25rem;
-  border-radius: 0.5rem;
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--ember-core), var(--ember-glow));
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--shadow-md), 0 0 20px rgba(232, 93, 4, 0.3);
 }
 
 .characters-section {
@@ -325,58 +337,83 @@ const handleSubmit = async () => {
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: var(--space-xl);
   font-size: 0.875rem;
-  color: #4b5563;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .footer-link {
   color: inherit;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: all 0.3s var(--ease-smooth);
 }
 
 .footer-link:hover {
-  color: #1f2937;
+  color: var(--ember-soft);
 }
 
-.grid-overlay {
+.deco-grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
 }
 
-.blur-circle {
+.deco-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(96px);
+  pointer-events: none;
+  transition: transform 0.8s var(--ease-smooth);
 }
 
-.blur-circle-1 {
-  top: 25%;
-  right: 25%;
-  width: 16rem;
-  height: 16rem;
-  background: rgba(156, 163, 175, 0.2);
+.deco-blob-1 {
+  top: 10%;
+  right: 15%;
+  width: 250px;
+  height: 250px;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(232, 93, 4, 0.22) 0%, rgba(232, 93, 4, 0.14) 30%, rgba(232, 93, 4, 0.06) 50%, transparent 70%);
 }
 
-.blur-circle-2 {
-  bottom: 25%;
-  left: 25%;
-  width: 24rem;
-  height: 24rem;
-  background: rgba(209, 213, 219, 0.2);
+.deco-blob-2 {
+  bottom: 20%;
+  left: 10%;
+  width: 200px;
+  height: 200px;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.18) 0%, rgba(20, 184, 166, 0.1) 30%, rgba(20, 184, 166, 0.04) 50%, transparent 70%);
+}
+
+.deco-blob-3 {
+  top: 50%;
+  right: 30%;
+  width: 150px;
+  height: 150px;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.14) 0%, rgba(244, 63, 94, 0.08) 30%, rgba(244, 63, 94, 0.03) 50%, transparent 70%);
+}
+
+.left-section:hover .deco-blob-1 {
+  transform: translate(12px, -12px);
+}
+
+.left-section:hover .deco-blob-2 {
+  transform: translate(-8px, 8px);
+}
+
+.left-section:hover .deco-blob-3 {
+  transform: translate(6px, -6px);
 }
 
 .right-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  background: white;
+  padding: var(--space-2xl);
+  background: var(--paper-cream);
 }
 
 .form-wrapper {
@@ -388,68 +425,99 @@ const handleSubmit = async () => {
   display: none;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 3rem;
-  cursor: pointer;
+  font-weight: 700;
+  margin-bottom: var(--space-2xl);
+  color: var(--ink-primary);
 }
 
 .form-header {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: var(--space-2xl);
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 1.75rem;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.08), rgba(250, 163, 7, 0.06));
+  color: var(--ember-core);
+  margin-bottom: var(--space-md);
 }
 
 .form-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  margin-bottom: 0.5rem;
-  color: #111827;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 var(--space-sm) 0;
+  color: var(--ink-primary);
 }
 
 .form-subtitle {
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin: 0;
 }
 
 .reset-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--space-lg);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-sm);
 }
 
 .form-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+
+.label-icon {
+  color: var(--ember-core);
 }
 
 .form-input {
   width: 100%;
-  height: 3rem;
-  padding: 0 1rem;
+  height: 3.25rem;
+  padding: 0 var(--space-md);
   background: white;
-  border: 1.5px solid rgba(229, 231, 235, 0.6);
-  border-radius: 0.5rem;
+  border: 2px solid rgba(232, 93, 4, 0.1);
+  border-radius: var(--radius-md);
   font-size: 1rem;
-  transition: all 0.2s;
+  font-family: inherit;
+  transition: all 0.3s var(--ease-smooth);
   outline: none;
+  color: var(--ink-primary);
 }
 
 .form-input:focus {
-  border-color: #6366f1;
+  border-color: var(--ember-core);
+  box-shadow: 0 0 0 4px rgba(232, 93, 4, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--slate-pale);
 }
 
 .code-wrapper {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-sm);
 }
 
 .code-input {
@@ -457,23 +525,22 @@ const handleSubmit = async () => {
 }
 
 .send-code-btn {
-  height: 3rem;
-  padding: 0 1rem;
+  height: 3.25rem;
+  padding: 0 var(--space-md);
   background: white;
-  border: 1.5px solid rgba(229, 231, 235, 0.6);
-  border-radius: 0.5rem;
+  border: 2px solid rgba(232, 93, 4, 0.1);
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
+  font-weight: 600;
+  color: var(--ember-core);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s var(--ease-smooth);
   white-space: nowrap;
 }
 
 .send-code-btn:hover:not(:disabled) {
-  background: #f9fafb;
-  border-color: #6366f1;
-  color: #6366f1;
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.04), rgba(250, 163, 7, 0.02));
+  border-color: var(--ember-core);
 }
 
 .send-code-btn:disabled {
@@ -482,65 +549,73 @@ const handleSubmit = async () => {
 }
 
 .error-message {
-  font-size: 0.875rem;
-  color: #dc2626;
+  font-size: 0.85rem;
+  color: var(--coral-primary);
+  margin: 0;
 }
 
 .error-alert {
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  color: #dc2626;
-  background: rgba(220, 38, 38, 0.1);
-  border: 1px solid rgba(220, 38, 38, 0.3);
-  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  font-size: 0.9rem;
+  color: var(--coral-deep);
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.08), rgba(253, 164, 175, 0.06));
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  border-radius: var(--radius-md);
 }
 
 .success-alert {
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  color: #16a34a;
-  background: rgba(22, 163, 74, 0.1);
-  border: 1px solid rgba(22, 163, 74, 0.3);
-  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  font-size: 0.9rem;
+  color: var(--forest-primary);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(134, 239, 172, 0.06));
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: var(--radius-md);
 }
 
 .submit-button {
   position: relative;
   width: 100%;
-  height: 3rem;
+  height: 3.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   font-size: 1rem;
-  font-weight: 500;
-  border-radius: 0.5rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
   cursor: pointer;
   overflow: hidden;
-  transition: all 0.3s;
-  background: #111827;
+  transition: all 0.3s var(--ease-smooth);
+  background: linear-gradient(135deg, var(--ember-core), var(--ember-glow));
   color: white;
   border: none;
+  box-shadow: var(--shadow-md), 0 0 20px rgba(232, 93, 4, 0.2);
 }
 
 .submit-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(232, 93, 4, 0.3);
 }
 
 .submit-button:disabled {
-  opacity: 0.6;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
 .button-text {
-  transition: transform 0.3s;
+  transition: transform 0.3s var(--ease-smooth);
 }
 
 .button-icon {
   width: 20px;
   height: 20px;
-  transition: transform 0.3s;
+  transition: transform 0.3s var(--ease-smooth);
 }
 
 .submit-button:hover:not(:disabled) .button-text {
@@ -552,22 +627,23 @@ const handleSubmit = async () => {
 }
 
 .back-to-login {
-  margin-top: 1.5rem;
+  margin-top: var(--space-lg);
   text-align: center;
 }
 
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--ember-core);
   text-decoration: none;
-  transition: color 0.2s;
+  font-weight: 600;
+  transition: all 0.3s var(--ease-smooth);
 }
 
 .back-link:hover {
-  color: #111827;
+  color: var(--ember-glow);
 }
 
 .back-icon {
@@ -586,6 +662,28 @@ const handleSubmit = async () => {
 
   .mobile-logo {
     display: flex;
+  }
+
+  .right-section {
+    padding: var(--space-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .right-section {
+    padding: var(--space-lg);
+  }
+
+  .form-title {
+    font-size: 1.75rem;
+  }
+
+  .code-wrapper {
+    flex-direction: column;
+  }
+
+  .send-code-btn {
+    width: 100%;
   }
 }
 </style>

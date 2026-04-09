@@ -206,7 +206,6 @@
                   <select v-model="profileForm.role" class="form-select">
                     <option value="tester">测试工程师</option>
                     <option value="developer">开发工程师</option>
-                    <option value="manager">产品经理</option>
                   </select>
                 </div>
               </div>

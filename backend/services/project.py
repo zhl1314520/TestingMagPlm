@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 import logging
@@ -81,6 +83,9 @@ async def update_project(project_id: int, update_data: ProjectUpdate, db: AsyncS
             )
 
     update_dict = update_data.model_dump(exclude_unset=True)
+
+    update_dict["updated_at"] = datetime.now()  # 手动设置更新时间
+
     updated_project = await crud.update_project(project_id, update_dict, db)
     await db.commit()
     await db.refresh(updated_project)

@@ -7,6 +7,16 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.db import get_db
 
+"""
+
+认证与鉴权核心模块（Authentication + Authorization）
+    包含：
+        密码安全（加密 / 校验）
+        JWT Token 生成与解析
+        接口鉴权（依赖注入获取当前用户）
+
+"""
+
 SECRET_KEY = "your-secret-key-here-change-in-production"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10080  # 7天后 token 过期

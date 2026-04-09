@@ -621,6 +621,8 @@ const loadRecentActivities = async () => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Allura&display=swap');
+
 .overview {
   --page-ink: var(--ink-primary);
   --page-muted: var(--ink-soft);
@@ -712,13 +714,14 @@ const loadRecentActivities = async () => {
 .hero-title-main {
   font-size: clamp(2.8rem, 5vw, 4.5rem);
   line-height: 0.95;
-  letter-spacing: -0.05em;
-  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-weight: 400;
   color: #fff;
-  background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.85) 100%);
+  background: linear-gradient(135deg, #ff3b30 0%, #ff6b35 15%, #34c759 45%, #30d158 60%, #007aff 85%, #5856d6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-family: 'Allura', cursive;
 }
 
 .hero-subtitle {
@@ -920,9 +923,19 @@ const loadRecentActivities = async () => {
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
   z-index: 3;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  will-change: auto;
+  will-change: transform;
   transform: translateZ(0);
   backface-visibility: hidden;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateZ(0);
+  }
+  50% {
+    transform: translateY(-10px) translateZ(0);
+  }
 }
 
 .signal-primary {
@@ -931,6 +944,7 @@ const loadRecentActivities = async () => {
   width: min(100%, 280px);
   padding: var(--space-lg);
   color: white;
+  animation-delay: 0s;
 }
 
 .signal-kicker {
@@ -1005,11 +1019,13 @@ const loadRecentActivities = async () => {
 .signal-secondary-top {
   top: 20px;
   right: 20px;
+  animation-delay: 0.5s;
 }
 
 .signal-secondary-bottom {
   right: 50px;
   bottom: 30px;
+  animation-delay: 1s;
 }
 
 .signal-mini-icon {
