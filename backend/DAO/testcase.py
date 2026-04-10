@@ -1,6 +1,8 @@
 from sqlalchemy import select, func, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 from models.testcase import TestCase
+from models.project import Project
 
 
 async def get_testcase_by_id(testcase_id: int, db: AsyncSession):
@@ -34,7 +36,8 @@ async def get_testcase_list(page: int, page_size: int, project_id: int = None, m
     total = (await db.execute(count_stmt)).scalar()
 
     stmt = (
-        select(TestCase)
+        select(TestCase, Project.name)
+        .join(Project, TestCase.project_id == Project.id, isouter=True)
         .offset((page - 1) * page_size)
         .limit(page_size)
         .order_by(TestCase.id.desc())
@@ -44,7 +47,27 @@ async def get_testcase_list(page: int, page_size: int, project_id: int = None, m
         stmt = stmt.where(and_(*conditions))
     
     result = await db.execute(stmt)
-    items = result.scalars().all()
+    rows = result.all()
+    
+    items = []
+    for row in rows:
+        testcase = row[0]
+        project_name = row[1] if row[1] else ""
+        testcase_dict = {
+            'id': testcase.id,
+            'project_id': testcase.project_id,
+            'project_name': project_name,
+            'module': testcase.module,
+            'title': testcase.title,
+            'steps': testcase.steps,
+            'expected': testcase.expected,
+            'status': testcase.status,
+            'priority': testcase.priority,
+            'created_by': testcase.created_by,
+            'created_at': testcase.created_at,
+            'updated_at': testcase.updated_at
+        }
+        items.append(testcase_dict)
 
     return total, items
 

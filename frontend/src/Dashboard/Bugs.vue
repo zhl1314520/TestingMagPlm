@@ -136,16 +136,29 @@
               <span class="meta-label">报告者</span>
               <span class="meta-value">用户 #{{ bug.reporter_id }}</span>
             </div>
+            <div v-if="bug.assignee_id" class="meta-item">
+              <span class="meta-icon">🔧</span>
+              <span class="meta-label">指派给</span>
+              <span class="meta-value">用户 #{{ bug.assignee_id }}</span>
+            </div>
           </div>
 
           <div class="bug-time">
-            <span class="time-icon">📅</span>
+            <svg class="time-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
             <span class="time-label">创建时间：</span>
             <span class="time-text">{{ formatDate(bug.created_at) }}</span>
           </div>
 
           <div v-if="bug.updated_at && hasUpdatedTime(bug)" class="bug-time">
-            <span class="time-icon">🔄</span>
+            <svg class="time-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
             <span class="time-label">更新时间：</span>
             <span class="time-text">{{ formatDate(bug.updated_at) }}</span>
           </div>
@@ -251,6 +264,34 @@
                 </div>
               </div>
             </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">🔧</span>
+                  指派给
+                </label>
+                <select v-model="bugForm.assignee_id" class="form-select">
+                  <option :value="null">未指派</option>
+                  <option v-for="user in users" :key="user.id" :value="user.id">
+                    {{ user.username }} ({{ user.role }})
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-icon">📋</span>
+                  关联测试用例
+                </label>
+                <select v-model="bugForm.testcase_id" class="form-select">
+                  <option :value="null">无关联</option>
+                  <option v-for="testcase in testcases" :key="testcase.id" :value="testcase.id">
+                    #{{ testcase.id }} - {{ testcase.title }}
+                  </option>
+                </select>
+              </div>
+            </div>
           </form>
 
           <div class="modal-footer">
@@ -304,10 +345,12 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { bugAPI, projectAPI } from '../api/index.js'
+import { bugAPI, projectAPI, userAPI, testcaseAPI } from '../api/index.js'
 
 const bugs = ref([])
 const projects = ref([])
+const users = ref([])
+const testcases = ref([])
 const projectSearchKeyword = ref('')
 const showCreateModal = ref(false)
 const editingBug = ref(null)
@@ -325,7 +368,8 @@ const bugForm = ref({
   description: '',
   status: 'new',
   priority: 'medium',
-  assignee_id: null
+  assignee_id: null,
+  testcase_id: null
 })
 
 const toast = ref({
@@ -378,6 +422,8 @@ const searchProjects = () => {
 
 onMounted(async () => {
   await loadProjects()
+  await loadUsers()
+  await loadTestCases()
   await loadBugs()
 })
 
@@ -387,6 +433,24 @@ const loadProjects = async () => {
     projects.value = response.data.items
   } catch (error) {
     console.error('加载项目列表失败:', error)
+  }
+}
+
+const loadUsers = async () => {
+  try {
+    const response = await userAPI.getList(1, 100)
+    users.value = response.data.items
+  } catch (error) {
+    console.error('加载用户列表失败:', error)
+  }
+}
+
+const loadTestCases = async () => {
+  try {
+    const response = await testcaseAPI.getList(1, 100)
+    testcases.value = response.data.items
+  } catch (error) {
+    console.error('加载测试用例列表失败:', error)
   }
 }
 
@@ -502,7 +566,8 @@ const closeModal = () => {
     description: '',
     status: 'new',
     priority: 'medium',
-    assignee_id: null
+    assignee_id: null,
+    testcase_id: null
   }
 }
 
@@ -992,7 +1057,8 @@ const getPriorityText = (priority) => {
 }
 
 .time-icon {
-  font-size: 1rem;
+  color: #667eea;
+  flex-shrink: 0;
 }
 
 .time-label {

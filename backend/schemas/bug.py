@@ -36,6 +36,7 @@ class BugUpdate(BaseModel):
     status: str | None = None
     priority: str | None = None
     assignee_id: int | None = None
+    testcase_id: int | None = None
 
 
 class BugPageResponse(BaseModel):

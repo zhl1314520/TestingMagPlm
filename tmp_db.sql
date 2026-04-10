@@ -11,7 +11,7 @@
  Target Server Version : 80031
  File Encoding         : 65001
 
- Date: 09/04/2026 15:49:58
+ Date: 10/04/2026 18:09:02
 */
 
 SET NAMES utf8mb4;
@@ -30,7 +30,7 @@ CREATE TABLE `bugs`  (
   `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'new',
   `priority` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'medium',
   `assignee_id` int UNSIGNED NULL DEFAULT NULL,
-  `reporter_id` int UNSIGNED NULL DEFAULT NULL,
+  `reporter_id` int UNSIGNED NOT NULL,
   `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` datetime NULL DEFAULT NULL,
@@ -41,20 +41,19 @@ CREATE TABLE `bugs`  (
   INDEX `idx_assignee_id`(`assignee_id`) USING BTREE,
   INDEX `idx_project_status_priority`(`project_id`, `status`, `priority`) USING BTREE,
   INDEX `testcase_id`(`testcase_id`) USING BTREE,
-  INDEX `reporter_id`(`reporter_id`) USING BTREE,
+  INDEX `fk_bugs_reporter`(`reporter_id`) USING BTREE,
   CONSTRAINT `bugs_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `bugs_ibfk_2` FOREIGN KEY (`testcase_id`) REFERENCES `test_cases` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
   CONSTRAINT `bugs_ibfk_3` FOREIGN KEY (`assignee_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-  CONSTRAINT `bugs_ibfk_4` FOREIGN KEY (`reporter_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+  CONSTRAINT `fk_bugs_reporter` FOREIGN KEY (`reporter_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of bugs
 -- ----------------------------
-INSERT INTO `bugs` VALUES (1, 1, 1, '用户登录时偶发性白屏', '在执行测试用例\"验证普通用户使用正确凭据登录成功\"时，偶尔出现登录后页面完全空白，F5刷新后恢复正常。概率约为1/10。', 'new', 'high', 1, 3, '2026-04-01 13:00:21', '2026-04-05 10:53:21', NULL);
+INSERT INTO `bugs` VALUES (1, 1, 1, '用户登录时偶发性白屏', '在执行测试用例\"验证普通用户使用正确凭据登录成功\"时，偶尔出现登录后页面完全空白，F5刷新后恢复正常。概率约为1/10。', 'new', 'medium', 1, 3, '2026-04-01 13:00:21', '2026-04-09 21:00:04', NULL);
 INSERT INTO `bugs` VALUES (2, 2, 2, '支付成功后未发送确认邮件', '按照测试步骤完成支付后，支付结果显示成功，但用户未收到预期的支付确认邮件。检查了垃圾邮件箱也未找到。', 'in_progress', 'critical', 2, 1, '2026-04-01 13:00:21', '2026-04-05 10:53:21', NULL);
 INSERT INTO `bugs` VALUES (3, 3, 3, '报告导出功能在大数据量下崩溃', '当系统中存在大量错误日志时（例如超过1万条），尝试使用\"导出为PDF\"功能会导致整个报告模块无响应甚至崩溃。', 'new', 'high', 1, 2, '2026-04-01 13:00:21', '2026-04-05 11:10:00', NULL);
-INSERT INTO `bugs` VALUES (6, 11, NULL, '1111', '1111', 'new', 'low', NULL, 3, '2026-04-05 12:40:59', '2026-04-05 12:40:59', NULL);
 
 -- ----------------------------
 -- Table structure for executions
@@ -81,14 +80,14 @@ CREATE TABLE `executions`  (
   INDEX `executed_by`(`executed_by`) USING BTREE,
   CONSTRAINT `executions_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `executions_ibfk_2` FOREIGN KEY (`executed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of executions
 -- ----------------------------
 INSERT INTO `executions` VALUES (1, 1, '修改后的执行名称', '自动化执行', '已完成', '本次回归测试覆盖了核心功能。发现一个次要bug，已在JIRA中记录。', 5, 4, 1, 80.00, 3, '2026-04-01 12:48:41', '2026-04-05 10:28:51');
 INSERT INTO `executions` VALUES (2, 2, '部署后自动化冒烟测试', '自动化执行', '失败', '自动化脚本执行时，支付网关模拟器无响应，导致关键支付流程用例失败。', 10, 7, 3, 70.00, 1, '2026-04-01 12:48:41', '2026-04-01 12:48:41');
-INSERT INTO `executions` VALUES (3, 3, '新报告模块 Alpha 版测试', '手动执行', '执行中', '正在执行针对新报告模块的探索性测试。', 8, 2, 1, 25.00, 3, '2026-04-01 12:48:41', '2026-04-01 12:48:41');
+INSERT INTO `executions` VALUES (3, 3, '新报告模块 Alpha 版测试', '手动执行', '执行中', '正在执行针对新报告模块的探索性测试。', 8, 2, 1, 25.00, 3, '2026-04-01 12:48:41', '2026-04-08 12:48:41');
 
 -- ----------------------------
 -- Table structure for project_members
@@ -194,7 +193,7 @@ CREATE TABLE `reports`  (
   `total_cases` int UNSIGNED NULL DEFAULT 0,
   `passed_cases` int UNSIGNED NULL DEFAULT 0,
   `failed_cases` int UNSIGNED NULL DEFAULT 0,
-  `created_by` int UNSIGNED NULL DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
   `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
@@ -202,10 +201,10 @@ CREATE TABLE `reports`  (
   INDEX `idx_created_at`(`created_at`) USING BTREE,
   INDEX `idx_project_created`(`project_id`, `created_at`) USING BTREE,
   INDEX `execution_id`(`execution_id`) USING BTREE,
-  INDEX `created_by`(`created_by`) USING BTREE,
+  INDEX `fk_reports_created_by`(`created_by`) USING BTREE,
   CONSTRAINT `reports_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `reports_ibfk_2` FOREIGN KEY (`execution_id`) REFERENCES `executions` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-  CONSTRAINT `reports_ibfk_3` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+  CONSTRAINT `fk_reports_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -240,7 +239,7 @@ CREATE TABLE `test_cases`  (
   INDEX `fk_test_cases_created_by`(`created_by`) USING BTREE,
   CONSTRAINT `test_cases_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `fk_test_cases_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of test_cases

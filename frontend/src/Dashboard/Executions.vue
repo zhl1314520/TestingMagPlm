@@ -95,13 +95,21 @@
           </div>
 
           <div class="execution-time">
-            <span class="time-icon">📅</span>
+            <svg class="time-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
             <span class="time-label">创建时间：</span>
             <span class="time-text">{{ formatDate(execution.created_at) }}</span>
           </div>
 
           <div v-if="hasUpdatedTime(execution)" class="execution-time">
-            <span class="time-icon">🔄</span>
+            <svg class="time-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
             <span class="time-label">更新时间：</span>
             <span class="time-text">{{ formatDate(execution.updated_at) }}</span>
           </div>
@@ -127,6 +135,10 @@
           <button @click="editExecution(execution)" class="btn-view">
             <span class="view-icon">✏️</span>
             修改
+          </button>
+          <button @click="showPassRate(execution)" class="btn-pass-rate">
+            <span class="pass-rate-icon">📊</span>
+            通过率
           </button>
           <button @click="deleteExecution(execution.id)" class="btn-delete">
             <span class="delete-icon">🗑</span>
@@ -331,6 +343,47 @@
       </div>
     </Transition>
 
+    <Transition name="modal">
+      <div v-if="showPassRateModal" class="modal-overlay" @click="showPassRateModal = false">
+        <div class="modal-container pass-rate-modal" @click.stop>
+          <div class="modal-header">
+            <div class="modal-title">
+              <span class="modal-icon">📊</span>
+              <h2>执行通过率统计</h2>
+            </div>
+            <button @click="showPassRateModal = false" class="btn-close">×</button>
+          </div>
+          
+          <div class="modal-body">
+            <div class="pass-rate-content">
+              <div class="chart-container">
+                <canvas ref="passRateChart"></canvas>
+              </div>
+              
+              <div class="stats-summary">
+                <div class="summary-item">
+                  <div class="summary-label">总用例数</div>
+                  <div class="summary-value">{{ selectedExecutionData?.total_cases || 0 }}</div>
+                </div>
+                <div class="summary-item passed">
+                  <div class="summary-label">通过用例</div>
+                  <div class="summary-value">{{ selectedExecutionData?.passed_cases || 0 }}</div>
+                </div>
+                <div class="summary-item failed">
+                  <div class="summary-label">失败用例</div>
+                  <div class="summary-value">{{ selectedExecutionData?.failed_cases || 0 }}</div>
+                </div>
+                <div class="summary-item rate">
+                  <div class="summary-label">通过率</div>
+                  <div class="summary-value">{{ selectedExecutionData?.pass_rate || 0 }}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <Transition name="toast">
       <div v-if="toast.show" class="toast-overlay" @click="hideToast">
         <div class="toast-container glass-panel" @click.stop>
@@ -388,16 +441,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick } from 'vue'
 import { executionAPI, projectAPI } from '../api/index.js'
+import { Chart, registerables } from 'chart.js'
+
+Chart.register(...registerables)
 
 const executions = ref([])
 const projects = ref([])
 const projectSearchKeyword = ref('')
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
+const showPassRateModal = ref(false)
 const loading = ref(false)
 const selectedExecution = ref(null)
+const selectedExecutionData = ref(null)
+const passRateChart = ref(null)
+let chartInstance = null
 
 const filters = ref({
   project_id: ''
@@ -644,6 +704,71 @@ const updateExecution = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const showPassRate = async (execution) => {
+  selectedExecutionData.value = execution
+  showPassRateModal.value = true
+  
+  await nextTick()
+  
+  if (chartInstance) {
+    chartInstance.destroy()
+  }
+  
+  const ctx = passRateChart.value.getContext('2d')
+  const passedCases = execution.passed_cases || 0
+  const failedCases = execution.failed_cases || 0
+  const totalCases = execution.total_cases || 0
+  const otherCases = totalCases - passedCases - failedCases
+  
+  const data = {
+    labels: ['通过用例', '失败用例'],
+    datasets: [{
+      data: [passedCases, failedCases],
+      backgroundColor: [
+        'rgba(16, 185, 129, 0.8)',
+        'rgba(239, 68, 68, 0.8)'
+      ],
+      borderColor: [
+        'rgba(16, 185, 129, 1)',
+        'rgba(239, 68, 68, 1)'
+      ],
+      borderWidth: 2
+    }]
+  }
+  
+  chartInstance = new Chart(ctx, {
+    type: 'pie',
+    data: data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 20,
+            font: {
+              size: 14,
+              weight: 'bold'
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.label || ''
+              const value = context.parsed || 0
+              const total = context.dataset.data.reduce((a, b) => a + b, 0)
+              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0
+              return `${label}: ${value} (${percentage}%)`
+            }
+          }
+        }
+      }
+    }
+  })
 }
 </script>
 
@@ -1087,7 +1212,8 @@ const updateExecution = async () => {
 }
 
 .time-icon {
-  font-size: 1rem;
+  color: #667eea;
+  flex-shrink: 0;
 }
 
 .time-label {
@@ -1137,6 +1263,7 @@ const updateExecution = async () => {
 
 .btn-run,
 .btn-view,
+.btn-pass-rate,
 .btn-delete {
   flex: 1;
   padding: 10px 16px;
@@ -1190,6 +1317,21 @@ const updateExecution = async () => {
 .btn-delete:hover {
   background: #dc2626;
   color: white;
+}
+
+.btn-pass-rate {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.btn-pass-rate:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+}
+
+.pass-rate-icon {
+  font-size: 1rem;
 }
 
 .delete-icon {
@@ -1933,5 +2075,89 @@ const updateExecution = async () => {
 .confirm-enter-from,
 .confirm-leave-to {
   opacity: 0;
+}
+
+.pass-rate-modal {
+  max-width: 600px;
+}
+
+.pass-rate-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.summary-item {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s;
+}
+
+.summary-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.summary-item.passed {
+  border-color: #10b981;
+  background: #d1fae5;
+}
+
+.summary-item.failed {
+  border-color: #ef4444;
+  background: #fee2e2;
+}
+
+.summary-item.rate {
+  border-color: #8b5cf6;
+  background: #ede9fe;
+}
+
+.summary-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.summary-item.passed .summary-value {
+  color: #065f46;
+}
+
+.summary-item.failed .summary-value {
+  color: #991b1b;
+}
+
+.summary-item.rate .summary-value {
+  color: #6d28d9;
+}
+
+@media (max-width: 768px) {
+  .stats-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>

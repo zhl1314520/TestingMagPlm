@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 class TestCaseResponse(BaseModel):
     id: int
     project_id: int
+    project_name: str = ""
     module: str
     title: str
     steps: str
