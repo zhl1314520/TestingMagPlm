@@ -88,6 +88,11 @@
           
           <div class="execution-meta">
             <div class="meta-item">
+              <span class="meta-icon">📁</span>
+              <span class="meta-label">项目</span>
+              <span class="meta-value project-name">项目：{{ execution.project_name || '未知项目' }}</span>
+            </div>
+            <div class="meta-item">
               <span class="meta-icon">🏷️</span>
               <span class="meta-label">类型</span>
               <span class="meta-value type-badge">{{ execution.type }}</span>

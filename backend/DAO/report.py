@@ -7,6 +7,7 @@ from models.testcase import TestCase
 from models.bug import Bug
 from models.execution import Execution
 from models.project_member import ProjectMember
+from models.user import User
 
 
 async def get_report_by_id(report_id: int, db: AsyncSession):
@@ -30,7 +31,11 @@ async def get_report_list(page: int, page_size: int, project_id: int = None, db:
     total = (await db.execute(count_stmt)).scalar()
 
     stmt = (
-        select(Report)
+        select(Report, User.username, Project.name, Execution.name)
+        .select_from(Report)
+        .join(User, Report.created_by == User.id)
+        .join(Project, Report.project_id == Project.id)
+        .outerjoin(Execution, Report.execution_id == Execution.id)
         .offset((page - 1) * page_size)
         .limit(page_size)
         .order_by(Report.id.desc())
@@ -40,7 +45,11 @@ async def get_report_list(page: int, page_size: int, project_id: int = None, db:
         stmt = stmt.where(Report.project_id == project_id)
     
     result = await db.execute(stmt)
-    items = result.scalars().all()
+    rows = result.all()
+    items = []
+    for row in rows:
+        report, created_by_name, project_name, execution_name = row
+        items.append((report, created_by_name, project_name, execution_name))
 
     return total, items
 
@@ -59,7 +68,11 @@ async def get_user_report_list(user_id: int, page: int, page_size: int, project_
     logger.info(f"Total reports for user_id={user_id}: {total}")
 
     stmt = (
-        select(Report)
+        select(Report, User.username, Project.name, Execution.name)
+        .select_from(Report)
+        .join(User, Report.created_by == User.id)
+        .join(Project, Report.project_id == Project.id)
+        .outerjoin(Execution, Report.execution_id == Execution.id)
         .where(Report.created_by == user_id)
         .offset((page - 1) * page_size)
         .limit(page_size)
@@ -70,10 +83,21 @@ async def get_user_report_list(user_id: int, page: int, page_size: int, project_
         stmt = stmt.where(Report.project_id == project_id)
     
     result = await db.execute(stmt)
-    items = result.scalars().all()
-    logger.info(f"Reports returned: {[r.id for r in items]}")
+    rows = result.all()
+    items = []
+    for row in rows:
+        report, created_by_name, project_name, execution_name = row
+        items.append((report, created_by_name, project_name, execution_name))
+    logger.info(f"Reports returned: {[r.id for r, _, _, _ in items]}")
 
     return total, items
+
+
+async def delete_all_reports(db: AsyncSession):
+    stmt = delete(Report)
+    result = await db.execute(stmt)
+    await db.commit()
+    return result.rowcount
 
 
 async def get_metrics_overview(db: AsyncSession):

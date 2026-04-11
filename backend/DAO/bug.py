@@ -1,14 +1,30 @@
 from sqlalchemy import select, func, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 from models.bug import Bug
+from models.project import Project
 from models.project_member import ProjectMember
+from models.user import User
 from typing import List
 
 
 async def get_bug_by_id(bug_id: int, db: AsyncSession):
-    stmt = select(Bug).where(Bug.id == bug_id)
+    Reporter = aliased(User)
+    Assignee = aliased(User)
+    
+    stmt = (
+        select(Bug, Project.name, Reporter.username, Assignee.username)
+        .join(Project, Bug.project_id == Project.id)
+        .outerjoin(Reporter, Bug.reporter_id == Reporter.id)
+        .outerjoin(Assignee, Bug.assignee_id == Assignee.id)
+        .where(Bug.id == bug_id)
+    )
     result = await db.execute(stmt)
-    return result.scalar_one_or_none()
+    row = result.first()
+    if row:
+        bug, project_name, reporter_name, assignee_name = row
+        return bug, project_name, reporter_name, assignee_name
+    return None, None, None, None
 
 
 async def create_bug(bug: Bug, db: AsyncSession):
@@ -32,6 +48,9 @@ async def get_bug_list_by_user(
     priority: str = None, 
     db: AsyncSession = None
 ):
+    Reporter = aliased(User)
+    Assignee = aliased(User)
+    
     conditions = [Bug.reporter_id == user_id]
     
     if project_id:
@@ -45,7 +64,10 @@ async def get_bug_list_by_user(
     total = (await db.execute(count_stmt)).scalar()
 
     stmt = (
-        select(Bug)
+        select(Bug, Project.name, Reporter.username, Assignee.username)
+        .join(Project, Bug.project_id == Project.id)
+        .outerjoin(Reporter, Bug.reporter_id == Reporter.id)
+        .outerjoin(Assignee, Bug.assignee_id == Assignee.id)
         .where(and_(*conditions))
         .offset((page - 1) * page_size)
         .limit(page_size)
@@ -53,12 +75,19 @@ async def get_bug_list_by_user(
     )
     
     result = await db.execute(stmt)
-    items = result.scalars().all()
+    rows = result.all()
+    items = []
+    for row in rows:
+        bug, project_name, reporter_name, assignee_name = row
+        items.append((bug, project_name, reporter_name, assignee_name))
 
     return total, items
 
 
 async def get_bug_list(page: int, page_size: int, project_id: int = None, status: str = None, priority: str = None, db: AsyncSession = None):
+    Reporter = aliased(User)
+    Assignee = aliased(User)
+    
     count_stmt = select(func.count()).select_from(Bug)
     
     conditions = []
@@ -75,7 +104,10 @@ async def get_bug_list(page: int, page_size: int, project_id: int = None, status
     total = (await db.execute(count_stmt)).scalar()
 
     stmt = (
-        select(Bug)
+        select(Bug, Project.name, Reporter.username, Assignee.username)
+        .join(Project, Bug.project_id == Project.id)
+        .outerjoin(Reporter, Bug.reporter_id == Reporter.id)
+        .outerjoin(Assignee, Bug.assignee_id == Assignee.id)
         .offset((page - 1) * page_size)
         .limit(page_size)
         .order_by(Bug.id.desc())
@@ -85,7 +117,11 @@ async def get_bug_list(page: int, page_size: int, project_id: int = None, status
         stmt = stmt.where(and_(*conditions))
     
     result = await db.execute(stmt)
-    items = result.scalars().all()
+    rows = result.all()
+    items = []
+    for row in rows:
+        bug, project_name, reporter_name, assignee_name = row
+        items.append((bug, project_name, reporter_name, assignee_name))
 
     return total, items
 

@@ -14,12 +14,20 @@ router = APIRouter(
 @router.get("", response_model=ReportPageResponse)
 async def get_report_list(
     page: int = Query(1, ge=1),
-    page_size: int = Query(10, ge=1, le=100),
+    page_size: int = Query(5, ge=1, le=5),
     project_id: int = Query(None),
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     return await service.get_user_report_list(current_user["user_id"], page, page_size, project_id, db)
+
+
+@router.delete("/all")
+async def delete_all_reports(
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    return await service.delete_all_reports(db)
 
 
 metrics_router = APIRouter(

@@ -41,12 +41,27 @@ async def get_bug(
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    from DAO import bug as crud
-    bug = await crud.get_bug_by_id(id, db)
+    bug, project_name = await crud.get_bug_by_id(id, db)
     if not bug:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="BUG_NOT_FOUND")
-    return bug
+    
+    bug_dict = {
+        "id": bug.id,
+        "project_id": bug.project_id,
+        "project_name": project_name,
+        "testcase_id": bug.testcase_id,
+        "title": bug.title,
+        "description": bug.description,
+        "status": bug.status,
+        "priority": bug.priority,
+        "reporter_id": bug.reporter_id,
+        "assignee_id": bug.assignee_id,
+        "created_at": bug.created_at,
+        "updated_at": bug.updated_at
+    }
+    
+    return bug_dict
 
 
 @router.put("/{id}", response_model=BugResponse)

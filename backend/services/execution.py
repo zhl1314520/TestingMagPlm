@@ -39,20 +39,59 @@ async def create_execution(execution_data: ExecutionCreate, user_id: int, db: As
 
 async def get_execution_list(page: int, page_size: int, project_id: int = None, executed_by: int = None, db: AsyncSession = None):
     total, items = await crud.get_execution_list(page, page_size, project_id, executed_by, db)
+    
+    execution_list = []
+    for execution, project_name in items:
+        execution_dict = {
+            "id": execution.id,
+            "project_id": execution.project_id,
+            "project_name": project_name,
+            "name": execution.name,
+            "type": execution.type,
+            "status": execution.status,
+            "result": execution.result,
+            "total_cases": execution.total_cases,
+            "passed_cases": execution.passed_cases,
+            "failed_cases": execution.failed_cases,
+            "pass_rate": execution.pass_rate,
+            "executed_by": execution.executed_by,
+            "created_at": execution.created_at,
+            "updated_at": execution.updated_at
+        }
+        execution_list.append(execution_dict)
+    
     return ExecutionPageResponse(
         total=total,
-        items=items
+        items=execution_list
     )
 
 
 async def get_execution_detail(execution_id: int, db: AsyncSession):
-    execution = await crud.get_execution_by_id(execution_id, db)
+    execution, project_name = await crud.get_execution_by_id(execution_id, db)
     if not execution:
         raise HTTPException(
             status_code=404,
             detail="EXECUTION_NOT_FOUND"
         )
-    return execution
+    
+    execution_dict = {
+        "id": execution.id,
+        "project_id": execution.project_id,
+        "project_name": project_name,
+        "name": execution.name,
+        "type": execution.type,
+        "status": execution.status,
+        "result": execution.result,
+        "total_cases": execution.total_cases,
+        "passed_cases": execution.passed_cases,
+        "failed_cases": execution.failed_cases,
+        "pass_rate": execution.pass_rate,
+        "executed_by": execution.executed_by,
+        "created_at": execution.created_at,
+        "updated_at": execution.updated_at
+    }
+    
+    return execution_dict
 
 
 async def update_execution(execution_id: int, execution_data: ExecutionUpdate, db: AsyncSession):

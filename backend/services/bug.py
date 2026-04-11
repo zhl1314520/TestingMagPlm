@@ -50,22 +50,64 @@ async def get_bug_list_by_user(
     total, items = await crud.get_bug_list_by_user(
         page, page_size, user_id, project_id, status, priority, db
     )
+    
+    bug_list = []
+    for bug, project_name, reporter_name, assignee_name in items:
+        bug_dict = {
+            "id": bug.id,
+            "project_id": bug.project_id,
+            "project_name": project_name,
+            "testcase_id": bug.testcase_id,
+            "title": bug.title,
+            "description": bug.description,
+            "status": bug.status,
+            "priority": bug.priority,
+            "reporter_id": bug.reporter_id,
+            "reporter_name": reporter_name,
+            "assignee_id": bug.assignee_id,
+            "assignee_name": assignee_name,
+            "created_at": bug.created_at,
+            "updated_at": bug.updated_at
+        }
+        bug_list.append(bug_dict)
+    
     return BugPageResponse(
         total=total,
-        items=items
+        items=bug_list
     )
 
 
 async def get_bug_list(page: int, page_size: int, project_id: int = None, status: str = None, priority: str = None, db: AsyncSession = None):
     total, items = await crud.get_bug_list(page, page_size, project_id, status, priority, db)
+    
+    bug_list = []
+    for bug, project_name, reporter_name, assignee_name in items:
+        bug_dict = {
+            "id": bug.id,
+            "project_id": bug.project_id,
+            "project_name": project_name,
+            "testcase_id": bug.testcase_id,
+            "title": bug.title,
+            "description": bug.description,
+            "status": bug.status,
+            "priority": bug.priority,
+            "reporter_id": bug.reporter_id,
+            "reporter_name": reporter_name,
+            "assignee_id": bug.assignee_id,
+            "assignee_name": assignee_name,
+            "created_at": bug.created_at,
+            "updated_at": bug.updated_at
+        }
+        bug_list.append(bug_dict)
+    
     return BugPageResponse(
         total=total,
-        items=items
+        items=bug_list
     )
 
 
 async def delete_bug(bug_id: int, db: AsyncSession):
-    bug = await crud.get_bug_by_id(bug_id, db)
+    bug, project_name, reporter_name, assignee_name = await crud.get_bug_by_id(bug_id, db)
     if not bug:
         raise HTTPException(
             status_code=404,
@@ -81,7 +123,7 @@ async def delete_bug(bug_id: int, db: AsyncSession):
 
 
 async def update_bug(bug_id: int, bug_data: BugUpdate, db: AsyncSession):
-    bug = await crud.get_bug_by_id(bug_id, db)
+    bug, project_name, reporter_name, assignee_name = await crud.get_bug_by_id(bug_id, db)
     if not bug:
         raise HTTPException(
             status_code=404,
@@ -102,7 +144,7 @@ async def update_bug(bug_id: int, bug_data: BugUpdate, db: AsyncSession):
 
 
 async def update_bug_status(bug_id: int, status: str, db: AsyncSession):
-    bug = await crud.get_bug_by_id(bug_id, db)
+    bug, project_name, reporter_name, assignee_name = await crud.get_bug_by_id(bug_id, db)
     if not bug:
         raise HTTPException(
             status_code=404,

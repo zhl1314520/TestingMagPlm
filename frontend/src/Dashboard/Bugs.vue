@@ -119,7 +119,7 @@
             <div class="meta-item">
               <span class="meta-icon">📁</span>
               <span class="meta-label">项目</span>
-              <span class="meta-value">#{{ bug.project_id }}</span>
+              <span class="meta-value project-name">项目：{{ bug.project_name || '未知项目' }}</span>
             </div>
             <div class="meta-item">
               <span class="meta-icon">🔥</span>
@@ -131,15 +131,15 @@
               <span class="meta-label">测试用例</span>
               <span class="meta-value">#{{ bug.testcase_id }}</span>
             </div>
-            <div v-if="bug.reporter_id" class="meta-item">
+            <div v-if="bug.reporter_name" class="meta-item">
               <span class="meta-icon">👤</span>
               <span class="meta-label">报告者</span>
-              <span class="meta-value">用户 #{{ bug.reporter_id }}</span>
+              <span class="meta-value">{{ bug.reporter_name }}</span>
             </div>
-            <div v-if="bug.assignee_id" class="meta-item">
+            <div v-if="bug.assignee_name" class="meta-item">
               <span class="meta-icon">🔧</span>
               <span class="meta-label">指派给</span>
-              <span class="meta-value">用户 #{{ bug.assignee_id }}</span>
+              <span class="meta-value">{{ bug.assignee_name }}</span>
             </div>
           </div>
 

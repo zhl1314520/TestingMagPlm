@@ -6,6 +6,7 @@ from datetime import datetime
 class ExecutionResponse(BaseModel):
     id: int
     project_id: int
+    project_name: str | None = None
     name: str
     type: str
     status: str

@@ -6,15 +6,19 @@ from pydantic import BaseModel
 class ReportResponse(BaseModel):
     id: int
     project_id: int
+    project_name: str
     execution_id: Optional[int] = None
+    execution_name: str
     title: str
-    pass_rate: float
-    fail_rate: float
-    total_cases: int
-    passed_cases: int
-    failed_cases: int
-    created_by: Optional[int] = None
+    pass_rate: float = 0.0
+    fail_rate: float = 0.0
+    total_cases: int = 0
+    passed_cases: int = 0
+    failed_cases: int = 0
+    created_by: int
+    created_by_name: str
     created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
