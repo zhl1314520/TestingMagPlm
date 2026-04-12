@@ -59,17 +59,12 @@ async def get_report_list(page: int, page_size: int, project_id: int = None, db:
 
 
 async def get_user_report_list(user_id: int, page: int, page_size: int, project_id: int = None, db: AsyncSession = None):
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.info(f"get_user_report_list called with user_id={user_id}")
-    
     count_stmt = select(func.count()).select_from(Report).where(Report.created_by == user_id)
     
     if project_id:
         count_stmt = count_stmt.where(Report.project_id == project_id)
     
     total = (await db.execute(count_stmt)).scalar()
-    logger.info(f"Total reports for user_id={user_id}: {total}")
 
     Executor = aliased(User)
 
@@ -95,7 +90,6 @@ async def get_user_report_list(user_id: int, page: int, page_size: int, project_
     for row in rows:
         report, created_by_name, project_name, execution_name, executor_name = row
         items.append((report, created_by_name, project_name, execution_name, executor_name))
-    logger.info(f"Reports returned: {[r.id for r, _, _, _, _ in items]}")
 
     return total, items
 

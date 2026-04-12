@@ -1,7 +1,7 @@
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.project_member import ProjectMember
-from schemas.project_member import ProjectMemberCreate
+from schemas.project import ProjectMemberCreate
 from typing import Optional, List
 
 

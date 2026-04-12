@@ -1,14 +1,6 @@
-from sqlalchemy import String, DateTime, func, Integer, Text, Enum
+from sqlalchemy import String, DateTime, func, Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from models.base import Base
-import enum
-
-
-class TestCaseStatus(enum.Enum):
-    DRAFT = "草稿"
-    VALID = "有效"
-    DEPRECATED = "已弃用"
-    BLOCKED = "阻塞"
 
 
 class TestCase(Base):

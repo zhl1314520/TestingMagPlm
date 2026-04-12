@@ -4,6 +4,7 @@ from core.db import get_db
 from core.security import get_current_user
 from schemas.bug import BugCreate, BugUpdate, BugResponse, BugPageResponse
 from services import bug as service
+from DAO import bug as crud
 
 router = APIRouter(
     prefix="/bugs",

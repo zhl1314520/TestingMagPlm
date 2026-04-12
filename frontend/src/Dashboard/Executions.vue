@@ -505,12 +505,6 @@ const statusMap = {
   '已取消': { text: '已取消', color: '#9ca3af' }
 }
 
-const envMap = {
-  test: '测试环境',
-  staging: '预发布环境',
-  production: '生产环境'
-}
-
 const filteredProjects = computed(() => {
   if (!projectSearchKeyword.value) {
     return projects.value
@@ -656,17 +650,6 @@ const hasUpdatedTime = (execution) => {
 
 const getStatusText = (status) => {
   return statusMap[status]?.text || status
-}
-
-const getStatusClass = (status) => {
-  const classMap = {
-    '等待中': 'pending',
-    '执行中': 'running',
-    '已完成': 'completed',
-    '失败': 'failed',
-    '已取消': 'cancelled'
-  }
-  return classMap[status] || status
 }
 
 const editExecution = (execution) => {

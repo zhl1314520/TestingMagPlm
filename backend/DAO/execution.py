@@ -1,4 +1,4 @@
-from sqlalchemy import select, func, delete
+from sqlalchemy import select, func, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.execution import Execution
 from models.project import Project
@@ -34,7 +34,6 @@ async def get_execution_list(page: int, page_size: int, project_id: int = None, 
         conditions.append(Execution.executed_by == executed_by)
     
     if conditions:
-        from sqlalchemy import and_
         count_stmt = count_stmt.where(and_(*conditions))
     
     total = (await db.execute(count_stmt)).scalar()
@@ -48,7 +47,6 @@ async def get_execution_list(page: int, page_size: int, project_id: int = None, 
     )
     
     if conditions:
-        from sqlalchemy import and_
         stmt = stmt.where(and_(*conditions))
     
     result = await db.execute(stmt)
