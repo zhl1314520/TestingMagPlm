@@ -9,6 +9,7 @@ class ReportResponse(BaseModel):
     project_name: str
     execution_id: Optional[int] = None
     execution_name: str
+    executor_name: str
     title: str
     pass_rate: float = 0.0
     fail_rate: float = 0.0

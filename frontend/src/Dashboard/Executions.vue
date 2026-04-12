@@ -1271,16 +1271,16 @@ const showPassRate = async (execution) => {
 .btn-pass-rate,
 .btn-delete {
   flex: 1;
-  padding: 10px 16px;
-  border-radius: 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   transition: all 0.3s;
 }
 
@@ -1307,11 +1307,11 @@ const showPassRate = async (execution) => {
 }
 
 .view-icon {
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
 .run-icon {
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
 .btn-delete {
@@ -1336,11 +1336,11 @@ const showPassRate = async (execution) => {
 }
 
 .pass-rate-icon {
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
 .delete-icon {
-  font-size: 1rem;
+  font-size: 0.85rem;
 }
 
 .empty-state {

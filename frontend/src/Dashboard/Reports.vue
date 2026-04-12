@@ -66,10 +66,11 @@
                   </div>
 
                   <div class="card-grid">
-                    <div class="meta-item">项目：{{ item.project_name }}</div>
-                    <div class="meta-item">执行：{{ item.execution_name }}</div>
+                    <div class="meta-item full-width">项目：{{ item.project_name }}</div>
+                    <div class="meta-item">执行人：{{ item.executor_name }}</div>
                     <div class="meta-item">创建人：{{ item.created_by_name }}</div>
                     <div class="meta-item">创建时间：{{ formatDate(item.created_at) }}</div>
+                    <div class="meta-item">修改时间：{{ formatDate(item.updated_at) }}</div>
                   </div>
 
                   <div class="rate-row">
@@ -578,6 +579,10 @@ onBeforeUnmount(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.meta-item.full-width {
+  grid-column: 1 / -1;
 }
 
 .rate-row {

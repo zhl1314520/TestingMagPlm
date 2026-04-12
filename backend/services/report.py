@@ -11,13 +11,15 @@ async def get_report_list(page: int, page_size: int, project_id: int = None, db:
     total, items = await crud.get_report_list(page, page_size, project_id, db)
     
     report_list = []
-    for report, created_by_name, project_name, execution_name in items:
+    for report, created_by_name, project_name, execution_name, executor_name in items:
         display_project_name = project_name or f"项目ID:{report.project_id}"
         display_creator_name = created_by_name or f"用户ID:{report.created_by}"
         if report.execution_id is None:
             display_execution = "暂未指定"
+            display_executor = "暂无"
         else:
             display_execution = execution_name or f"执行ID:{report.execution_id}"
+            display_executor = executor_name or "未知"
         display_updated_at = report.updated_at or report.created_at
 
         report_data = ReportResponse(
@@ -26,6 +28,7 @@ async def get_report_list(page: int, page_size: int, project_id: int = None, db:
             project_name=display_project_name,
             execution_id=report.execution_id,
             execution_name=display_execution,
+            executor_name=display_executor,
             title=report.title,
             pass_rate=report.pass_rate or 0.0,
             fail_rate=report.fail_rate or 0.0,
@@ -49,13 +52,15 @@ async def get_user_report_list(user_id: int, page: int, page_size: int, project_
     total, items = await crud.get_user_report_list(user_id, page, page_size, project_id, db)
     
     report_list = []
-    for report, created_by_name, project_name, execution_name in items:
+    for report, created_by_name, project_name, execution_name, executor_name in items:
         display_project_name = project_name or f"项目ID:{report.project_id}"
         display_creator_name = created_by_name or f"用户ID:{report.created_by}"
         if report.execution_id is None:
             display_execution = "暂未指定"
+            display_executor = "暂无"
         else:
             display_execution = execution_name or f"执行ID:{report.execution_id}"
+            display_executor = executor_name or "未知"
         display_updated_at = report.updated_at or report.created_at
 
         report_data = ReportResponse(
@@ -64,6 +69,7 @@ async def get_user_report_list(user_id: int, page: int, page_size: int, project_
             project_name=display_project_name,
             execution_id=report.execution_id,
             execution_name=display_execution,
+            executor_name=display_executor,
             title=report.title,
             pass_rate=report.pass_rate or 0.0,
             fail_rate=report.fail_rate or 0.0,

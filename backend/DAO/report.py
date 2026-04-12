@@ -1,5 +1,6 @@
 from sqlalchemy import select, func, delete, case, and_, desc, union_all, literal_column, text
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
 from models.report import Report
 from models.project import Project
@@ -30,12 +31,15 @@ async def get_report_list(page: int, page_size: int, project_id: int = None, db:
     
     total = (await db.execute(count_stmt)).scalar()
 
+    Executor = aliased(User)
+    
     stmt = (
-        select(Report, User.username, Project.name, Execution.name)
+        select(Report, User.username, Project.name, Execution.name, Executor.username)
         .select_from(Report)
         .join(User, Report.created_by == User.id)
         .join(Project, Report.project_id == Project.id)
         .outerjoin(Execution, Report.execution_id == Execution.id)
+        .outerjoin(Executor, Execution.executed_by == Executor.id)
         .offset((page - 1) * page_size)
         .limit(page_size)
         .order_by(Report.id.desc())
@@ -48,8 +52,8 @@ async def get_report_list(page: int, page_size: int, project_id: int = None, db:
     rows = result.all()
     items = []
     for row in rows:
-        report, created_by_name, project_name, execution_name = row
-        items.append((report, created_by_name, project_name, execution_name))
+        report, created_by_name, project_name, execution_name, executor_name = row
+        items.append((report, created_by_name, project_name, execution_name, executor_name))
 
     return total, items
 
@@ -67,12 +71,15 @@ async def get_user_report_list(user_id: int, page: int, page_size: int, project_
     total = (await db.execute(count_stmt)).scalar()
     logger.info(f"Total reports for user_id={user_id}: {total}")
 
+    Executor = aliased(User)
+
     stmt = (
-        select(Report, User.username, Project.name, Execution.name)
+        select(Report, User.username, Project.name, Execution.name, Executor.username)
         .select_from(Report)
         .join(User, Report.created_by == User.id)
         .join(Project, Report.project_id == Project.id)
         .outerjoin(Execution, Report.execution_id == Execution.id)
+        .outerjoin(Executor, Execution.executed_by == Executor.id)
         .where(Report.created_by == user_id)
         .offset((page - 1) * page_size)
         .limit(page_size)
@@ -86,9 +93,9 @@ async def get_user_report_list(user_id: int, page: int, page_size: int, project_
     rows = result.all()
     items = []
     for row in rows:
-        report, created_by_name, project_name, execution_name = row
-        items.append((report, created_by_name, project_name, execution_name))
-    logger.info(f"Reports returned: {[r.id for r, _, _, _ in items]}")
+        report, created_by_name, project_name, execution_name, executor_name = row
+        items.append((report, created_by_name, project_name, execution_name, executor_name))
+    logger.info(f"Reports returned: {[r.id for r, _, _, _, _ in items]}")
 
     return total, items
 
