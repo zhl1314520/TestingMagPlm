@@ -2,6 +2,41 @@
   <div class="overview">
     <section class="hero-stage">
       <div class="hero-panel">
+        <div class="galaxy-bg" aria-hidden="true">
+          <div class="star star-1"></div>
+          <div class="star star-2"></div>
+          <div class="star star-3"></div>
+          <div class="star star-4"></div>
+          <div class="star star-5"></div>
+          <div class="star star-6"></div>
+          <div class="star star-7"></div>
+          <div class="star star-8"></div>
+          <div class="star star-9"></div>
+          <div class="star star-10"></div>
+          <div class="solar-system">
+            <div class="sun"></div>
+            <div class="orbit mercury-orbit">
+              <div class="planet mercury"></div>
+            </div>
+            <div class="orbit venus-orbit">
+              <div class="planet venus"></div>
+            </div>
+            <div class="orbit earth-orbit">
+              <div class="planet earth"></div>
+            </div>
+            <div class="orbit mars-orbit">
+              <div class="planet mars"></div>
+            </div>
+            <div class="orbit jupiter-orbit">
+              <div class="planet jupiter"></div>
+            </div>
+            <div class="orbit saturn-orbit">
+              <div class="planet saturn">
+                <div class="saturn-ring"></div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="hero-grid">
           <div class="hero-copy">
             <div class="hero-meta">
@@ -650,6 +685,193 @@ const loadRecentActivities = async () => {
   box-shadow: var(--shadow-xl);
   will-change: auto;
   contain: layout style;
+}
+
+.galaxy-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+.star-1 { top: 5%; left: 10%; animation-delay: 0s; }
+.star-2 { top: 15%; left: 5%; animation-delay: 0.5s; }
+.star-3 { top: 8%; left: 30%; animation-delay: 1s; }
+.star-4 { top: 12%; left: 50%; animation-delay: 1.5s; }
+.star-5 { top: 20%; left: 70%; animation-delay: 2s; }
+.star-6 { top: 5%; left: 85%; animation-delay: 0.3s; }
+.star-7 { top: 25%; left: 95%; animation-delay: 0.8s; }
+.star-8 { top: 40%; left: 3%; animation-delay: 1.3s; }
+.star-9 { top: 55%; left: 8%; animation-delay: 1.8s; }
+.star-10 { top: 70%; left: 2%; animation-delay: 2.3s; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.2); }
+}
+
+.solar-system {
+  position: absolute;
+  top: 50%;
+  right: 15%;
+  transform: translateY(-50%);
+  width: 300px;
+  height: 300px;
+}
+
+.sun {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle at 30% 30%, #fef08a, #fbbf24, #f59e0b);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 20px rgba(251, 191, 36, 0.6),
+    0 0 40px rgba(251, 191, 36, 0.4),
+    0 0 60px rgba(251, 191, 36, 0.2);
+  animation: sunPulse 4s ease-in-out infinite;
+}
+
+@keyframes sunPulse {
+  0%, 100% { 
+    box-shadow: 
+      0 0 20px rgba(251, 191, 36, 0.6),
+      0 0 40px rgba(251, 191, 36, 0.4),
+      0 0 60px rgba(251, 191, 36, 0.2);
+  }
+  50% { 
+    box-shadow: 
+      0 0 30px rgba(251, 191, 36, 0.8),
+      0 0 50px rgba(251, 191, 36, 0.5),
+      0 0 80px rgba(251, 191, 36, 0.3);
+  }
+}
+
+.orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mercury-orbit {
+  width: 60px;
+  height: 60px;
+  animation: orbitRotate 4s linear infinite;
+}
+
+.venus-orbit {
+  width: 90px;
+  height: 90px;
+  animation: orbitRotate 6s linear infinite;
+}
+
+.earth-orbit {
+  width: 120px;
+  height: 120px;
+  animation: orbitRotate 8s linear infinite;
+}
+
+.mars-orbit {
+  width: 150px;
+  height: 150px;
+  animation: orbitRotate 10s linear infinite;
+}
+
+.jupiter-orbit {
+  width: 200px;
+  height: 200px;
+  animation: orbitRotate 14s linear infinite;
+}
+
+.saturn-orbit {
+  width: 250px;
+  height: 250px;
+  animation: orbitRotate 18s linear infinite;
+}
+
+@keyframes orbitRotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.planet {
+  position: absolute;
+  border-radius: 50%;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.mercury {
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle at 30% 30%, #d4d4d4, #a3a3a3);
+  box-shadow: 0 0 4px rgba(212, 212, 212, 0.5);
+}
+
+.venus {
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle at 30% 30%, #fcd34d, #f59e0b);
+  box-shadow: 0 0 6px rgba(252, 211, 77, 0.5);
+}
+
+.earth {
+  width: 7px;
+  height: 7px;
+  background: radial-gradient(circle at 30% 30%, #60a5fa, #3b82f6);
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+}
+
+.mars {
+  width: 5px;
+  height: 5px;
+  background: radial-gradient(circle at 30% 30%, #f87171, #dc2626);
+  box-shadow: 0 0 6px rgba(248, 113, 113, 0.5);
+}
+
+.jupiter {
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle at 30% 30%, #fdba74, #ea580c);
+  box-shadow: 0 0 10px rgba(253, 186, 116, 0.5);
+}
+
+.saturn {
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle at 30% 30%, #fde68a, #d97706);
+  box-shadow: 0 0 8px rgba(253, 230, 138, 0.5);
+}
+
+.saturn-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateX(70deg);
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(253, 230, 138, 0.4);
+  border-radius: 50%;
 }
 
 .hero-grid {
