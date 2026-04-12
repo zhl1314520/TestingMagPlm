@@ -111,7 +111,7 @@ export const bugAPI = {
 }
 
 export const reportAPI = {
-  getList: (page = 1, pageSize = 10, projectId = null) => 
+  getList: (page = 1, pageSize = 5, projectId = null) => 
     api.get('/reports', { params: { page, page_size: pageSize, project_id: projectId } })
 }
 

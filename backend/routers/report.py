@@ -13,7 +13,7 @@ router = APIRouter(
 
 @router.get("", response_model=ReportPageResponse)
 async def get_report_list(
-    page: int = Query(1, ge=1),
+    page: int = Query(1, ge=1, le=15),
     page_size: int = Query(5, ge=1, le=5),
     project_id: int = Query(None),
     current_user: dict = Depends(get_current_user),
