@@ -11,20 +11,20 @@ from DAO import project as crud
 logger = logging.getLogger(__name__)
 
 
-async def create_project(project_data: ProjectCreate, db: AsyncSession, user_id: int):
-    logger.info("创建项目请求: name=%s, owner_id=%s", project_data.name, user_id)
+async def create_project(project_info: ProjectCreate, db: AsyncSession, user_id: int):
+    logger.info("创建项目请求: name=%s, owner_id=%s", project_info.name, user_id)
 
-    existing = await crud.get_project_by_name(project_data.name, db)
+    existing = await crud.get_project_by_name(project_info.name, db)
     if existing:
-        logger.warning("项目已存在: name=%s", project_data.name)
+        logger.warning("项目已存在: name=%s", project_info.name)
         raise HTTPException(
             status_code=400,
-            detail="PROJECT_ALREADY_EXISTS"
+            detail="项目已经存在"
         )
 
     new_project = Project(
-        name=project_data.name,
-        description=project_data.description,
+        name=project_info.name,
+        description=project_info.description,
         owner_id=user_id
     )
 
@@ -34,7 +34,7 @@ async def create_project(project_data: ProjectCreate, db: AsyncSession, user_id:
     new_member = ProjectMember(
         project_id=new_project.id,
         user_id=user_id,
-        role="PM"
+        role="PM"       # 默认这个项目属于 pm 负责
     )
     db.add(new_member)
 

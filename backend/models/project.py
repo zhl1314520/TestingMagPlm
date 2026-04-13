@@ -37,15 +37,15 @@ class Project(Base):
         nullable=False, 
         comment="项目名称"
     )
-    description: Mapped[str | None] = mapped_column(
+    description: Mapped[str] = mapped_column(
         Text, 
-        nullable=True, 
+        nullable=False,
         comment="项目描述"
     )
     owner_id: Mapped[int] = mapped_column(
         Integer, 
         nullable=False, 
-        comment="项目负责人 ID"
+        comment="项目所属人 ID"
     )
     created_at: Mapped[DateTime] = mapped_column(
         DateTime, 
@@ -60,6 +60,7 @@ class Project(Base):
     )
     deleted_at: Mapped[DateTime] = mapped_column(
         DateTime, 
-        nullable=True, 
+        nullable=True,
+        default=None,
         comment="软删除时间"
     )

@@ -2,7 +2,7 @@
   <div class="forgot-password-page noise-texture">
     <div class="left-section">
       <div class="logo-section">
-        <a href="/" class="logo-link">
+        <div class="logo-link" @click="refreshAnimation" style="cursor: pointer;">
           <div class="logo-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
@@ -11,11 +11,12 @@
             </svg>
           </div>
           <span>HBNU-TMP</span>
-        </a>
+        </div>
       </div>
 
       <div class="characters-section">
         <AnimatedCharacters
+          :key="animationKey"
           :isTyping="isTyping"
           :showPassword="false"
           :passwordLength="0"
@@ -169,6 +170,11 @@ const isLoading = ref(false)
 const isSending = ref(false)
 const countdown = ref(0)
 const success = ref(false)
+const animationKey = ref(0)
+
+const refreshAnimation = () => {
+  animationKey.value++
+}
 
 const errorMessage = ref('')
 const successMessage = ref('')

@@ -14,7 +14,7 @@ router = APIRouter(
 @router.post("", response_model=ProjectResponse)
 async def create_project(
     project_info: ProjectCreate,
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user), # 获取当前用户信息
     db: AsyncSession = Depends(get_db)
 ):
     user_id = current_user["user_id"]
@@ -23,8 +23,8 @@ async def create_project(
 
 @router.get("", response_model=ProjectPageResponse)
 async def get_project_list(
-    page: int = Query(1, ge=1),
-    page_size: int = Query(10, ge=1, le=100),
+    page: int = Query(1, ge=1), # default = 1， 如果前端不传 page 参数，就默认为 1
+    page_size: int = Query(10, ge=1, le=100),   # 每页最多100条数据
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):

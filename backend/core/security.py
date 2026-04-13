@@ -4,8 +4,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
-from core.db import get_db
 
 """
 
@@ -17,7 +15,7 @@ from core.db import get_db
 
 """
 
-SECRET_KEY = "your-secret-key-here-change-in-production"
+SECRET_KEY: str = "secret_key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10080  # 7天后 token 过期
 
@@ -40,23 +38,28 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+# 解码
 def decode_token(token: str) -> dict:
     try:
+        # payload 载荷包含用户信息和过期时间等数据
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except JWTError:
+    except JWTError:    # HTTPException: 如果令牌无效（签名错误、过期、格式错误等）
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
+            # 设置响应头，提示客户端需要使用 Bearer 方案进行身份验证。
             headers={"WWW-Authenticate": "Bearer"},
         )
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: AsyncSession = Depends(get_db)
 ) -> dict:
+    # credentials 包含 token 和 scheme（如 Bearer）
     token = credentials.credentials
+
     payload = decode_token(token)
+    # 从 payload 中获取用户名（通常在 "sub" 字段中）
     username: str = payload.get("sub")
     if username is None:
         raise HTTPException(
@@ -64,4 +67,8 @@ async def get_current_user(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return {"username": username, "user_id": payload.get("user_id"), "role": payload.get("role")}
+    return {
+        "username": username,
+        "user_id": payload.get("user_id"),
+        "role": payload.get("role")
+    }

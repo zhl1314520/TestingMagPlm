@@ -41,7 +41,7 @@ api.interceptors.response.use(
   // 参数1：成功回调函数，接受后端 response 
   (response) => response,
 
-  // 
+  // 错误回调函数
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token')

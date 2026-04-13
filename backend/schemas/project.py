@@ -7,9 +7,9 @@ class ProjectResponse(BaseModel):
     id: int
     name: str
     description: str
-    owner_id: int
     created_at: datetime
     updated_at: datetime
+    owner_id: int  # 外键
 
     class Config:
         from_attributes = True

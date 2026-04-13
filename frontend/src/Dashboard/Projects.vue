@@ -27,7 +27,43 @@
         </div>
       </div>
 
-      <div v-if="projects.length === 0" class="empty-state">
+      <div class="search-section">
+        <div class="search-bar">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input 
+            v-model="searchQuery" 
+            type="text" 
+            placeholder="搜索项目名称或描述..."
+            class="search-input"
+          />
+          <button v-if="searchQuery" @click="searchQuery = ''" class="search-clear">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="project-count">
+          <span class="count-number">{{ filteredProjects.length }}</span>
+          <span class="count-label">个项目</span>
+        </div>
+      </div>
+
+      <div v-if="filteredProjects.length === 0 && projects.length > 0" class="empty-search">
+        <div class="empty-search-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <h3>未找到匹配项目</h3>
+        <p>尝试使用其他关键词搜索</p>
+      </div>
+
+      <div v-else-if="projects.length === 0" class="empty-state">
         <div class="empty-visual">
           <div class="empty-icon-wrapper">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -51,7 +87,7 @@
 
       <div v-else class="projects-grid">
         <article
-          v-for="(project, index) in projects"
+          v-for="(project, index) in filteredProjects"
           :key="project.id"
           class="project-card"
           :class="`card-theme-${(index % 4) + 1}`"
@@ -389,6 +425,7 @@ import { ref, onMounted, computed } from 'vue'
 import { projectAPI } from '../api/index.js'
 
 const projects = ref([])
+const searchQuery = ref('')
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const showDetailModal = ref(false)
@@ -398,6 +435,17 @@ const userInfo = ref(null)
 
 const canCreateProject = computed(() => {
   return userInfo.value && userInfo.value.role !== 'tester'
+})
+
+const filteredProjects = computed(() => {
+  if (!searchQuery.value.trim()) {
+    return projects.value
+  }
+  const query = searchQuery.value.toLowerCase().trim()
+  return projects.value.filter(project => 
+    project.name.toLowerCase().includes(query) ||
+    (project.description && project.description.toLowerCase().includes(query))
+  )
 })
 
 const newProject = ref({
@@ -433,7 +481,7 @@ onMounted(async () => {
 
 const loadProjects = async () => {
   try {
-    const response = await projectAPI.getList()
+    const response = await projectAPI.getList(1, 100)
     projects.value = response.data.items
   } catch (error) {
     console.error('加载项目列表失败:', error)
@@ -670,10 +718,129 @@ const formatDate = (dateString) => {
   border-color: transparent;
 }
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+.search-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg) var(--space-xl);
+  background: white;
+  border-bottom: 1px solid rgba(232, 93, 4, 0.08);
   gap: var(--space-lg);
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 400px;
+  background: rgba(232, 93, 4, 0.04);
+  border: 2px solid rgba(232, 93, 4, 0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.search-bar:focus-within {
+  border-color: var(--ember-core);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(232, 93, 4, 0.1);
+}
+
+.search-icon {
+  color: var(--ink-soft);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0 var(--space-sm);
+  font-size: 0.95rem;
+  color: var(--ink-primary);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--ink-muted);
+}
+
+.search-clear {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: rgba(232, 93, 4, 0.1);
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease-smooth);
+  flex-shrink: 0;
+}
+
+.search-clear:hover {
+  background: var(--ember-core);
+  color: white;
+}
+
+.project-count {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.08), rgba(250, 163, 7, 0.06));
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(232, 93, 4, 0.12);
+}
+
+.count-number {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--ember-core);
+}
+
+.count-label {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.empty-search {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-xl);
+}
+
+.empty-search-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(232, 93, 4, 0.08), rgba(250, 163, 7, 0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ember-core);
+}
+
+.empty-search h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.empty-search p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.projects-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
   padding: var(--space-xl);
 }
 
@@ -685,33 +852,40 @@ const formatDate = (dateString) => {
   cursor: pointer;
   border: 1px solid rgba(232, 93, 4, 0.08);
   transition: transform 0.3s var(--ease-bounce), box-shadow 0.3s var(--ease-smooth);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
 }
 
 .project-card:hover {
-  transform: translateY(-6px) scale(1.02);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
 
 .card-accent-bar {
-  height: 4px;
-  background: linear-gradient(90deg, var(--ember-core), var(--ember-soft));
+  width: 6px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--ember-core), var(--ember-soft));
 }
 
-.card-theme-1 .card-accent-bar { background: linear-gradient(90deg, var(--ember-core), var(--ember-soft)); }
-.card-theme-2 .card-accent-bar { background: linear-gradient(90deg, var(--teal-primary), var(--teal-bright)); }
-.card-theme-3 .card-accent-bar { background: linear-gradient(90deg, var(--coral-primary), var(--coral-bright)); }
-.card-theme-4 .card-accent-bar { background: linear-gradient(90deg, var(--forest-primary), var(--forest-bright)); }
+.card-theme-1 .card-accent-bar { background: linear-gradient(180deg, var(--ember-core), var(--ember-soft)); }
+.card-theme-2 .card-accent-bar { background: linear-gradient(180deg, var(--teal-primary), var(--teal-bright)); }
+.card-theme-3 .card-accent-bar { background: linear-gradient(180deg, var(--coral-primary), var(--coral-bright)); }
+.card-theme-4 .card-accent-bar { background: linear-gradient(180deg, var(--forest-primary), var(--forest-bright)); }
 
 .card-header {
   padding: var(--space-lg);
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 80px;
 }
 
 .project-icon {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -726,15 +900,20 @@ const formatDate = (dateString) => {
 .card-theme-4 .project-icon { background: linear-gradient(135deg, var(--forest-deep), var(--forest-bright)); }
 
 .status-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--forest-bright);
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
 }
 
 .card-body {
-  padding: 0 var(--space-lg) var(--space-lg);
+  padding: var(--space-lg);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 }
 
 .project-name {
@@ -756,8 +935,9 @@ const formatDate = (dateString) => {
 }
 
 .project-meta {
-  padding-top: var(--space-md);
-  border-top: 1px solid rgba(232, 93, 4, 0.08);
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
 }
 
 .meta-item {
@@ -773,15 +953,18 @@ const formatDate = (dateString) => {
 }
 
 .card-footer {
-  padding: var(--space-md) var(--space-lg);
-  background: linear-gradient(180deg, rgba(232, 93, 4, 0.02), rgba(250, 163, 7, 0.01));
-  border-top: 1px solid rgba(232, 93, 4, 0.06);
+  padding: var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid rgba(232, 93, 4, 0.08);
+  background: linear-gradient(90deg, rgba(232, 93, 4, 0.02), rgba(250, 163, 7, 0.01));
 }
 
 .action-buttons {
   display: flex;
+  flex-direction: column;
   gap: var(--space-sm);
-  justify-content: flex-end;
 }
 
 .btn-action {
@@ -1348,10 +1531,58 @@ const formatDate = (dateString) => {
     font-size: 1.5rem;
   }
 
+  .search-section {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .search-bar {
+    max-width: none;
+  }
+
+  .project-count {
+    justify-content: center;
+  }
+
   .projects-grid {
-    grid-template-columns: 1fr;
     padding: var(--space-lg);
-    gap: var(--space-md);
+    gap: var(--space-sm);
+  }
+
+  .project-card {
+    flex-direction: column;
+  }
+
+  .card-accent-bar {
+    width: 100%;
+    height: 4px;
+  }
+
+  .card-theme-1 .card-accent-bar { background: linear-gradient(90deg, var(--ember-core), var(--ember-soft)); }
+  .card-theme-2 .card-accent-bar { background: linear-gradient(90deg, var(--teal-primary), var(--teal-bright)); }
+  .card-theme-3 .card-accent-bar { background: linear-gradient(90deg, var(--coral-primary), var(--coral-bright)); }
+  .card-theme-4 .card-accent-bar { background: linear-gradient(90deg, var(--forest-primary), var(--forest-bright)); }
+
+  .card-header {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .card-body {
+    padding: 0 var(--space-lg) var(--space-md);
+  }
+
+  .card-footer {
+    border-left: none;
+    border-top: 1px solid rgba(232, 93, 4, 0.08);
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .action-buttons {
+    flex-direction: row;
+    justify-content: flex-end;
   }
 
   .modal-overlay {
