@@ -649,6 +649,9 @@ const logout = () => {
   z-index: 1000;
   border-bottom: 1px solid rgba(232, 93, 4, 0.08);
   overflow: visible;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .nav-container {
