@@ -21,8 +21,8 @@ class ProjectCreate(BaseModel):
 
 
 class ProjectUpdate(BaseModel):
-    name: str | None = None
-    description: str | None = None
+    name: str
+    description: str
 
 
 class ProjectMemberResponse(BaseModel):

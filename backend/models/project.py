@@ -64,3 +64,12 @@ class Project(Base):
         default=None,
         comment="软删除时间"
     )
+
+
+    # Debug
+    def __repr__(self):
+        return (
+            f"<Project id={self.id} "
+            f"name='{self.name}' "
+            f"owner_id={self.owner_id}>"
+        )

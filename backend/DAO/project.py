@@ -9,7 +9,7 @@ async def get_project_by_name(name: str, db: AsyncSession):
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
-
+# update
 async def get_project_by_id(project_id: int, db: AsyncSession):
     stmt = select(Project).where(Project.id == project_id)
     result = await db.execute(stmt)
@@ -90,7 +90,7 @@ async def update_project(project_id: int, update_data: dict, db: AsyncSession):
         return None
     for key, value in update_data.items():
         if value is not None:
-            setattr(project, key, value)
+            setattr(project, key, value)        # 动态设置对象属性
     await db.flush()
     return project
 

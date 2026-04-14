@@ -70,19 +70,21 @@ async def update_project(project_id: int, update_data: ProjectUpdate, db: AsyncS
         logger.warning("项目不存在: project_id=%s", project_id)
         raise HTTPException(
             status_code=404,
-            detail="PROJECT_NOT_FOUND"
+            detail="项目不存在"
         )
 
+    # 更新时，项目的名称不能重复
     if update_data.name:
         existing = await crud.get_project_by_name(update_data.name, db)
         if existing and existing.id != project_id:
+            # existing.id != project_id：确保同名项目 不是 当前正在编辑的项目，若没有这个判断->导致用户在不修改名称的情况下无法保存项目
             logger.warning("项目名称已存在: name=%s", update_data.name)
             raise HTTPException(
                 status_code=400,
-                detail="PROJECT_NAME_ALREADY_EXISTS"
+                detail="项目名已经存在"
             )
 
-    update_dict = update_data.model_dump(exclude_unset=True)
+    update_dict = update_data.model_dump(exclude_unset=True)    # 模型对象->字典，exclude_unset=True 只包含前端传过来的字段
 
     update_dict["updated_at"] = datetime.now()  # 手动设置更新时间
 
