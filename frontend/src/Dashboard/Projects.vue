@@ -582,6 +582,7 @@ const updateProject = async () => {
   }
 }
 
+// 项目详情页
 const viewProject = (projectId) => {
   const project = projects.value.find(p => p.id === projectId)
   if (project) {
