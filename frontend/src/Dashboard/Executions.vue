@@ -32,7 +32,7 @@
         <div class="filter-group">
           <div class="filter-label-row">
             <label class="filter-label">
-              <span class="filter-icon">📁</span>
+              <Icon class="filter-icon" icon="carbon:folder" />
               项目
             </label>
             <div class="project-search-wrapper">
@@ -63,7 +63,9 @@
     </div>
 
     <div v-if="executions.length === 0" class="empty-state">
-      <div class="empty-icon">🎬</div>
+      <div class="empty-icon">
+        <Icon icon="carbon:play-outline" width="80" height="80" />
+      </div>
       <h3>暂无执行记录</h3>
       <p>创建第一个测试执行来开始运行测试</p>
       <button @click="showCreateModal = true" class="btn-primary">创建执行</button>
@@ -75,7 +77,7 @@
         <div class="card-header">
           <div class="execution-icon">
             <span class="icon-ring"></span>
-            <span class="icon-emoji">{{ execution.type === 'auto' ? '🤖' : '👤' }}</span>
+            <Icon class="icon-emoji" :icon="execution.type === 'auto' ? 'carbon:ibm-watsonx' : 'carbon:user'" />
           </div>
           <div class="execution-status" :class="execution.status">
             <span class="status-dot"></span>
@@ -88,12 +90,12 @@
           
           <div class="execution-meta">
             <div class="meta-item">
-              <span class="meta-icon">📁</span>
+              <Icon class="meta-icon" icon="carbon:folder" />
               <span class="meta-label">项目</span>
               <span class="meta-value project-name">项目：{{ execution.project_name || '未知项目' }}</span>
             </div>
             <div class="meta-item">
-              <span class="meta-icon">🏷️</span>
+              <Icon class="meta-icon" icon="carbon:tag" />
               <span class="meta-label">类型</span>
               <span class="meta-value type-badge">{{ execution.type }}</span>
             </div>
@@ -121,7 +123,7 @@
 
           <div v-if="execution.result" class="execution-result">
             <div class="result-label">
-              <span class="label-icon">📊</span>
+              <Icon class="label-icon" icon="carbon:chart-bar" />
               执行结果
             </div>
             <pre class="result-content">{{ formatResult(execution.result) }}</pre>
@@ -134,19 +136,19 @@
             @click="runExecution(execution.id)" 
             class="btn-run"
           >
-            <span class="run-icon">▶️</span>
+            <Icon class="run-icon" icon="carbon:play-filled" />
             运行
           </button>
           <button @click="editExecution(execution)" class="btn-view">
-            <span class="view-icon">✏️</span>
+            <Icon class="view-icon" icon="carbon:edit" />
             修改
           </button>
           <button @click="showPassRate(execution)" class="btn-pass-rate">
-            <span class="pass-rate-icon">📊</span>
+            <Icon class="pass-rate-icon" icon="carbon:chart-bar" />
             通过率
           </button>
           <button @click="deleteExecution(execution.id)" class="btn-delete">
-            <span class="delete-icon">🗑</span>
+            <Icon class="delete-icon" icon="carbon:trash-can" />
             删除
           </button>
         </div>
@@ -158,7 +160,7 @@
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <div class="modal-title">
-              <span class="modal-icon">🎯</span>
+              <Icon class="modal-icon" icon="carbon:target" />
               <h2>创建测试执行</h2>
             </div>
             <button @click="showCreateModal = false" class="btn-close">×</button>
@@ -167,7 +169,7 @@
           <form @submit.prevent="createExecution" class="modal-body">
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📁</span>
+                <Icon class="label-icon" icon="carbon:folder" />
                 选择项目
               </label>
               <select v-model="executionForm.project_id" required class="form-select">
@@ -180,7 +182,7 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📝</span>
+                <Icon class="label-icon" icon="carbon:text-creation" />
                 执行名称
               </label>
               <input 
@@ -194,7 +196,7 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">⚙️</span>
+                <Icon class="label-icon" icon="carbon:settings" />
                 执行类型
               </label>
               <div class="type-selector">
@@ -203,7 +205,7 @@
                   @click="executionForm.type = '手动执行'"
                   :class="['type-option', { active: executionForm.type === '手动执行' }]"
                 >
-                  <span class="type-icon">👤</span>
+                  <Icon class="type-icon" icon="carbon:user" />
                   <span class="type-label">手动执行</span>
                 </button>
                 <button
@@ -211,7 +213,7 @@
                   @click="executionForm.type = '自动化执行'"
                   :class="['type-option', { active: executionForm.type === '自动化执行' }]"
                 >
-                  <span class="type-icon">🤖</span>
+                  <Icon class="type-icon" icon="carbon:ibm-watsonx" />
                   <span class="type-label">自动执行</span>
                 </button>
               </div>
@@ -219,7 +221,7 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📊</span>
+                <Icon class="label-icon" icon="carbon:chart-bar" />
                 执行状态
               </label>
               <select v-model="executionForm.status" class="form-select">
@@ -233,7 +235,7 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📝</span>
+                <Icon class="label-icon" icon="carbon:text-creation" />
                 执行结果 <span class="required-mark">*</span>
               </label>
               <textarea 
@@ -262,7 +264,7 @@
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <div class="modal-title">
-              <span class="modal-icon">✏️</span>
+              <Icon class="modal-icon" icon="carbon:edit" />
               <h2>修改测试执行</h2>
             </div>
             <button @click="showEditModal = false" class="btn-close">×</button>
@@ -271,7 +273,7 @@
           <form @submit.prevent="updateExecution" class="modal-body">
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📝</span>
+                <Icon class="label-icon" icon="carbon:text-creation" />
                 执行名称
               </label>
               <input 
@@ -285,7 +287,7 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">⚙️</span>
+                <Icon class="label-icon" icon="carbon:settings" />
                 执行类型
               </label>
               <div class="type-selector">
@@ -294,7 +296,7 @@
                   @click="editForm.type = '手动执行'"
                   :class="['type-option', { active: editForm.type === '手动执行' }]"
                 >
-                  <span class="type-icon">👤</span>
+                  <Icon class="type-icon" icon="carbon:user" />
                   <span class="type-label">手动执行</span>
                 </button>
                 <button
@@ -302,7 +304,7 @@
                   @click="editForm.type = '自动化执行'"
                   :class="['type-option', { active: editForm.type === '自动化执行' }]"
                 >
-                  <span class="type-icon">🤖</span>
+                  <Icon class="type-icon" icon="carbon:ibm-watsonx" />
                   <span class="type-label">自动执行</span>
                 </button>
               </div>
@@ -310,7 +312,7 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📊</span>
+                <Icon class="label-icon" icon="carbon:chart-bar" />
                 执行状态
               </label>
               <select v-model="editForm.status" class="form-select">
@@ -324,7 +326,7 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📝</span>
+                <Icon class="label-icon" icon="carbon:text-creation" />
                 执行结果 <span class="required-mark">*</span>
               </label>
               <textarea 
@@ -353,7 +355,7 @@
         <div class="modal-container pass-rate-modal" @click.stop>
           <div class="modal-header">
             <div class="modal-title">
-              <span class="modal-icon">📊</span>
+              <Icon class="modal-icon" icon="carbon:chart-bar" />
               <h2>执行通过率统计</h2>
             </div>
             <button @click="showPassRateModal = false" class="btn-close">×</button>
@@ -447,6 +449,7 @@
 
 <script setup>
 import { ref, onMounted, computed, nextTick } from 'vue'
+import { Icon } from '@iconify/vue'
 import { executionAPI, projectAPI } from '../api/index.js'
 import { Chart, registerables } from 'chart.js'
 
@@ -931,7 +934,9 @@ const showPassRate = async (execution) => {
 }
 
 .filter-icon {
-  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #374151;
 }
 
 .filter-select {
@@ -1091,9 +1096,11 @@ const showPassRate = async (execution) => {
 }
 
 .icon-emoji {
-  font-size: 1.6rem;
+  width: 1.6rem;
+  height: 1.6rem;
   position: relative;
   z-index: 1;
+  color: white;
 }
 
 .execution-status {
@@ -1164,7 +1171,9 @@ const showPassRate = async (execution) => {
 }
 
 .meta-icon {
-  font-size: 0.9rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  color: #6b7280;
 }
 
 .meta-label {
@@ -1224,7 +1233,9 @@ const showPassRate = async (execution) => {
 }
 
 .label-icon {
-  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  color: #6b7280;
 }
 
 .result-content {
@@ -1290,11 +1301,15 @@ const showPassRate = async (execution) => {
 }
 
 .view-icon {
-  font-size: 0.85rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  color: white;
 }
 
 .run-icon {
-  font-size: 0.85rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  color: white;
 }
 
 .btn-delete {
@@ -1319,11 +1334,15 @@ const showPassRate = async (execution) => {
 }
 
 .pass-rate-icon {
-  font-size: 0.85rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  color: white;
 }
 
 .delete-icon {
-  font-size: 0.85rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  color: #dc2626;
 }
 
 .empty-state {
@@ -1418,7 +1437,9 @@ const showPassRate = async (execution) => {
 }
 
 .modal-icon {
-  font-size: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #1f2937;
 }
 
 .modal-title h2 {
@@ -1472,7 +1493,9 @@ const showPassRate = async (execution) => {
 }
 
 .label-icon {
-  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #374151;
 }
 
 .form-input,
@@ -1516,7 +1539,13 @@ const showPassRate = async (execution) => {
 }
 
 .type-option .type-icon {
-  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  color: #6b7280;
+}
+
+.type-option.active .type-icon {
+  color: #667eea;
 }
 
 .type-option .type-label {

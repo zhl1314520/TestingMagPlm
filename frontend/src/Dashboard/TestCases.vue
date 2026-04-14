@@ -443,7 +443,7 @@
       <div v-if="confirmDialog.show" class="confirm-overlay" @click="cancelConfirm">
         <div class="confirm-container" @click.stop>
           <div class="confirm-icon">
-            <span>⚠️</span>
+            <Icon icon="carbon:warning" width="32" height="32" />
           </div>
           <div class="confirm-content">
             <h3 class="confirm-title">确认删除</h3>
@@ -462,6 +462,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { Icon } from '@iconify/vue'
 import { testcaseAPI, projectAPI } from '../api/index.js'
 
 const testcases = ref([])
@@ -516,10 +517,10 @@ const priorityOptions = [
 ]
 
 const statusMap = {
-  '草稿': { text: '草稿', icon: '📝' },
-  '有效': { text: '有效', icon: '✅' },
-  '已弃用': { text: '已弃用', icon: '❌' },
-  '阻塞': { text: '阻塞', icon: '🚫' }
+  '草稿': { text: '草稿', icon: 'carbon:document' },
+  '有效': { text: '有效', icon: 'carbon:checkmark' },
+  '已弃用': { text: '已弃用', icon: 'carbon:close' },
+  '阻塞': { text: '阻塞', icon: 'carbon:blocked' }
 }
 
 const filteredProjects = computed(() => {

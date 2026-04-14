@@ -34,7 +34,7 @@
         <div class="filter-group">
           <div class="filter-label-row">
             <label class="filter-label">
-              <span class="filter-icon">📁</span>
+              <Icon class="filter-icon" icon="carbon:folder" />
               项目
             </label>
             <div class="project-search-wrapper">
@@ -57,7 +57,7 @@
 
         <div class="filter-group">
           <label class="filter-label">
-            <span class="filter-icon">✅</span>
+            <Icon class="filter-icon" icon="carbon:checkmark" />
             状态
           </label>
           <select v-model="filters.status" @change="loadBugs" class="filter-select">
@@ -72,7 +72,7 @@
 
         <div class="filter-group">
           <label class="filter-label">
-            <span class="filter-icon">🔥</span>
+            <Icon class="filter-icon" icon="carbon:fire" />
             优先级
           </label>
           <select v-model="filters.priority" @change="loadBugs" class="filter-select">
@@ -94,7 +94,9 @@
     </div>
 
     <div v-if="bugs.length === 0" class="empty-state">
-      <div class="empty-icon">🔍</div>
+      <div class="empty-icon">
+        <Icon icon="carbon:search" width="80" height="80" />
+      </div>
       <h3>暂无缺陷</h3>
       <p>太棒了！目前没有发现任何缺陷</p>
       <button @click="showCreateModal = true" class="btn-primary">报告缺陷</button>
@@ -117,27 +119,27 @@
 
           <div class="bug-meta">
             <div class="meta-item">
-              <span class="meta-icon">📁</span>
+              <Icon class="meta-icon" icon="carbon:folder" />
               <span class="meta-label">项目</span>
               <span class="meta-value project-name">项目：{{ bug.project_name || '未知项目' }}</span>
             </div>
             <div class="meta-item">
-              <span class="meta-icon">🔥</span>
+              <Icon class="meta-icon" icon="carbon:fire" />
               <span class="meta-label">优先级</span>
               <span class="priority-badge" :class="bug.priority">{{ getPriorityText(bug.priority) }}</span>
             </div>
             <div v-if="bug.testcase_id" class="meta-item">
-              <span class="meta-icon">📋</span>
+              <Icon class="meta-icon" icon="carbon:list-checked" />
               <span class="meta-label">测试用例</span>
               <span class="meta-value">#{{ bug.testcase_id }}</span>
             </div>
             <div v-if="bug.reporter_name" class="meta-item">
-              <span class="meta-icon">👤</span>
+              <Icon class="meta-icon" icon="carbon:user" />
               <span class="meta-label">报告者</span>
               <span class="meta-value">{{ bug.reporter_name }}</span>
             </div>
             <div v-if="bug.assignee_name" class="meta-item">
-              <span class="meta-icon">🔧</span>
+              <Icon class="meta-icon" icon="carbon:tools" />
               <span class="meta-label">指派给</span>
               <span class="meta-value">{{ bug.assignee_name }}</span>
             </div>
@@ -168,10 +170,10 @@
           <div class="bug-id">#{{ bug.id }}</div>
           <div class="action-buttons" @click.stop>
             <button @click="editBug(bug)" class="btn-edit" title="编辑">
-              <span>✏️</span>
+              <Icon icon="carbon:edit" width="16" height="16" />
             </button>
             <button @click="deleteBug(bug.id)" class="btn-delete" title="删除">
-              <span>🗑</span>
+              <Icon icon="carbon:trash-can" width="16" height="16" />
             </button>
           </div>
         </div>
@@ -183,7 +185,7 @@
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <div class="modal-title">
-              <span class="modal-icon">{{ editingBug ? '✏️' : '🐛' }}</span>
+              <Icon class="modal-icon" :icon="editingBug ? 'carbon:edit' : 'carbon:bug'" />
               <h2>{{ editingBug ? '编辑缺陷' : '报告新缺陷' }}</h2>
             </div>
             <button @click="closeModal" class="btn-close">×</button>
@@ -192,7 +194,7 @@
           <form @submit.prevent="saveBug" class="modal-body">
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📁</span>
+                <Icon class="label-icon" icon="carbon:folder" />
                 所属项目
               </label>
               <select v-model="bugForm.project_id" required class="form-select">
@@ -205,7 +207,7 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📝</span>
+                <Icon class="label-icon" icon="carbon:text-creation" />
                 缺陷标题
               </label>
               <input
@@ -219,7 +221,7 @@
 
             <div class="form-group">
               <label class="form-label">
-                <span class="label-icon">📄</span>
+                <Icon class="label-icon" icon="carbon:document" />
                 详细描述
               </label>
               <textarea
@@ -234,7 +236,7 @@
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">✅</span>
+                  <Icon class="label-icon" icon="carbon:checkmark" />
                   状态
                 </label>
                 <select v-model="bugForm.status" class="form-select">
@@ -248,7 +250,7 @@
 
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">🔥</span>
+                  <Icon class="label-icon" icon="carbon:fire" />
                   优先级
                 </label>
                 <div class="priority-selector">
@@ -268,7 +270,7 @@
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">🔧</span>
+                  <Icon class="label-icon" icon="carbon:tools" />
                   指派给
                 </label>
                 <select v-model="bugForm.assignee_id" class="form-select">
@@ -281,7 +283,7 @@
 
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-icon">📋</span>
+                  <Icon class="label-icon" icon="carbon:list-checked" />
                   关联测试用例
                 </label>
                 <select v-model="bugForm.testcase_id" class="form-select">
@@ -326,7 +328,7 @@
       <div v-if="confirmDialog.show" class="confirm-overlay" @click="cancelConfirm">
         <div class="confirm-container" @click.stop>
           <div class="confirm-icon">
-            <span>⚠️</span>
+            <Icon icon="carbon:warning" width="32" height="32" />
           </div>
           <div class="confirm-content">
             <h3 class="confirm-title">确认删除</h3>
@@ -345,6 +347,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { Icon } from '@iconify/vue'
 import { bugAPI, projectAPI, userAPI, testcaseAPI } from '../api/index.js'
 
 const bugs = ref([])
@@ -769,7 +772,9 @@ const getPriorityText = (priority) => {
 }
 
 .filter-icon {
-  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #374151;
 }
 
 .filter-select {
@@ -1002,7 +1007,9 @@ const getPriorityText = (priority) => {
 }
 
 .meta-icon {
-  font-size: 0.9rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  color: #6b7280;
 }
 
 .meta-label {
@@ -1218,7 +1225,9 @@ const getPriorityText = (priority) => {
 }
 
 .modal-icon {
-  font-size: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #1f2937;
 }
 
 .modal-title h2 {
@@ -1272,7 +1281,9 @@ const getPriorityText = (priority) => {
 }
 
 .label-icon {
-  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #374151;
 }
 
 .form-input,
