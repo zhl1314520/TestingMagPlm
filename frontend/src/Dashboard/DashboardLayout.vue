@@ -644,8 +644,11 @@ const logout = () => {
 }
 
 .navbar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 1000;
   border-bottom: 1px solid rgba(232, 93, 4, 0.08);
   overflow: visible;
@@ -1261,6 +1264,7 @@ const logout = () => {
 
 .main-content {
   padding: var(--space-xl) 0;
+  padding-top: calc(72px + var(--space-xl));
   min-height: calc(100vh - 72px);
   position: relative;
   z-index: 1;
