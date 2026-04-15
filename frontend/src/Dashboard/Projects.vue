@@ -96,7 +96,7 @@
           <div class="card-accent-bar"></div>
           
           <div class="card-header">
-            <div class="project-icon">
+            <div class="project-icon glass-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
               </svg>
@@ -891,14 +891,27 @@ const formatDate = (dateString) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: var(--shadow-md);
+  transition: all 0.3s var(--ease-smooth);
 }
 
-.card-theme-1 .project-icon { background: linear-gradient(135deg, var(--ember-core), var(--ember-glow)); }
-.card-theme-2 .project-icon { background: linear-gradient(135deg, var(--teal-deep), var(--teal-bright)); }
-.card-theme-3 .project-icon { background: linear-gradient(135deg, var(--coral-deep), var(--coral-bright)); }
-.card-theme-4 .project-icon { background: linear-gradient(135deg, var(--forest-deep), var(--forest-bright)); }
+.card-theme-1 .project-icon.glass-icon,
+.card-theme-2 .project-icon.glass-icon,
+.card-theme-3 .project-icon.glass-icon,
+.card-theme-4 .project-icon.glass-icon {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ink-primary);
+}
+
+.card-theme-1:hover .project-icon.glass-icon,
+.card-theme-2:hover .project-icon.glass-icon,
+.card-theme-3:hover .project-icon.glass-icon,
+.card-theme-4:hover .project-icon.glass-icon {
+  background: rgba(255, 255, 255, 0.2);
+}
 
 .status-dot {
   width: 8px;
