@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 import logging
 import json
-import random
 from schemas.execution import ExecutionCreate, ExecutionUpdate, ExecutionPageResponse
 from models.execution import Execution
 from DAO import execution as crud
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 async def create_execution(execution_data: ExecutionCreate, user_id: int, db: AsyncSession):
-    logger.info("创建测试执行: project_id=%s, name=%s, type=%s, user_id=%s", 
+    logger.info("创建测试执行：project_id=%s, name=%s, type=%s, user_id=%s", 
                 execution_data.project_id, execution_data.name, execution_data.type, user_id)
 
     new_execution = Execution(
@@ -33,7 +32,7 @@ async def create_execution(execution_data: ExecutionCreate, user_id: int, db: As
     await db.commit()
     await db.refresh(new_execution)
 
-    logger.info("测试执行创建成功: id=%s", new_execution.id)
+    logger.info("测试执行创建成功：id=%s", new_execution.id)
     return new_execution
 
 
@@ -117,7 +116,7 @@ async def update_execution(execution_id: int, execution_data: ExecutionUpdate, d
     await db.commit()
     await db.refresh(execution)
     
-    logger.info("更新测试执行成功: id=%s", execution_id)
+    logger.info("更新测试执行成功：id=%s", execution_id)
     return execution
 
 
@@ -135,99 +134,3 @@ async def delete_execution(execution_id: int, db: AsyncSession):
         "code": 200,
         "message": "删除成功"
     }
-
-
-async def run_execution(execution_id: int, db: AsyncSession):
-    execution = await crud.get_execution_by_id(execution_id, db)
-    if not execution:
-        raise HTTPException(
-            status_code=404,
-            detail="EXECUTION_NOT_FOUND"
-        )
-    
-    if execution.status == "执行中":
-        raise HTTPException(
-            status_code=400,
-            detail="EXECUTION_ALREADY_RUNNING"
-        )
-    
-    execution.status = "执行中"
-    execution.updated_at = datetime.now()
-    await db.commit()
-    
-    logger.info("开始执行测试: execution_id=%s, project_id=%s", execution_id, execution.project_id)
-    
-    try:
-        total_testcases, testcases = await testcase_crud.get_testcase_list(
-            page=1,
-            page_size=1000,
-            project_id=execution.project_id,
-            status="有效",
-            db=db
-        )
-        
-        total = len(testcases)
-        if total == 0:
-            execution.total_cases = 0
-            execution.passed_cases = 0
-            execution.failed_cases = 0
-            execution.pass_rate = 0.00
-            result = {
-                "total": 0,
-                "passed": 0,
-                "failed": 0,
-                "skipped": 0,
-                "pass_rate": 0,
-                "message": "该项目没有有效的测试用例"
-            }
-        else:
-            passed = 0
-            failed = 0
-            skipped = 0
-            
-            for testcase in testcases:
-                rand = random.random()
-                if rand < 0.75:
-                    passed += 1
-                elif rand < 0.95:
-                    failed += 1
-                else:
-                    skipped += 1
-            
-            pass_rate = round(passed / total, 2) if total > 0 else 0
-            
-            execution.total_cases = total
-            execution.passed_cases = passed
-            execution.failed_cases = failed
-            execution.pass_rate = pass_rate
-            
-            result = {
-                "total": total,
-                "passed": passed,
-                "failed": failed,
-                "skipped": skipped,
-                "pass_rate": pass_rate,
-                "execution_type": execution.type
-            }
-        
-        execution.status = "已完成"
-        execution.result = json.dumps(result, ensure_ascii=False)
-        execution.updated_at = datetime.now()
-        await db.commit()
-        await db.refresh(execution)
-        
-        logger.info("测试执行完成: execution_id=%s, result=%s", execution_id, result)
-        
-    except Exception as e:
-        logger.error("测试执行失败: execution_id=%s, error=%s", execution_id, str(e))
-        execution.status = "失败"
-        execution.result = json.dumps({"error": str(e)}, ensure_ascii=False)
-        execution.updated_at = datetime.now()
-        await db.commit()
-        await db.refresh(execution)
-        raise HTTPException(
-            status_code=500,
-            detail=f"测试执行失败: {str(e)}"
-        )
-    
-    return execution

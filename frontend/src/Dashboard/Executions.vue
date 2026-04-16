@@ -131,14 +131,6 @@
         </div>
 
         <div class="card-footer">
-          <button 
-            v-if="execution.status === '等待中'" 
-            @click="runExecution(execution.id)" 
-            class="btn-run"
-          >
-            <Icon class="run-icon" icon="carbon:play-filled" />
-            运行
-          </button>
           <button @click="editExecution(execution)" class="btn-view">
             <Icon class="view-icon" icon="carbon:edit" />
             修改
@@ -571,17 +563,6 @@ const createExecution = async () => {
     showToast('error', '错误', '创建执行失败')
   } finally {
     loading.value = false
-  }
-}
-
-const runExecution = async (id) => {
-  try {
-    await executionAPI.run(id)
-    await loadExecutions()
-    showToast('success', '成功', '运行成功！')
-  } catch (error) {
-    console.error('运行执行失败:', error)
-    showToast('error', '错误', '运行执行失败')
   }
 }
 
@@ -1260,7 +1241,6 @@ const showPassRate = async (execution) => {
   gap: 8px;
 }
 
-.btn-run,
 .btn-view,
 .btn-pass-rate,
 .btn-delete {
@@ -1278,17 +1258,6 @@ const showPassRate = async (execution) => {
   transition: all 0.3s;
 }
 
-.btn-run {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-}
-
-.btn-run:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-}
-
 .btn-view {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
@@ -1298,18 +1267,6 @@ const showPassRate = async (execution) => {
 .btn-view:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
-}
-
-.view-icon {
-  width: 0.85rem;
-  height: 0.85rem;
-  color: white;
-}
-
-.run-icon {
-  width: 0.85rem;
-  height: 0.85rem;
-  color: white;
 }
 
 .btn-delete {

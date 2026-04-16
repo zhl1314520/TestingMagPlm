@@ -6,18 +6,18 @@ from pydantic import BaseModel, Field
 class BugResponse(BaseModel):
     id: int
     project_id: int
-    project_name: str | None = None
+    project_name: str
     testcase_id: int | None
     title: str
     description: str
     status: str
     priority: str
     reporter_id: int
-    reporter_name: str | None = None
+    reporter_name: str
     assignee_id: int | None
     assignee_name: str | None = None
     created_at: datetime
-    updated_at: datetime | None
+    updated_at: datetime
 
     class Config:
         from_attributes = True

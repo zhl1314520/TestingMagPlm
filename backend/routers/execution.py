@@ -48,14 +48,6 @@ async def update_execution(
     return await service.update_execution(id, execution_info, db)
 
 
-@router.post("/{id}/run", response_model=ExecutionResponse)
-async def run_execution(
-    id: int,
-    db: AsyncSession = Depends(get_db)
-):
-    return await service.run_execution(id, db)
-
-
 @router.delete("/{id}")
 async def delete_execution(
     id: int,

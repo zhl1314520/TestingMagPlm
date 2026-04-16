@@ -96,7 +96,6 @@ export const executionAPI = {
   get: (id) => api.get(`/executions/${id}`),
   create: (data) => api.post('/executions', data),
   update: (id, data) => api.put(`/executions/${id}`, data),
-  run: (id) => api.post(`/executions/${id}/run`),
   delete: (id) => api.delete(`/executions/${id}`)
 }
 
