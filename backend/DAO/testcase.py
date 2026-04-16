@@ -17,7 +17,10 @@ async def create_testcase(testcase: TestCase, db: AsyncSession):
     return testcase
 
 
-async def get_testcase_list(page: int, page_size: int, project_id: int = None, module: str = None, status: str = None, created_by: int = None, db: AsyncSession = None):
+async def get_testcase_list(db: AsyncSession, created_by: int,
+                            page: int, page_size: int,
+                            project_id: int = None, module: str = None,status: str = None,
+                            ):
     count_stmt = select(func.count()).select_from(TestCase)
     
     conditions = []
@@ -27,8 +30,9 @@ async def get_testcase_list(page: int, page_size: int, project_id: int = None, m
         conditions.append(TestCase.module == module)
     if status:
         conditions.append(TestCase.status == status)
-    if created_by:
-        conditions.append(TestCase.created_by == created_by)
+
+    # 必选参数，直接添加到查询条件中
+    conditions.append(TestCase.created_by == created_by)
     
     if conditions:
         count_stmt = count_stmt.where(and_(*conditions))
@@ -44,15 +48,44 @@ async def get_testcase_list(page: int, page_size: int, project_id: int = None, m
     )
     
     if conditions:
+        # # 假设三个条件都有值，conditions 列表就是：
+        # # [
+        # #     TestCase.project_id == 1,
+        # #     TestCase.module == "登录模块",
+        # #     TestCase.status == "有效"
+        # # ]
+        # *conditions 解包 -> and_(1, "登录模块", "有效")
+        # and_(): 假如 用户传入 3 个条件，相当于 WHERE project_id = 1 AND module = '登录模块' AND status = '有效'
         stmt = stmt.where(and_(*conditions))
     
     result = await db.execute(stmt)
+    """
+    rows = [
+    # 第 1 行（索引 0）
+    (
+        TestCase 对象 (id=1, project_id=101, module='登录模块', title='用户登录测试', ...),     -> 假设是表 test_cases 中的一行数据
+        '电商平台'  # Project.name                                                           -> 假设是表 projects 中的一行数据，Project.name 列的值
+    ),
+    
+    # 第 2 行（索引 1）
+    (
+        TestCase 对象 (id=2, project_id=101, module='登录模块', title='密码验证测试', ...),
+        '电商平台'  # Project.name
+    ),
+    
+    # 第 3 行（索引 2）
+    (
+        TestCase 对象 (id=3, project_id=102, module='支付模块', title='支付流程测试', ...),
+        '支付系统'  # Project.name
+    )
+]
+    """
     rows = result.all()
     
     items = []
-    for row in rows:
+    for row in rows:    # rows：整个列表，row：元组
         testcase = row[0]
-        project_name = row[1] if row[1] else ""
+        project_name = row[1] if row[1] else ""     # 3元表达式 if row[1] -> project_name = row[1], else project_name = ""
         testcase_dict = {
             'id': testcase.id,
             'project_id': testcase.project_id,

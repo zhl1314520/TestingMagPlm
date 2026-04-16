@@ -24,7 +24,10 @@ async def create_execution(execution: Execution, db: AsyncSession):
     return execution
 
 
-async def get_execution_list(page: int, page_size: int, project_id: int = None, executed_by: int = None, db: AsyncSession = None):
+async def get_execution_list(page: int, db: AsyncSession,
+                             page_size: int, project_id: int = None, executed_by: int = None):
+    # select(字段) ：直接查询，SQLAlchemy 自动推断 FROM 哪个表
+    # select(字段).select_from(表) ：明确指定 FROM 哪个表，适用于聚合函数和复杂查询
     count_stmt = select(func.count()).select_from(Execution)
     
     conditions = []

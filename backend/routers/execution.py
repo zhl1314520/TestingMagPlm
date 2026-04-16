@@ -28,7 +28,7 @@ async def get_execution_list(
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    return await service.get_execution_list(page, page_size, project_id, current_user["user_id"], db)
+    return await service.get_execution_list(page, db, page_size, project_id, current_user["user_id"])
 
 
 @router.get("/{id}", response_model=ExecutionResponse)

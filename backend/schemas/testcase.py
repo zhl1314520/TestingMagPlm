@@ -32,12 +32,12 @@ class TestCaseCreate(BaseModel):
 
 
 class TestCaseUpdate(BaseModel):
-    module: str | None = None
-    title: str | None = None
-    steps: str | None = None
-    expected: str | None = None
-    status: str | None = None
-    priority: str | None = None
+    module: str
+    title: str
+    steps: str
+    expected: str
+    status: str
+    priority: str
 
 
 class TestCasePageResponse(BaseModel):

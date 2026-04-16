@@ -37,8 +37,9 @@ async def create_execution(execution_data: ExecutionCreate, user_id: int, db: As
     return new_execution
 
 
-async def get_execution_list(page: int, page_size: int, project_id: int = None, executed_by: int = None, db: AsyncSession = None):
-    total, items = await crud.get_execution_list(page, page_size, project_id, executed_by, db)
+async def get_execution_list(page: int, db: AsyncSession, page_size: int,
+                             project_id: int = None, executed_by: int = None):
+    total, items = await crud.get_execution_list(page, db, page_size, project_id, executed_by)
     
     execution_list = []
     for execution, project_name in items:
@@ -71,7 +72,7 @@ async def get_execution_detail(execution_id: int, db: AsyncSession):
     if not execution:
         raise HTTPException(
             status_code=404,
-            detail="EXECUTION_NOT_FOUND"
+            detail="执行不存在"
         )
     
     execution_dict = {
@@ -99,7 +100,7 @@ async def update_execution(execution_id: int, execution_data: ExecutionUpdate, d
     if not execution:
         raise HTTPException(
             status_code=404,
-            detail="EXECUTION_NOT_FOUND"
+            detail="执行不存在"
         )
     
     if execution_data.name is not None:
@@ -125,7 +126,7 @@ async def delete_execution(execution_id: int, db: AsyncSession):
     if not execution:
         raise HTTPException(
             status_code=404,
-            detail="EXECUTION_NOT_FOUND"
+            detail="执行不存在"
         )
     
     await crud.delete_execution(execution_id, db)

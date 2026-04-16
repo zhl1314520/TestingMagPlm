@@ -34,8 +34,9 @@ async def create_testcase(testcase_data: TestCaseCreate, user_id: int, db: Async
         raise HTTPException(status_code=400, detail=f"创建测试用例失败: {str(e)}")
 
 
-async def get_testcase_list(page: int, page_size: int, project_id: int = None, module: str = None, status: str = None, created_by: int = None, db: AsyncSession = None):
-    total, items = await crud.get_testcase_list(page, page_size, project_id, module, status, created_by, db)
+async def get_testcase_list(db: AsyncSession, created_by: int, page: int, page_size: int, project_id: int = None,
+                            module: str = None, status: str = None):
+    total, items = await crud.get_testcase_list(db, created_by, page, page_size, project_id, module, status)
     return TestCasePageResponse(
         total=total,
         items=items
@@ -47,7 +48,7 @@ async def delete_testcase(testcase_id: int, db: AsyncSession):
     if not testcase:
         raise HTTPException(
             status_code=404,
-            detail="TESTCASE_NOT_FOUND"
+            detail="测试用例不存在"
         )
     
     await crud.delete_testcase(testcase_id, db)
@@ -63,12 +64,12 @@ async def update_testcase(testcase_id: int, testcase_data: TestCaseUpdate, db: A
     if not testcase:
         raise HTTPException(
             status_code=404,
-            detail="TESTCASE_NOT_FOUND"
+            detail="该用例不存在"
         )
     
-    update_data = testcase_data.model_dump(exclude_unset=True)
+    update_data = testcase_data.model_dump(exclude_unset=True)  # 模型对象 -> dict
     for field, value in update_data.items():
-        setattr(testcase, field, value)
+        setattr(testcase, field, value) # 动态设置属性值
     
     await crud.update_testcase(testcase, db)
     await db.commit()
