@@ -32,10 +32,7 @@
         
         <div class="nav-actions">
           <div class="notification-bell">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAADLklEQVR4nO2ZW4hVVRjHf2vvfU7NOqPO5aQ5amqWmZaVZUVBQUFBRD9EQdAPRdEPvRQEvfRQD0EPvRRBEEHQAxH0QERB0AMR9EBEQdADvWQ6jjNzzj57r/W/6+29Z+8zOqfpmJn7w2Fm9157rbX/3/d961trbYEQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgjxv6HSbgCwEjgMjAKDwAdhGL5dXrXK0Q9cD4wAI8B7YRi+VV61ytEP3ASMAqPAu2EYvl1etcqxGrgFGAFGgHfCMHy7vGqVox+4FRgFRoB3wjB8u7xqlaMfuBUYBUaAt8MwfLu8apWjH7gNGAVGgLfCMHy7vGqVox+4HRgFRoC3wjB8u7xqlaMfuAMYBUaAN8MwfLu8apWjH7gLGAVGgDfCMHy7vGqVox+4ExgFRoA3wjB8u7xqlaMfuAsYBUaAN8IwfLu8apWjH7gbGAVGgNfDMHy7vGqVox+4BxgFRoDXwzB8u7xqlaMfuBcYBUaA18IwfLu8apWjH7gPGAVGgFfDMHy7vGqVox+4HxgFRoBXwzB8u7xqlaMfeAAYBUaAV8IwfLu8apWjH3gQGAVGgJfDMHy7vGqVox94EBgFRoAXwzB8u7xqlaMfeAgYBUaAF8IwfLu8apWjH3gYGAVGgOfDMHy7vGqVox94BBgFRoDnwzB8u7xqlaMfeAQYBUaA58IwfLu8apWjH3gUGAVGgGfDMHy7vGqVox94DBgFRoCnwzB8u7xqlaMfeBwYBUaAp8IwfLu8apWjH3gCGAVGgCfDMHy7vGqVox94EhgFRoAnwjB8u7xqlaMfeAoYBUaAx8MwfLu8apWjH3gaGAVGgMfCMHy7vGqVox94BhgFRoBHwzB8u7xqlaMfeA4YBUaAR8IwfLu8apWjH3geGAVGgIfDMHy7vGqVox94ARgFRoAHwzB8u7xqlaMfeBEYBUaAB8IwfLu8apWjH3gJGAVGgPvDMHy7vGqVox94GRgFRoB7wzB8u7xqlaMfeBkYBUaAu8MwfLu8apWjH3gFGAVGgDvDMHy7vGqVox94FRgFRoDbwzB8u7xqlaMfeBUYBUaAW8MwfLu8apWjH3gNGAVGgJvDMHy7vGqVox94HRgFRoAbwjB8u7xqlaMfeAMYBUaAG8IwfLu8apWjH3gTGAVGgOvDMHy7vGqVox94C5gFRoCrwzB8u7xqlaMfeBuYBUaAK8IwfLu8apWjH3gHmAVGgMvDMHy7vGqVox94F5gFRoDLwzB8u7xqlaMfeA+YBUaAS8IwfLu8apWjH/gAmAVGgIvDMHy7vGqVox/4EJgFRoDzwzB8u7xqlaMf+A+YBUaAc8MwfLu8apWjH/gImAVGgLPDMHy7vGqVox/4GJgFRoAzwzB8u7xqlaMf+ASYBUaAk8MwfLu8apWjH/gUmAVGgOPDMHy7vGqVox/4DJgFRoBjwzB8u7xqlaMf+BKYBUaAI8MwfLu8apWjH/gamAVGgMPDMHy7vGqVox/4BpgFRoBDwzB8u7xqlaMf+B6YBUaAH4dh+HZ51SpHP/AjMAuMAP8Bx+8c7QW1tN0AAAAASUVORK5CYII=" alt="Claude Logo" style="width: 20px; height: 20px;">
             <span class="notification-dot"></span>
           </div>
           

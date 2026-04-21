@@ -237,13 +237,14 @@
         </div>
 
         <div class="project-progress-list" v-if="projectProgress.length > 0">
+          <!-- 项目1 -->
           <div
             v-for="(project, index) in paginatedProjects"
             :key="project.project_id"
             class="project-progress-item"
           >
             <div class="project-header" @click="toggleProject(project.project_id)">
-              <div class="project-info">
+              <div class="project-info">    <!-- 点击展开 -->
                 <div class="project-name">
                   <span class="expand-icon" :class="{ expanded: expandedProjects.includes(project.project_id) }">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -476,6 +477,7 @@ const insightCards = computed(() => {
   const isGrowthPositive = (key) => insightMetrics.value[`${key}_growth_positive`] ?? true
   
   return [
+    // 项目卡片的属性
     {
       key: 'projects',
       theme: 'theme-teal',
@@ -489,6 +491,7 @@ const insightCards = computed(() => {
       progress: Math.min(insightMetrics.value.total_projects, 100),
       route: '/dashboard/projects'
     },
+    // 用例卡片的属性
     {
       key: 'testcases',
       theme: 'theme-teal',
@@ -502,6 +505,7 @@ const insightCards = computed(() => {
       progress: Math.min(insightMetrics.value.total_testcases, 100),
       route: '/dashboard/testcases'
     },
+    // 缺陷卡片的属性
     {
       key: 'bugs',
       theme: 'theme-teal',
@@ -515,6 +519,7 @@ const insightCards = computed(() => {
       progress: Math.min(insightMetrics.value.total_bugs, 100),
       route: '/dashboard/bugs'
     },
+    // 执行卡片的属性
     {
       key: 'executions',
       theme: 'theme-teal',

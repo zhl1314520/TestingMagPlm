@@ -85,11 +85,12 @@
         </button>
       </div>
 
-      <div v-else class="projects-grid">
+      <div v-else class="projects-grid">  <!-- 列表容器 -->
+          <!-- 项目列表：project-card -->
         <article
           v-for="(project, index) in filteredProjects"
           :key="project.id"
-          class="project-card"
+          class="project-card"    
           :class="`card-theme-${(index % 4) + 1}`"
           @click="viewProject(project.id)"
         >
@@ -285,6 +286,7 @@
 
     <Transition name="modal">
       <div v-if="showDetailModal" class="modal-overlay" @click="showDetailModal = false">
+        <!-- detail-modal 是 弹窗 ，不在卡片内部，而是在整个页面的 body 中 -->
         <div class="modal-container glass-panel detail-modal" @click.stop>
           <div class="modal-header">
             <div class="modal-title">
@@ -365,7 +367,7 @@
       </div>
     </Transition>
 
-    <Transition name="toast">
+    <Transition name="toast">   <!-- Toast 是一种 轻量级提示组件 ，通常用于显示操作成功、失败或警告信息，几秒后自动消失 -->
       <div v-if="toast.show" class="toast-overlay" @click="hideToast">
         <div class="toast-container glass-panel" @click.stop>
           <div class="toast-icon" :class="toast.type">
